@@ -6,6 +6,7 @@
   <title>DiGi Health — Contact</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="Styles/Health-contact-book.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -20,7 +21,7 @@
       </div>
     </a>
     <ul class="nav-links">
-      <li><a href="Home-health.html">Home</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="home-health-services.html">Services</a></li>
       <li><a href="home-health-programs.html">Programs</a></li>
       <li><a href="home-health-how-it-works.html">How It Works</a></li>
@@ -33,7 +34,7 @@
     </div>
   </nav>
   <div class="mobile-nav" id="mobileNav">
-    <a href="Home-health.html">Home</a>
+    <a href="index.html">Home</a>
     <a href="home-health-services.html">Services</a>
     <a href="home-health-programs.html">Programs</a>
     <a href="home-health-how-it-works.html">How It Works</a>
@@ -148,22 +149,22 @@
       <div class="form-row">
         <div class="form-group">
           <label for="fullname">Full Name</label>
-          <input type="text" id="fullname" placeholder="Your full name" />
+          <input type="text" id="fullname" name= "user_name" placeholder="Your full name" />
         </div>
         <div class="form-group">
           <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" placeholder="+234 XXX XXX XXXX" />
+          <input type="tel" id="phone" name= "user_phone"  placeholder="+234 XXX XXX XXXX" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label for="location">Location / Area</label>
-          <input type="text" id="location" placeholder="e.g. Egbeda, Lagos" />
+          <input type="text" id="location" name="user_location" placeholder="e.g. Egbeda, Lagos" />
         </div>
         <div class="form-group">
           <label for="service">Service Needed</label>
-          <select id="service">
+          <select id="service" name="service_type">
             <option value="" disabled selected>Select a service</option>
             <option>Post-Discharge Recovery</option>
             <option>Home Nursing Care</option>
@@ -181,14 +182,14 @@
       <div class="form-row">
         <div class="form-group full">
           <label for="description">Brief Description</label>
-          <textarea id="description" placeholder="Briefly describe the care needed or situation..."></textarea>
+          <textarea id="description" name="message" placeholder="Briefly describe the care needed or situation..."></textarea>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group full">
           <label for="contact-time">Preferred Contact Time</label>
-          <select id="contact-time">
+          <select id="contact-time" name="preferred_time">
             <option value="" disabled selected>Select a preferred time</option>
             <option>As soon as possible</option>
             <option>Morning (6:00 AM – 12:00 PM)</option>
@@ -198,8 +199,8 @@
         </div>
       </div>
 
-      <div class="form-submit-row">
-        <button class="btn-submit" onclick="handleSubmit()">Submit Request</button>
+      <div class="form-submit-row" id="care-form">
+        <button type="submit" class="btn-submit">Submit Request</button>
         <span class="form-note">We respond within 1 hour during operating hours.</span>
       </div>
     </div>
@@ -257,7 +258,7 @@
     <div class="footer-col">
       <h4>Quick links</h4>
       <ul>
-        <li><a href="Home-health.html">Home</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="home-health-services.html">Services</a></li>
         <li><a href="home-health-programs.html">Programs</a></li>
         <li><a href="home-health-how-it-works.html">How It Works</a></li>
@@ -283,7 +284,12 @@
   </div>
 </footer>
 
+  <script>
+     
+  </script>
+
 <script>
+  emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
   function toggleMenu() {
     document.getElementById('mobileNav').classList.toggle('open');
   }
@@ -293,7 +299,54 @@
     });
   });
 
+  document.querySelector('.form-submit-row').addEventListener('click',handleSubmit);
+
   function handleSubmit() {
+  const name = document.getElementById('fullname').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const service = document.getElementById('service').value;
+
+  if (!name || !phone || !service) {
+    alert('Please fill in your name, phone number, and the service needed.');
+    return;
+  }
+
+  const templateParams = {
+    from_name:   name,
+    phone:       phone,
+    location:    document.getElementById('location').value.trim(),
+    service:     service,
+    description: document.getElementById('description').value.trim(),
+    contact_time: document.getElementById('contact-time').value,
+  };
+
+  // Show loading state
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  emailjs.send('service_bd7u8qo', 'template_6yhegps', templateParams)
+    .then(() => {
+      alert('Thank you! We\'ll be in touch within 1 hour during operating hours.');
+      // Clear form
+      document.getElementById('fullname').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('location').value = '';
+      document.getElementById('service').selectedIndex = 0;
+      document.getElementById('description').value = '';
+      document.getElementById('contact-time').selectedIndex = 0;
+    })
+    .catch((error) => {
+      alert('Something went wrong. Please call or WhatsApp us directly.');
+      console.error('EmailJS error:', error);
+    })
+    .finally(() => {
+      btn.textContent = 'Submit Request';
+      btn.disabled = false;
+    });
+}
+
+  /*function handleSubmit() {
     const name = document.getElementById('fullname').value.trim();
     const phone = document.getElementById('phone').value.trim();
     const service = document.getElementById('service').value;
@@ -308,7 +361,33 @@
     document.getElementById('service').selectedIndex = 0;
     document.getElementById('description').value = '';
     document.getElementById('contact-time').selectedIndex = 0;
-  }
+  }*/
+
+
+ /* // 1. Initialize EmailJS with your Public Key
+  (function() {
+    emailjs.init("dw-Y3MDIRsiEtOmoO"); 
+  })();
+
+  // 2. Handle the form submission
+  document.getElementById('care-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const btn = document.querySelector('.btn-submit');
+    btn.innerText = 'Sending...';
+
+        // serviceID, templateID, and the form element
+         emailjs.sendForm('service_bd7u8qo', 'template_6yhegps', this)
+        .then(() => {
+            btn.innerText = 'Submit Request';
+            alert('Request sent! We will contact you shortly.');
+            this.reset(); // Clears the form
+        }, (err) => {
+            btn.innerText = 'Submit Request';
+            alert('Failed to send. Please call us instead.');
+            console.error('EmailJS Error:', err);
+        });
+  });*/
 </script>
 </body>
 </html>
