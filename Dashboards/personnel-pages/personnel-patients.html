@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — My Patients</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../personnel-styles/patients.css">
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-caregiver.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Caregiver Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../dashboard-caregiver.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="../personnel-pages/personnel-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Schedule</a>
+    <a class="nav-item active" href="../personnel-pages/personnel-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Patients</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Earnings</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>My Patients</h1><p>All patients currently assigned to you</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="user-avatar">BA</div><span>Nurse Blessing</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card green"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-value">8</div><div class="stat-label">Active Patients</div></div>
+      <div class="stat-card blue"><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-value">3</div><div class="stat-label">Visits Today</div></div>
+      <div class="stat-card purple"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="stat-value">47</div><div class="stat-label">Total Visits Done</div></div>
+      <div class="stat-card orange"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value">1</div><div class="stat-label">On Hold</div></div>
+    </div>
+ 
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search patients..." oninput="filterPatients(this.value)" /></div>
+      <select class="filter-select" onchange="filterByService(this.value)">
+        <option value="">All Services</option>
+        <option value="Post-Discharge Recovery">Post-Discharge Recovery</option>
+        <option value="Chronic Care">Chronic Care</option>
+        <option value="Elderly Care">Elderly Care</option>
+        <option value="Postnatal">Postnatal Care</option>
+        <option value="Home Nursing">Home Nursing</option>
+      </select>
+      <select class="filter-select" onchange="filterByStatus(this.value)">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="hold">On Hold</option>
+        <option value="done">Completed</option>
+      </select>
+    </div>
+ 
+    <!-- Patient cards -->
+    <div class="patients-grid" id="patientsGrid">
+ 
+      <!-- Amara Osei -->
+      <div class="patient-card" data-status="active" data-service="Post-Discharge Recovery">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#1a2550;">AO</div>
+          <div class="pc-meta">
+            <h3>Amara Osei</h3>
+            <div class="pc-sub">Female · 40 yrs · Patient since 2 Apr 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Post-Discharge Recovery</span><span class="pc-tag">Wound Care</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-active">Active</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Egbeda, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 801 111 2222</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">6-Week Recovery</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">12 of 18</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Today, 8:30 AM — In Progress</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> Surgical wound healing well. BP slightly elevated at 128/82. Continue medication. Watch for signs of infection.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(0)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348011112222'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Emeka Nwachukwu -->
+      <div class="patient-card" data-status="active" data-service="Chronic Care">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#9333ea;">EN</div>
+          <div class="pc-meta">
+            <h3>Emeka Nwachukwu</h3>
+            <div class="pc-sub">Male · 53 yrs · Patient since 15 Mar 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Chronic Care</span><span class="pc-tag">Diabetes</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-active">Active</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Surulere, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 802 222 3333</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">Monthly Monitoring</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">18</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Today, 11:00 AM</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> HbA1c improving — 7.2 (down from 8.1). Blood sugar stable. Continue dietary guidance. Foot inspection each visit.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(1)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348022223333'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Grace Okonkwo -->
+      <div class="patient-card" data-status="active" data-service="Elderly Care">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#0891b2;">GO</div>
+          <div class="pc-meta">
+            <h3>Grace Okonkwo</h3>
+            <div class="pc-sub">Female · 77 yrs · Patient since 1 Feb 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Elderly Care</span><span class="pc-tag">Mobility Support</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-active">Active</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Yaba, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 803 333 4444</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">Daily Visits</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">34</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Today, 2:00 PM</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> Mobility improving slowly. No falls in past 3 weeks. Medication compliance good. Family present during weekends.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(2)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348033334444'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Fatima Kabir -->
+      <div class="patient-card" data-status="active" data-service="Postnatal">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#b45309;">FK</div>
+          <div class="pc-meta">
+            <h3>Fatima Kabir</h3>
+            <div class="pc-sub">Female · 28 yrs · Patient since 25 Apr 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Postnatal Care</span><span class="pc-tag">Newborn</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-new">New</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Ikeja, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 804 444 5555</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">2-Week Starter</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">2 of 8</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Wed, 30 Apr — 9:30 AM</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> First-time mother. Baby weight 3.1kg — gaining well. Breastfeeding improving. Mother anxious — needs reassurance at each visit.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(3)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348044445555'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Taiwo Oluwaseun -->
+      <div class="patient-card" data-status="active" data-service="Home Nursing">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#059669;">TO</div>
+          <div class="pc-meta">
+            <h3>Taiwo Oluwaseun</h3>
+            <div class="pc-sub">Male · 62 yrs · Patient since 10 Apr 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Home Nursing</span><span class="pc-tag">Hypertension</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-active">Active</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Gbagada, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 805 555 6666</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">Weekly Visits</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">8</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Thu, 30 Apr — 9:00 AM</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> BP 136/88 — slightly elevated. Medication Amlodipine 5mg daily. Reduce salt intake. Stress management discussed.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(4)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348055556666'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Bukola Ibrahim -->
+      <div class="patient-card" data-status="active" data-service="Home Nursing">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#7c3aed;">BI</div>
+          <div class="pc-meta">
+            <h3>Bukola Ibrahim</h3>
+            <div class="pc-sub">Female · 45 yrs · Patient since 18 Apr 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Home Nursing</span><span class="pc-tag">Post-Surgical</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-active">Active</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Magodo, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 806 666 7777</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">3x Weekly Wound Care</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">5</div></div>
+        </div>
+        <div class="next-visit-bar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Next visit: Fri, 1 May — 10:00 AM</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> Post-cholecystectomy wound dressing. No signs of infection. Healing well. 2 more visits expected before sign-off.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(5)">View Profile</button>
+          <button class="pc-btn pc-btn-report" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348066667777'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Chukwuemeka Uche — On Hold -->
+      <div class="patient-card" data-status="hold" data-service="Chronic Care">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#6b7280;">CU</div>
+          <div class="pc-meta">
+            <h3>Chukwuemeka Uche</h3>
+            <div class="pc-sub">Male · 62 yrs · Patient since 10 Jan 2026</div>
+            <div class="pc-tags"><span class="pc-tag">Chronic Care</span><span class="pc-tag">Paused</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-hold">On Hold</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Gbagada, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Phone</div><div class="pd-value">+234 807 777 8888</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">Monthly Monitoring</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">8</div></div>
+        </div>
+        <div class="next-visit-bar urgent">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>On leave — resumes 5 May 2026</span>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> Patient travelling. Medication supply confirmed. Will resume plan on return. Contact admin if plan needs updating.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(6)">View Profile</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348077778888'">Call</button>
+        </div>
+      </div>
+ 
+      <!-- Ngozi Anyanwu — Completed -->
+      <div class="patient-card" data-status="done" data-service="Post-Discharge Recovery">
+        <div class="pc-top">
+          <div class="pc-avatar" style="background:#374151;">NA</div>
+          <div class="pc-meta">
+            <h3>Ngozi Anyanwu</h3>
+            <div class="pc-sub">Female · 45 yrs · Patient since 1 Dec 2025</div>
+            <div class="pc-tags"><span class="pc-tag">Post-Discharge Recovery</span></div>
+          </div>
+          <div class="pc-status"><span class="badge badge-done">Completed</span></div>
+        </div>
+        <div class="pc-details">
+          <div class="pc-detail"><div class="pd-label">Location</div><div class="pd-value">Magodo, Lagos</div></div>
+          <div class="pc-detail"><div class="pd-label">Completed</div><div class="pd-value">20 Apr 2026</div></div>
+          <div class="pc-detail"><div class="pd-label">Plan</div><div class="pd-value">6-Week Recovery</div></div>
+          <div class="pc-detail"><div class="pd-label">Visits Done</div><div class="pd-value">24 of 24</div></div>
+        </div>
+        <div class="pc-notes"><strong>Care notes:</strong> Full recovery achieved. Patient discharged with excellent wound healing. Self-management plan provided. No further visits needed.</div>
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="openPatient(7)">View Profile</button>
+          <button class="pc-btn pc-btn-contact" onclick="window.location.href='tel:+2348088889999'">Call</button>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- Patient Modal -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalName">Patient Profile</h2>
+      <button class="modal-close" onclick="document.getElementById('patientModal').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="document.getElementById('patientModal').classList.remove('open')">Close</button>
+      <button class="btn-modal-primary" onclick="window.location.href='caregiver-visit-reports.html'">Log Visit Report</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  if (!user.loggedIn || user.role !== 'service-provider') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+ 
+  const patients = [
+    { name:'Amara Osei', gender:'Female', age:40, dob:'12 Mar 1985', phone:'+234 801 111 2222', email:'amara@email.com', address:'Egbeda, Lagos', service:'Post-Discharge Recovery', plan:'6-Week Recovery Plan', since:'2 Apr 2026', visits:12, total:18, condition:'Post-appendectomy recovery', allergies:'Penicillin', medications:'Amlodipine 5mg, Metronidazole 400mg', emergency:'Kofi Osei (Husband) — +234 800 999 8888', notes:'Wound healing well. BP slightly elevated. Continue medication. Watch for signs of infection.', history:[{d:'22',m:'Apr',t:'Wound Care & Medication Check'},{d:'19',m:'Apr',t:'Vital Signs Monitoring'},{d:'15',m:'Apr',t:'Post-Discharge Assessment'}] },
+    { name:'Emeka Nwachukwu', gender:'Male', age:53, dob:'4 Jun 1972', phone:'+234 802 222 3333', email:'emeka@email.com', address:'Surulere, Lagos', service:'Chronic Care Management', plan:'Monthly Monitoring', since:'15 Mar 2026', visits:18, total:null, condition:'Type 2 Diabetes, Hypertension', allergies:'None known', medications:'Metformin 500mg, Lisinopril 10mg', emergency:'Chioma Nwachukwu (Wife) — +234 800 777 6666', notes:'HbA1c improving — 7.2. Blood sugar stable. Continue dietary guidance. Foot inspection each visit.', history:[{d:'25',m:'Apr',t:'Blood Sugar Check'},{d:'18',m:'Apr',t:'Medication Review'},{d:'11',m:'Apr',t:'Routine Monitoring'}] },
+    { name:'Grace Okonkwo', gender:'Female', age:77, dob:'29 Aug 1948', phone:'+234 803 333 4444', email:'grace@email.com', address:'Yaba, Lagos', service:'Elderly Care Support', plan:'Daily Visits', since:'1 Feb 2026', visits:34, total:null, condition:'Age-related mobility issues, Mild hypertension', allergies:'Sulfa drugs', medications:'Amlodipine 2.5mg daily', emergency:'Emeka Okonkwo (Son) — +234 800 555 4444', notes:'Mobility improving slowly. No falls in 3 weeks. Medication compliance good.', history:[{d:'27',m:'Apr',t:'Daily Care Visit'},{d:'26',m:'Apr',t:'Daily Care Visit'},{d:'25',m:'Apr',t:'Daily Care Visit'}] },
+    { name:'Fatima Kabir', gender:'Female', age:28, dob:'11 Jan 1998', phone:'+234 804 444 5555', email:'fatima@email.com', address:'Ikeja, Lagos', service:'Postnatal Mother & Baby Care', plan:'2-Week Starter Plan', since:'25 Apr 2026', visits:2, total:8, condition:'Postnatal — vaginal delivery, no complications', allergies:'None known', medications:'Folic acid, Iron supplement', emergency:'Aliyu Kabir (Husband) — +234 800 333 2222', notes:'First-time mother. Baby weight 3.1kg — gaining well. Breastfeeding improving.', history:[{d:'26',m:'Apr',t:'Day 2 Newborn Check'},{d:'25',m:'Apr',t:'First Postnatal Visit'}] },
+    { name:'Taiwo Oluwaseun', gender:'Male', age:62, dob:'7 May 1963', phone:'+234 805 555 6666', email:'taiwo@email.com', address:'Gbagada, Lagos', service:'Home Nursing Care', plan:'Weekly Visits', since:'10 Apr 2026', visits:8, total:null, condition:'Hypertension, Overweight', allergies:'Aspirin', medications:'Amlodipine 5mg, Losartan 50mg', emergency:'Bisi Oluwaseun (Wife) — +234 800 111 0000', notes:'BP 136/88. Medication Amlodipine 5mg daily. Reduce salt. Stress management discussed.', history:[{d:'21',m:'Apr',t:'BP Monitoring'},{d:'14',m:'Apr',t:'Medication Check'},{d:'7',m:'Apr',t:'Initial Assessment'}] },
+    { name:'Bukola Ibrahim', gender:'Female', age:45, dob:'3 Oct 1980', phone:'+234 806 666 7777', email:'bukola@email.com', address:'Magodo, Lagos', service:'Home Nursing Care', plan:'3x Weekly Wound Care', since:'18 Apr 2026', visits:5, total:7, condition:'Post-cholecystectomy wound care', allergies:'None known', medications:'Amoxicillin 500mg, Paracetamol PRN', emergency:'Seun Ibrahim (Husband) — +234 800 222 1111', notes:'Wound dressing 3x weekly. No signs of infection. Healing well.', history:[{d:'25',m:'Apr',t:'Wound Dressing'},{d:'22',m:'Apr',t:'Wound Dressing'},{d:'19',m:'Apr',t:'Wound Assessment'}] },
+    { name:'Chukwuemeka Uche', gender:'Male', age:62, dob:'7 May 1963', phone:'+234 807 777 8888', email:'chukwu@email.com', address:'Gbagada, Lagos', service:'Chronic Care Management', plan:'Monthly Monitoring (On Hold)', since:'10 Jan 2026', visits:8, total:null, condition:'Type 2 Diabetes', allergies:'None known', medications:'Metformin 1000mg', emergency:'Ngozi Uche (Wife) — +234 800 000 9999', notes:'Patient travelling. Medication supplied for 2 weeks. Resumes 5 May.', history:[{d:'24',m:'Apr',t:'Final Visit Before Leave'},{d:'10',m:'Apr',t:'Monthly Check'}] },
+    { name:'Ngozi Anyanwu', gender:'Female', age:45, dob:'3 Oct 1980', phone:'+234 808 888 9999', email:'ngozi@email.com', address:'Magodo, Lagos', service:'Post-Discharge Recovery', plan:'6-Week Recovery (Completed)', since:'1 Dec 2025', visits:24, total:24, condition:'Post-hysterectomy recovery — COMPLETED', allergies:'Penicillin', medications:'Discharged — no current medications', emergency:'Emeka Anyanwu (Husband) — +234 800 888 7777', notes:'Full recovery. Self-management plan given. No further visits needed.', history:[{d:'20',m:'Apr',t:'Final Discharge Visit'},{d:'14',m:'Apr',t:'Pre-discharge Check'},{d:'7',m:'Apr',t:'Recovery Assessment'}] },
+  ];
+ 
+  function openPatient(i) {
+    const p = patients[i];
+    document.getElementById('modalName').textContent = p.name;
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-section"><h4>Personal Details</h4>
+        <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${p.name}</span></div>
+        <div class="detail-row"><span class="detail-label">Gender / Age</span><span class="detail-value">${p.gender}, ${p.age} years old</span></div>
+        <div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">${p.dob}</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${p.phone}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${p.email}</span></div>
+        <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${p.address}</span></div>
+        <div class="detail-row"><span class="detail-label">Emergency Contact</span><span class="detail-value">${p.emergency}</span></div>
+      </div>
+      <div class="modal-section"><h4>Medical & Care</h4>
+        <div class="detail-row"><span class="detail-label">Condition</span><span class="detail-value">${p.condition}</span></div>
+        <div class="detail-row"><span class="detail-label">Allergies</span><span class="detail-value">${p.allergies}</span></div>
+        <div class="detail-row"><span class="detail-label">Medications</span><span class="detail-value">${p.medications}</span></div>
+        <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${p.service}</span></div>
+        <div class="detail-row"><span class="detail-label">Plan</span><span class="detail-value">${p.plan}</span></div>
+        <div class="detail-row"><span class="detail-label">Patient Since</span><span class="detail-value">${p.since}</span></div>
+        <div class="detail-row"><span class="detail-label">Visits</span><span class="detail-value">${p.visits}${p.total ? ' of ' + p.total : ' completed'}</span></div>
+      </div>
+      <div class="modal-section"><h4>Care Notes</h4>
+        <p style="font-size:13px;color:#5a6690;line-height:1.65;">${p.notes}</p>
+      </div>
+      <div class="modal-section"><h4>Recent Visit History</h4>
+        ${p.history.map(h => `<div class="visit-history-item"><div class="vh-date"><div class="vd">${h.d}</div><div class="vm">${h.m}</div></div><div class="vh-info"><strong>${h.t}</strong>Completed by Nurse Blessing Adeyemi</div></div>`).join('')}
+      </div>
+    `;
+    document.getElementById('patientModal').classList.add('open');
+  }
+ 
+  function filterPatients(val) {
+    val = val.toLowerCase();
+    document.querySelectorAll('.patient-card').forEach(c => {
+      c.style.display = c.innerText.toLowerCase().includes(val) ? '' : 'none';
+    });
+  }
+  function filterByService(val) {
+    document.querySelectorAll('.patient-card').forEach(c => {
+      c.style.display = (!val || c.dataset.service === val) ? '' : 'none';
+    });
+  }
+  function filterByStatus(val) {
+    document.querySelectorAll('.patient-card').forEach(c => {
+      c.style.display = (!val || c.dataset.status === val) ? '' : 'none';
+    });
+  }
+ 
+  document.getElementById('patientModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('patientModal')) document.getElementById('patientModal').classList.remove('open');
+  });
+</script>
+</body>
+</html>
+ 

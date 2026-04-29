@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Schedule</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../admin-styles/schedule.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-admin.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Admin Panel</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item" href="admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Patients</a>
+    <a class="nav-item" href="admin-personnel.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
+    <a class="nav-item active" href="admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+    <a class="nav-item" href="admin-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Applications <span class="nav-badge">3</span></a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="admin-analytics.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+    <a class="nav-item" href="admin-financials.html"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financials</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Schedule</h1><p>Weekly visit calendar for all caregivers</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="user-avatar">AD</div><span>Admin</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="week-nav">
+        <button class="week-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="week-label" id="weekLabel">28 Apr – 4 May 2026</span>
+        <button class="week-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+      <button class="today-btn">Today</button>
+      <select class="filter-select">
+        <option>All Caregivers</option>
+        <option>Nurse Blessing Adeyemi</option>
+        <option>Nurse Kemi Ojo</option>
+        <option>Physio Tunde Afolabi</option>
+        <option>Nurse Amina Eze</option>
+        <option>Dr. Damilola Osei</option>
+      </select>
+      <button class="btn-primary"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Visit</button>
+    </div>
+
+    <!-- Week Calendar -->
+    <div class="calendar-wrap">
+      <div class="cal-head">
+        <div class="cal-head-empty"></div>
+        <div class="cal-day-header"><div class="cal-day-name">Mon</div><div class="cal-day-num today">28</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Tue</div><div class="cal-day-num">29</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Wed</div><div class="cal-day-num">30</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Thu</div><div class="cal-day-num">1</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Fri</div><div class="cal-day-num">2</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Sat</div><div class="cal-day-num">3</div></div>
+        <div class="cal-day-header"><div class="cal-day-name">Sun</div><div class="cal-day-num">4</div></div>
+      </div>
+      <div class="cal-body">
+        <!-- Time column -->
+        <div class="cal-time-col">
+          <div class="cal-time-slot">6 AM</div>
+          <div class="cal-time-slot">7 AM</div>
+          <div class="cal-time-slot">8 AM</div>
+          <div class="cal-time-slot">9 AM</div>
+          <div class="cal-time-slot">10 AM</div>
+          <div class="cal-time-slot">11 AM</div>
+          <div class="cal-time-slot">12 PM</div>
+          <div class="cal-time-slot">1 PM</div>
+          <div class="cal-time-slot">2 PM</div>
+          <div class="cal-time-slot">3 PM</div>
+          <div class="cal-time-slot">4 PM</div>
+          <div class="cal-time-slot">5 PM</div>
+        </div>
+        <!-- Mon -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-navy" style="top:4px;height:58px;" onclick="alert('Amara Osei — Post-Discharge Check\n8:30 AM · Nurse Blessing Adeyemi\nEgbeda, Lagos')">
+              <div class="vb-time">8:30 AM</div>
+              <div class="vb-name">Amara Osei</div>
+              <div class="vb-nurse">Nurse Blessing</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-teal" style="top:0;height:90px;" onclick="alert('Emeka Nwachukwu — Chronic Care\n11:00 AM · Nurse Kemi Ojo\nSurulere, Lagos')">
+              <div class="vb-time">11:00 AM</div>
+              <div class="vb-name">Emeka Nwachukwu</div>
+              <div class="vb-nurse">Nurse Kemi</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-purple" style="top:0;height:64px;" onclick="alert('Grace Okonkwo — Elderly Care\n2:00 PM · Nurse Blessing Adeyemi\nYaba, Lagos')">
+              <div class="vb-time">2:00 PM</div>
+              <div class="vb-name">Grace Okonkwo</div>
+              <div class="vb-nurse">Nurse Blessing</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Tue -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-green" style="top:4px;height:58px;" onclick="alert('Amara Osei — Recovery Check\n9:00 AM · Nurse Blessing Adeyemi\nEgbeda, Lagos')">
+              <div class="vb-time">9:00 AM</div>
+              <div class="vb-name">Amara Osei</div>
+              <div class="vb-nurse">Nurse Blessing</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-orange" style="top:0;height:64px;" onclick="alert('Ngozi Obiechina — Physiotherapy\n10:00 AM · Physio Tunde Afolabi\nMagodo, Lagos')">
+              <div class="vb-time">10:00 AM</div>
+              <div class="vb-name">Ngozi Obiechina</div>
+              <div class="vb-nurse">Physio Tunde</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Wed -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-blue" style="top:0;height:90px;" onclick="alert('Fatima Kabir — Postnatal Care\n9:30 AM · Nurse Amina Eze\nIkeja, Lagos')">
+              <div class="vb-time">9:30 AM</div>
+              <div class="vb-name">Fatima Kabir</div>
+              <div class="vb-nurse">Nurse Amina</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-teal" style="top:0;height:64px;" onclick="alert('Emeka Nwachukwu — Medication Review\n12:00 PM · Nurse Kemi Ojo\nSurulere, Lagos')">
+              <div class="vb-time">12:00 PM</div>
+              <div class="vb-name">Emeka Nwachukwu</div>
+              <div class="vb-nurse">Nurse Kemi</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Thu -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-purple" style="top:4px;height:58px;" onclick="alert('Grace Okonkwo — Elderly Care\n8:30 AM · Nurse Blessing Adeyemi\nYaba, Lagos')">
+              <div class="vb-time">8:30 AM</div>
+              <div class="vb-name">Grace Okonkwo</div>
+              <div class="vb-nurse">Nurse Blessing</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-orange" style="top:0;height:90px;" onclick="alert('Ngozi Obiechina — Physio Session 2\n10:30 AM · Physio Tunde Afolabi\nMagodo, Lagos')">
+              <div class="vb-time">10:30 AM</div>
+              <div class="vb-name">Ngozi Obiechina</div>
+              <div class="vb-nurse">Physio Tunde</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Fri -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-navy" style="top:0;height:64px;" onclick="alert('Amara Osei — Wound Care\n9:00 AM · Nurse Blessing Adeyemi\nEgbeda, Lagos')">
+              <div class="vb-time">9:00 AM</div>
+              <div class="vb-name">Amara Osei</div>
+              <div class="vb-nurse">Nurse Blessing</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-blue" style="top:0;height:64px;" onclick="alert('Fatima Kabir — Baby Health Check\n11:00 AM · Nurse Amina Eze\nIkeja, Lagos')">
+              <div class="vb-time">11:00 AM</div>
+              <div class="vb-name">Fatima Kabir</div>
+              <div class="vb-nurse">Nurse Amina</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Sat -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div>
+          <div class="cal-slot" style="position:relative;">
+            <div class="visit-block color-teal" style="top:4px;height:58px;" onclick="alert('Emeka Nwachukwu — BP Check\n8:00 AM · Nurse Kemi Ojo\nSurulere, Lagos')">
+              <div class="vb-time">8:00 AM</div>
+              <div class="vb-name">Emeka Nwachukwu</div>
+              <div class="vb-nurse">Nurse Kemi</div>
+            </div>
+          </div>
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+        <!-- Sun -->
+        <div class="cal-day-col">
+          <div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div><div class="cal-slot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today list + Upcoming -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>Today's Visits — 28 April</h3><span style="font-size:12px;color:#8898c8;">3 visits</span></div>
+        <div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#f97316;"></div>
+            <div class="vr-info"><h4>Amara Osei — Post-Discharge Check</h4><p>Nurse Blessing Adeyemi · Egbeda, Lagos</p></div>
+            <div class="vr-time">8:30 AM</div>
+            <span class="badge badge-inprog">In Progress</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#0891b2;"></div>
+            <div class="vr-info"><h4>Emeka Nwachukwu — Chronic Care</h4><p>Nurse Kemi Ojo · Surulere, Lagos</p></div>
+            <div class="vr-time">11:00 AM</div>
+            <span class="badge badge-upcoming">Upcoming</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#9333ea;"></div>
+            <div class="vr-info"><h4>Grace Okonkwo — Elderly Care</h4><p>Nurse Blessing Adeyemi · Yaba, Lagos</p></div>
+            <div class="vr-time">2:00 PM</div>
+            <span class="badge badge-upcoming">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Upcoming This Week</h3><a href="#">View all</a></div>
+        <div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#22c55e;"></div>
+            <div class="vr-info"><h4>Amara Osei — Recovery Check</h4><p>Nurse Blessing · Tue 29 Apr, 9:00 AM</p></div>
+            <span class="badge badge-upcoming">Tue</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#f97316;"></div>
+            <div class="vr-info"><h4>Ngozi Obiechina — Physiotherapy</h4><p>Physio Tunde · Tue 29 Apr, 10:00 AM</p></div>
+            <span class="badge badge-upcoming">Tue</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#3b82f6;"></div>
+            <div class="vr-info"><h4>Fatima Kabir — Postnatal Care</h4><p>Nurse Amina · Wed 30 Apr, 9:30 AM</p></div>
+            <span class="badge badge-upcoming">Wed</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#0891b2;"></div>
+            <div class="vr-info"><h4>Emeka Nwachukwu — Medication</h4><p>Nurse Kemi · Wed 30 Apr, 12:00 PM</p></div>
+            <span class="badge badge-upcoming">Wed</span>
+          </div>
+          <div class="visit-row">
+            <div class="vr-dot" style="background:#9333ea;"></div>
+            <div class="vr-info"><h4>Grace Okonkwo — Elderly Care</h4><p>Nurse Blessing · Thu 1 May, 8:30 AM</p></div>
+            <span class="badge badge-upcoming">Thu</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+</script>
+</body>
+</html>

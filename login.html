@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="Styles/login.css">
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <a class="brand" href="index.html">
+    <div class="brand-logo">DH</div>
+    <div class="brand-text">
+      <strong>DiGi Health</strong>
+      <span>Healthcare at home — done right.</span>
+    </div>
+  </a>
+
+  <div class="left-content">
+    <h1>Professional home healthcare, managed in one place.</h1>
+    <p>Patients, caregivers, and admin staff all have a dedicated workspace to manage care, track progress, and stay connected.</p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-dot">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <h4>Patients & Families</h4>
+          <p>Track bookings, view care summaries, and manage your care plan.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <h4>Service providers</h4>
+          <p>View assigned patients, update schedules, and manage your profile.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <h4>Admin Staff</h4>
+          <p>Manage all care requests, assign caregivers, and track operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">© 2026 DiGi Health. All rights reserved.</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="login-box">
+    <h2>Welcome back</h2>
+    <p class="subtitle">Select your role and sign in to continue.</p>
+
+    <!-- Role selector -->
+    <div class="role-selector">
+      <div class="role-btn selected" id="role-patient" onclick="selectRole('patient')">
+        <div class="role-icon">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <span>Patient</span>
+      </div>
+      <div class="role-btn" id="role-service-provider" onclick="selectRole('service-provider')">
+        <div class="role-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <span>service provider</span>
+      </div>
+      <div class="role-btn" id="role-admin" onclick="selectRole('admin')">
+        <div class="role-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <span>Admin</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-msg" id="errorMsg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText">Invalid email or password.</span>
+    </div>
+
+    <!-- Login form -->
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="you@email.com" onkeydown="if(event.key==='Enter') handleLogin()" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" onkeydown="if(event.key==='Enter') handleLogin()" />
+    </div>
+
+    <div class="form-options">
+      <label class="remember-me">
+        <input type="checkbox" id="remember" />
+        Remember me
+      </label>
+      <a href="#" class="forgot-link">Forgot password?</a>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="handleLogin()">Sign In</button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span>Demo accounts</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Demo accounts -->
+    <div class="demo-accounts">
+      <h4>Try it out</h4>
+      <div class="demo-row">
+        <span class="demo-role">Patient</span>
+        <span class="demo-creds">patient@demo.com / demo123</span>
+        <button class="demo-fill" onclick="fillDemo('patient@demo.com','demo123','patient')">Fill</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-role">Personnel</span>
+        <span class="demo-creds">service-provider@demo.com / demo123</span>
+        <button class="demo-fill" onclick="fillDemo('service-provider@demo.com','demo123','service-provider')">Fill</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-role">Admin</span>
+        <span class="demo-creds">admin@demo.com / demo123</span>
+        <button class="demo-fill" onclick="fillDemo('admin@demo.com','demo123','admin')">Fill</button>
+      </div>
+    </div>
+
+    <p class="register-link">
+      New patient? <a href="home-health-contact.html">Book care instead</a> &nbsp;·&nbsp;
+      Caregiver? <a href="digi-health-apply.html">Apply here</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  let selectedRole = 'patient';
+
+  const demoAccounts = {
+    'patient@demo.com':   { password: 'demo123', role: 'patient',   redirect: 'Dashboards/dashboard-patient.html' },
+    'service-provider@demo.com': { password: 'demo123', role: 'service-provider', redirect: 'Dashboards/dashboard-caregiver.html' },
+    'admin@demo.com':     { password: 'demo123', role: 'admin',     redirect: 'Dashboards/dashboard-admin.html' },
+  };
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('role-' + role).classList.add('selected');
+    hideError();
+  }
+
+  function fillDemo(email, password, role) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    selectRole(role);
+    hideError();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    document.getElementById('errorText').textContent = msg;
+    el.classList.add('show');
+  }
+
+  function hideError() {
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+
+  function handleLogin() {
+    const email    = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('loginBtn');
+
+    hideError();
+
+    if (!email || !password) {
+      showError('Please enter your email and password.');
+      return;
+    }
+
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+
+    // Simulate network delay
+    setTimeout(() => {
+      const account = demoAccounts[email];
+
+      if (!account) {
+        showError('No account found with that email address.');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+        return;
+      }
+
+      if (account.password !== password) {
+        showError('Incorrect password. Please try again.');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+        return;
+      }
+
+      if (account.role !== selectedRole) {
+        showError(`This account is registered as a ${account.role}. Please select the correct role.`);
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+        return;
+      }
+
+      // Save session
+      localStorage.setItem('dh_user', JSON.stringify({
+        email,
+        role: account.role,
+        name: account.role === 'patient' ? 'Amara Osei' :
+              account.role === 'service-provider' ? 'Nurse Blessing Adeyemi' : 'Admin User',
+        loggedIn: true
+      }));
+
+      // Redirect
+      window.location.href = account.redirect;
+    }, 800);
+  }
+</script>
+</body>
+</html>

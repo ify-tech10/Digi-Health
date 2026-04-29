@@ -28,13 +28,14 @@
       position: sticky; top: 0; z-index: 100;
     }
     .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .nav-logo {
-      width: 38px; height: 38px; background: var(--navy); border-radius: 8px;
+      width: 45px; height: 45px; background: var(--navy); border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: 11px; line-height: 1.2;
+      color: #fff; font-weight: 700; font-size: 16px; line-height: 1.2;
     }
     .nav-brand-text { line-height: 1.2; }
-    .nav-brand-text strong { display: block; font-weight: 600; font-size: 14px; color: var(--navy); }
+    .nav-brand-text strong { display: block; font-weight: 600; font-size: 20px; color: var(--navy); font-family: cursive; }
     .nav-brand-text span { font-size: 11.5px; color: #7a84a8; }
 
     .nav-links { display: flex; gap: 4px; list-style: none; }
@@ -189,9 +190,12 @@
       cursor: pointer; font-size: 13.5px; color: #5a6690;
     }
     .checkbox-item input[type="checkbox"] {
+      -webkit-appearance: checkbox;
+      appearance: checkbox;
       width: 16px; height: 16px; flex-shrink: 0;
       accent-color: var(--navy); cursor: pointer;
       border-radius: 4px; padding: 0;
+      margin: 0;
     }
 
     /* file upload */

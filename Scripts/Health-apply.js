@@ -1,4 +1,4 @@
- // ── Init EmailJS ──
+// ── Init EmailJS ──
   emailjs.init('YOUR_PUBLIC_KEY'); // 🔁 Replace with your public key
 
   // ── Mobile menu ──
@@ -18,8 +18,8 @@
   }
 
   // ── Get checked checkboxes ──
-  function getChecked(name) {
-    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+  function getChecked(prefix) {
+    return Array.from(document.querySelectorAll(`input[type="checkbox"][name^="${prefix}"]:checked`))
       .map(cb => cb.value).join(', ') || 'None selected';
   }
 
@@ -51,7 +51,7 @@
       experience:            document.getElementById('experience').value || 'Not specified',
       qualification:         document.getElementById('qualification').value || 'Not specified',
       employment_status:     document.getElementById('employment_status').value || 'Not specified',
-      specialisations:       getChecked('specialisation'),
+      specialisations:       getChecked('spec_'),
       professional_summary:  document.getElementById('professional_summary').value.trim() || 'Not provided',
       ref1_name:             document.getElementById('ref1_name').value.trim() || 'Not provided',
       ref1_relationship:     document.getElementById('ref1_relationship').value.trim() || 'Not provided',
@@ -62,7 +62,7 @@
       ref2_phone:            document.getElementById('ref2_phone').value.trim() || 'Not provided',
       ref2_email:            document.getElementById('ref2_email').value.trim() || 'Not provided',
       availability_type:     avail,
-      preferred_hours:       getChecked('hours'),
+      preferred_hours:       getChecked('hours_'),
       coverage_areas:        document.getElementById('coverage_areas').value.trim() || 'Not specified',
       start_date:            document.getElementById('start_date').value || 'Not specified',
       additional_info:       document.getElementById('additional_info').value.trim() || 'None',

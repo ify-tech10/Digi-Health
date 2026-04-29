@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DiGi Health — Apply as a Service Provider</title>
+  <title>DiGi Health — Apply as a Service provider</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="Styles/Health-apply.css">
 </head>
@@ -20,13 +20,14 @@
       </div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
+      <li><a href="Home-health.html">Home</a></li>
       <li><a href="home-health-services.html">Services</a></li>
       <li><a href="home-health-programs.html">Programs</a></li>
       <li><a href="home-health-how-it-works.html">How It Works</a></li>
       <li><a href="home-health-why.html">Why DiGi Health</a></li>
       <li><a href="home-health-contact.html">Contact</a></li>
-      <li><a href="digi-health-apply.html" class="nav-apply-btn active">Join as Service Provider</a></li>
+      <li><a href="digi-health-apply.html" class="nav-apply-btn active">Join as Service provider</a></li>
+      <li><a href="login.html">Login</a></li>
     </ul>
     <a href="home-health-contact.html" class="btn-book">Book Care</a>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -34,21 +35,22 @@
     </div>
   </nav>
   <div class="mobile-nav" id="mobileNav">
-    <a href="index.html">Home</a>
+    <a href="Home-health.html">Home</a>
     <a href="home-health-services.html">Services</a>
     <a href="home-health-programs.html">Programs</a>
     <a href="home-health-how-it-works.html">How It Works</a>
     <a href="home-health-why.html">Why DiGi Health</a>
     <a href="home-health-contact.html">Contact</a>
-    <a href="digi-health-apply.html" class="active">Join as Service Provider</a>
+    <a href="digi-health-apply.html" class="active">Join as Service provider</a>
     <a href="home-health-contact.html" class="btn-book">Book Care</a>
+    <a href="login.html">Login</a>
   </div>
 </header>
 
 <!-- PAGE HEADER -->
 <div class="page-header">
   <div class="page-header-left">
-    <p class="page-label">Service Provider Application</p>
+    <p class="page-label">Service provider Application</p>
     <h1>Join the DiGi Health care team.</h1>
     <p>We work with qualified nurses, physiotherapists, lab technicians, postnatal specialists, and elderly care professionals. If you're committed to delivering professional home healthcare, we want to hear from you.</p>
   </div>
@@ -149,7 +151,7 @@
     <div class="form-body">
       <div class="form-row">
         <div class="form-group">
-          <label>Service Provider Type <span class="required">*</span></label>
+          <label>Service Type <span class="required">*</span></label>
           <select id="caregiver_type">
             <option value="" disabled selected>Select your role</option>
             <option>Registered Nurse (RN)</option>
@@ -202,13 +204,13 @@
         <div class="form-group">
           <label>Areas of Specialisation</label>
           <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Post-Discharge Recovery" /> Post-Discharge Recovery</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Chronic Disease Management" /> Chronic Disease Management</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Postnatal & Newborn Care" /> Postnatal & Newborn Care</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Elderly Care" /> Elderly Care</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Physiotherapy & Rehabilitation" /> Physiotherapy & Rehabilitation</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Lab & Diagnostic Services" /> Lab & Diagnostic Services</label>
-            <label class="checkbox-item"><input type="checkbox" name="specialisation" value="Telemedicine Support" /> Telemedicine Support</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_postdischarge" value="Post-Discharge Recovery" /> Post-Discharge Recovery</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_chronic" value="Chronic Disease Management" /> Chronic Disease Management</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_postnatal" value="Postnatal & Newborn Care" /> Postnatal & Newborn Care</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_elderly" value="Elderly Care" /> Elderly Care</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_physio" value="Physiotherapy & Rehabilitation" /> Physiotherapy & Rehabilitation</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_lab" value="Lab & Diagnostic Services" /> Lab & Diagnostic Services</label>
+            <label class="checkbox-item"><input type="checkbox" name="spec_tele" value="Telemedicine Support" /> Telemedicine Support</label>
           </div>
         </div>
       </div>
@@ -354,11 +356,11 @@
         <div class="form-group">
           <label>Preferred Working Hours</label>
           <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="hours" value="Morning (6AM – 12PM)" /> Morning (6AM – 12PM)</label>
-            <label class="checkbox-item"><input type="checkbox" name="hours" value="Afternoon (12PM – 5PM)" /> Afternoon (12PM – 5PM)</label>
-            <label class="checkbox-item"><input type="checkbox" name="hours" value="Evening (5PM – 8PM)" /> Evening (5PM – 8PM)</label>
-            <label class="checkbox-item"><input type="checkbox" name="hours" value="Night shifts" /> Night shifts</label>
-            <label class="checkbox-item"><input type="checkbox" name="hours" value="Live-in care" /> Live-in care</label>
+            <label class="checkbox-item"><input type="checkbox" name="hours_morning" value="Morning (6AM – 12PM)" /> Morning (6AM – 12PM)</label>
+            <label class="checkbox-item"><input type="checkbox" name="hours_afternoon" value="Afternoon (12PM – 5PM)" /> Afternoon (12PM – 5PM)</label>
+            <label class="checkbox-item"><input type="checkbox" name="hours_evening" value="Evening (5PM – 8PM)" /> Evening (5PM – 8PM)</label>
+            <label class="checkbox-item"><input type="checkbox" name="hours_night" value="Night shifts" /> Night shifts</label>
+            <label class="checkbox-item"><input type="checkbox" name="hours_livein" value="Live-in care" /> Live-in care</label>
           </div>
         </div>
       </div>

@@ -27,7 +27,8 @@
       <li><a href="home-health-how-it-works.html">How It Works</a></li>
       <li><a href="home-health-why.html">Why DiGi Health</a></li>
       <li><a href="home-health-contact.html" class="active">Contact</a></li>
-      <li><a href="digi-health-apply.html">Join as Caregiver</a></li>
+      <li><a href="digi-health-apply.html">Join as Service Provider</a></li>
+      <li><a href="login.html">Login</a></li>
     </ul>
     <a href="home-health-contact.html" class="btn-book">Book Care</a>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -41,8 +42,9 @@
     <a href="home-health-how-it-works.html">How It Works</a>
     <a href="home-health-why.html">Why DiGi Health</a>
     <a href="home-health-contact.html" class="active">Contact</a>
-    <a href="digi-health-apply.html" class="nav-apply-btn active">Join as Caregiver</a>
+    <a href="digi-health-apply.html" class="nav-apply-btn active">Join as Service Provider</a>
     <a href="home-health-contact.html" class="btn-book">Book Care</a>
+    <a href="login.html">Login</a>
   </div>
 </header>
 
@@ -152,6 +154,10 @@
         <div class="form-group">
           <label for="fullname">Full Name</label>
           <input type="text" id="fullname" name= "user_name" placeholder="Your full name" />
+        </div>
+        <div class="form-group">
+          <label for="Email">Email</label>
+          <input type="email" id="email" name= "user_name" placeholder="Your Email" />
         </div>
         <div class="form-group">
           <label for="phone">Phone Number</label>
@@ -290,106 +296,6 @@
      
   </script>
 
-<script>
-  emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
-  function toggleMenu() {
-    document.getElementById('mobileNav').classList.toggle('open');
-  }
-  document.querySelectorAll('.mobile-nav a').forEach(link => {
-    link.addEventListener('click', () => {
-      document.getElementById('mobileNav').classList.remove('open');
-    });
-  });
-
-  document.querySelector('.form-submit-row').addEventListener('click',handleSubmit);
-
-  function handleSubmit() {
-  const name = document.getElementById('fullname').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const service = document.getElementById('service').value;
-
-  if (!name || !phone || !service) {
-    alert('Please fill in your name, phone number, and the service needed.');
-    return;
-  }
-
-  const templateParams = {
-    from_name:   name,
-    phone:       phone,
-    location:    document.getElementById('location').value.trim(),
-    service:     service,
-    description: document.getElementById('description').value.trim(),
-    contact_time: document.getElementById('contact-time').value,
-  };
-
-  // Show loading state
-  const btn = document.querySelector('.btn-submit');
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-
-  emailjs.send('service_bd7u8qo', 'template_6yhegps', templateParams)
-    .then(() => {
-      alert('Thank you! We\'ll be in touch within 1 hour during operating hours.');
-      // Clear form
-      document.getElementById('fullname').value = '';
-      document.getElementById('phone').value = '';
-      document.getElementById('location').value = '';
-      document.getElementById('service').selectedIndex = 0;
-      document.getElementById('description').value = '';
-      document.getElementById('contact-time').selectedIndex = 0;
-    })
-    .catch((error) => {
-      alert('Something went wrong. Please call or WhatsApp us directly.');
-      console.error('EmailJS error:', error);
-    })
-    .finally(() => {
-      btn.textContent = 'Submit Request';
-      btn.disabled = false;
-    });
-}
-
-  /*function handleSubmit() {
-    const name = document.getElementById('fullname').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const service = document.getElementById('service').value;
-    if (!name || !phone || !service) {
-      alert('Please fill in your name, phone number, and the service needed.');
-      return;
-    }
-    alert('Thank you! We\'ll be in touch within 1 hour during operating hours.');
-    document.getElementById('fullname').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('location').value = '';
-    document.getElementById('service').selectedIndex = 0;
-    document.getElementById('description').value = '';
-    document.getElementById('contact-time').selectedIndex = 0;
-  }*/
-
-
- /* // 1. Initialize EmailJS with your Public Key
-  (function() {
-    emailjs.init("dw-Y3MDIRsiEtOmoO"); 
-  })();
-
-  // 2. Handle the form submission
-  document.getElementById('care-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const btn = document.querySelector('.btn-submit');
-    btn.innerText = 'Sending...';
-
-        // serviceID, templateID, and the form element
-         emailjs.sendForm('service_bd7u8qo', 'template_6yhegps', this)
-        .then(() => {
-            btn.innerText = 'Submit Request';
-            alert('Request sent! We will contact you shortly.');
-            this.reset(); // Clears the form
-        }, (err) => {
-            btn.innerText = 'Submit Request';
-            alert('Failed to send. Please call us instead.');
-            console.error('EmailJS Error:', err);
-        });
-  });*/
-</script>
+<script src="Scripts/Health-contact.js"></script>
 </body>
 </html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Applications</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../admin-styles/applications.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-admin.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Admin Panel</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item" href="admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Patients</a>
+    <a class="nav-item" href="admin-personnel.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
+    <a class="nav-item" href="admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+    <a class="nav-item active" href="admin-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Applications <span class="nav-badge" id="appBadge">3</span></a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="admin-analytics.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+    <a class="nav-item" href="admin-financials.html"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financials</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Caregiver Applications</h1><p>Review, approve and onboard new service providers</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="user-avatar-top">AD</div><span>Admin</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card orange">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="stat-delta">+3 this week</span></div>
+        <div class="stat-value" id="statPending">3</div><div class="stat-label">Pending Review</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg></div></div>
+        <div class="stat-value">1</div><div class="stat-label">In Screening</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="stat-value">8</div><div class="stat-label">Approved This Month</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div>
+        <div class="stat-value">2</div><div class="stat-label">Rejected This Month</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search applicants by name or role..." oninput="filterApps(this.value)" />
+      </div>
+      <select class="filter-select" onchange="filterByStatus(this.value)">
+        <option value="">All Statuses</option>
+        <option value="review">Pending Review</option>
+        <option value="screening">In Screening</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <select class="filter-select" onchange="filterByRole(this.value)">
+        <option value="">All Roles</option>
+        <option value="Registered Nurse">Registered Nurse</option>
+        <option value="Physiotherapist">Physiotherapist</option>
+        <option value="Lab Technician">Lab Technician</option>
+        <option value="Postnatal Specialist">Postnatal Specialist</option>
+        <option value="Community Health Nurse">Community Health Nurse</option>
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(this,'all')">All</button>
+      <button class="tab" onclick="setTab(this,'review')">Pending Review</button>
+      <button class="tab" onclick="setTab(this,'screening')">In Screening</button>
+      <button class="tab" onclick="setTab(this,'approved')">Approved</button>
+      <button class="tab" onclick="setTab(this,'rejected')">Rejected</button>
+    </div>
+
+    <!-- Application Cards -->
+    <div class="apps-grid" id="appsGrid">
+
+      <!-- Chiamaka Nwosu -->
+      <div class="app-card" data-status="review" data-role="Registered Nurse">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#1a2550;">CN</div>
+          <div class="app-info">
+            <h3>Chiamaka Nwosu</h3>
+            <div class="app-role">Registered Nurse (RN)</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Lekki, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 years exp.</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>B.Sc Nursing</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-new">New Today</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Availability</div><div class="ad-value">Mon – Sat, Morning</div></div>
+            <div class="app-detail"><div class="ad-label">Coverage</div><div class="ad-value">Lekki, VI, Ajah</div></div>
+            <div class="app-detail"><div class="ad-label">Reference 1</div><div class="ad-value">Dr. Emeka Obi</div></div>
+            <div class="app-detail"><div class="ad-label">Employment</div><div class="ad-value">Freelance</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Post-Discharge Recovery</span>
+            <span class="spec-tag">Wound Care</span>
+            <span class="spec-tag">Chronic Care</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(0)">View Full Application</button>
+          <button class="act-btn act-approve" onclick="approveApp(0, this)">Approve</button>
+          <button class="act-btn act-reject" onclick="rejectApp(0, this)">Reject</button>
+          <span class="app-submitted">Today, 8:14 AM</span>
+        </div>
+      </div>
+
+      <!-- Yusuf Lawal -->
+      <div class="app-card" data-status="review" data-role="Physiotherapist">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#7c3aed;">YL</div>
+          <div class="app-info">
+            <h3>Yusuf Lawal</h3>
+            <div class="app-role">Physiotherapist</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ikeja, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>6 years exp.</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>B.Sc Physiotherapy</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-review">Pending</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Availability</div><div class="ad-value">Mon – Fri, Flexible</div></div>
+            <div class="app-detail"><div class="ad-label">Coverage</div><div class="ad-value">Ikeja, Gbagada, Ojodu</div></div>
+            <div class="app-detail"><div class="ad-label">Reference 1</div><div class="ad-value">Dr. Fatima Sule</div></div>
+            <div class="app-detail"><div class="ad-label">Employment</div><div class="ad-value">Part-time employed</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Physiotherapy</span>
+            <span class="spec-tag">Stroke Rehab</span>
+            <span class="spec-tag">Mobility Training</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(1)">View Full Application</button>
+          <button class="act-btn act-approve" onclick="approveApp(1, this)">Approve</button>
+          <button class="act-btn act-reject" onclick="rejectApp(1, this)">Reject</button>
+          <span class="app-submitted">Yesterday</span>
+        </div>
+      </div>
+
+      <!-- Blessing Eze -->
+      <div class="app-card" data-status="review" data-role="Lab Technician">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#0891b2;">BE</div>
+          <div class="app-info">
+            <h3>Blessing Eze</h3>
+            <div class="app-role">Lab & Diagnostic Technician</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Yaba, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>3 years exp.</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>HND Medical Lab Sci.</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-review">Pending</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Availability</div><div class="ad-value">Mon – Sat, Morning</div></div>
+            <div class="app-detail"><div class="ad-label">Coverage</div><div class="ad-value">Yaba, Surulere, Ebute Meta</div></div>
+            <div class="app-detail"><div class="ad-label">Reference 1</div><div class="ad-value">Mr. Chukwu Nwafor</div></div>
+            <div class="app-detail"><div class="ad-label">Employment</div><div class="ad-value">Unemployed</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Blood Sample Collection</span>
+            <span class="spec-tag">Diagnostic Tests</span>
+            <span class="spec-tag">Lab Results</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(2)">View Full Application</button>
+          <button class="act-btn act-approve" onclick="approveApp(2, this)">Approve</button>
+          <button class="act-btn act-reject" onclick="rejectApp(2, this)">Reject</button>
+          <span class="app-submitted">25 Apr</span>
+        </div>
+      </div>
+
+      <!-- Adaora Okafor — Screening -->
+      <div class="app-card" data-status="screening" data-role="Postnatal Specialist">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#059669;">AO</div>
+          <div class="app-info">
+            <h3>Adaora Okafor</h3>
+            <div class="app-role">Postnatal Care Specialist</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Surulere, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5 years exp.</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Diploma Midwifery</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-screening">In Screening</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Availability</div><div class="ad-value">Mon – Sun, Flexible</div></div>
+            <div class="app-detail"><div class="ad-label">Coverage</div><div class="ad-value">Surulere, Ajeromi, Mushin</div></div>
+            <div class="app-detail"><div class="ad-label">Screening Date</div><div class="ad-value">30 Apr 2026, 10:00 AM</div></div>
+            <div class="app-detail"><div class="ad-label">Employment</div><div class="ad-value">Freelance</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Postnatal Care</span>
+            <span class="spec-tag">Newborn Monitoring</span>
+            <span class="spec-tag">Breastfeeding</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(3)">View Full Application</button>
+          <button class="act-btn act-schedule">Reschedule Call</button>
+          <span class="app-submitted">22 Apr</span>
+        </div>
+      </div>
+
+      <!-- Taiwo Adeyinka — Approved -->
+      <div class="app-card" data-status="approved" data-role="Community Health Nurse">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#b45309;">TA</div>
+          <div class="app-info">
+            <h3>Taiwo Adeyinka</h3>
+            <div class="app-role">Community Health Nurse</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Magodo, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2 years exp.</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-approved">Approved</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Approved On</div><div class="ad-value">24 Apr 2026</div></div>
+            <div class="app-detail"><div class="ad-label">Coverage</div><div class="ad-value">Magodo, Ojodu, Berger</div></div>
+            <div class="app-detail"><div class="ad-label">Start Date</div><div class="ad-value">1 May 2026</div></div>
+            <div class="app-detail"><div class="ad-label">Employment</div><div class="ad-value">Full-time</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Community Health</span>
+            <span class="spec-tag">Medication</span>
+            <span class="spec-tag">Home Visits</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(4)">View Application</button>
+          <button class="act-btn act-schedule">Send Onboarding Email</button>
+          <span class="app-submitted">20 Apr</span>
+        </div>
+      </div>
+
+      <!-- Emeka Obi — Rejected -->
+      <div class="app-card" data-status="rejected" data-role="Registered Nurse">
+        <div class="app-card-top">
+          <div class="app-avatar" style="background:#6b7280;">EO</div>
+          <div class="app-info">
+            <h3>Emeka Obi</h3>
+            <div class="app-role">Registered Nurse (RN)</div>
+            <div class="app-meta">
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ikorodu, Lagos</div>
+              <div class="app-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>&lt;1 year exp.</div>
+            </div>
+          </div>
+          <div class="app-status"><span class="badge badge-rejected">Rejected</span></div>
+        </div>
+        <div class="app-card-body">
+          <div class="app-details">
+            <div class="app-detail"><div class="ad-label">Rejected On</div><div class="ad-value">18 Apr 2026</div></div>
+            <div class="app-detail"><div class="ad-label">Reason</div><div class="ad-value">Insufficient experience</div></div>
+          </div>
+          <div class="app-specialisations">
+            <span class="spec-tag">Home Nursing</span>
+          </div>
+        </div>
+        <div class="app-card-footer">
+          <button class="act-btn act-view" onclick="openApp(5)">View Application</button>
+          <span class="app-submitted">15 Apr</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation banners -->
+<div class="confirm-banner approved" id="approvedBanner">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="approvedText"></span>
+</div>
+<div class="confirm-banner rejected" id="rejectedBanner">
+  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  <span id="rejectedText"></span>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalAppName">Application Details</h2>
+      <button class="modal-close" onclick="document.getElementById('appModal').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalAppBody"></div>
+    <div class="modal-footer" id="modalAppFooter"></div>
+  </div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+
+  const apps = [
+    { name:'Chiamaka Nwosu', role:'Registered Nurse (RN)', email:'chiamaka@email.com', phone:'+234 801 234 5678', location:'Lekki, Lagos', dob:'14 Mar 1996', experience:'4 years', qualification:"B.Sc Nursing", employment:'Freelance', availability:'Mon – Sat, Morning (6AM – 12PM)', coverage:'Lekki, Victoria Island, Ajah', specialisations:'Post-Discharge Recovery, Wound Care, Chronic Care', ref1:'Dr. Emeka Obi — +234 802 222 3333', ref2:'Nurse Ngozi Adeyemi — +234 803 111 2222', submitted:'Today, 8:14 AM', status:'Pending Review', summary:'Experienced RN with focus on post-discharge and wound care. Previously worked at Lagos Island Hospital.' },
+    { name:'Yusuf Lawal', role:'Physiotherapist', email:'yusuf@email.com', phone:'+234 804 345 6789', location:'Ikeja, Lagos', dob:'3 Sep 1990', experience:'6 years', qualification:'B.Sc Physiotherapy', employment:'Part-time employed', availability:'Mon – Fri, Flexible', coverage:'Ikeja, Gbagada, Ojodu', specialisations:'Physiotherapy, Stroke Rehabilitation, Mobility Training', ref1:'Dr. Fatima Sule — +234 805 222 3333', ref2:'Prof. Ade Balogun — +234 806 111 2222', submitted:'Yesterday', status:'Pending Review', summary:'Experienced physiotherapist with stroke rehab specialisation. Keen to expand into home-based care.' },
+    { name:'Blessing Eze', role:'Lab & Diagnostic Technician', email:'blessing@email.com', phone:'+234 807 456 7890', location:'Yaba, Lagos', dob:'22 Jul 1999', experience:'3 years', qualification:'HND Medical Lab Science', employment:'Unemployed', availability:'Mon – Sat, Morning', coverage:'Yaba, Surulere, Ebute Meta', specialisations:'Blood Sample Collection, Diagnostic Tests, Lab Results', ref1:'Mr. Chukwu Nwafor — +234 808 222 3333', ref2:'Mrs. Ifeoma Eze — +234 809 111 2222', submitted:'25 Apr', status:'Pending Review', summary:'Detail-oriented lab technician with experience in home sample collection for private clinics.' },
+    { name:'Adaora Okafor', role:'Postnatal Care Specialist', email:'adaora@email.com', phone:'+234 810 567 8901', location:'Surulere, Lagos', dob:'8 Nov 1988', experience:'5 years', qualification:'Diploma in Midwifery', employment:'Freelance', availability:'Mon – Sun, Flexible', coverage:'Surulere, Ajeromi, Mushin', specialisations:'Postnatal Care, Newborn Monitoring, Breastfeeding', ref1:'Dr. Amaka Nwosu — +234 811 222 3333', ref2:'Midwife Grace Ojo — +234 812 111 2222', submitted:'22 Apr', status:'In Screening — Call: 30 Apr, 10:00 AM', summary:'Dedicated midwife with strong postnatal care background. Has supported over 200 new mothers.' },
+    { name:'Taiwo Adeyinka', role:'Community Health Nurse', email:'taiwo@email.com', phone:'+234 813 678 9012', location:'Magodo, Lagos', dob:'19 Feb 1997', experience:'2 years', qualification:'Diploma Community Health', employment:'Full-time', availability:'Mon – Sat, Flexible', coverage:'Magodo, Ojodu, Berger', specialisations:'Community Health, Medication, Home Visits', ref1:'Nurse Kunle Adesanya — +234 814 222 3333', ref2:'Dr. Sola Bello — +234 815 111 2222', submitted:'20 Apr', status:'Approved — Start: 1 May 2026', summary:'Enthusiastic community health nurse ready to transition into structured home healthcare.' },
+    { name:'Emeka Obi', role:'Registered Nurse (RN)', email:'emeka.obi@email.com', phone:'+234 816 789 0123', location:'Ikorodu, Lagos', dob:'5 Apr 2002', experience:'Less than 1 year', qualification:'B.Sc Nursing (2025 graduate)', employment:'Unemployed', availability:'Mon – Sun', coverage:'Ikorodu', specialisations:'Home Nursing', ref1:'Prof. Bola Adeyemi — +234 817 222 3333', ref2:'Not provided', submitted:'15 Apr', status:'Rejected — Insufficient experience', summary:'Recent graduate. Application rejected due to lack of post-qualification experience. Encouraged to reapply after 1 year.' },
+  ];
+
+  let currentTab = 'all';
+
+  function setTab(el, tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    filterApps('');
+  }
+
+  function filterApps(val) {
+    val = val.toLowerCase();
+    const statusF = document.querySelector('.filter-select[onchange*="filterByStatus"]')?.value || '';
+    const roleF = document.querySelector('.filter-select[onchange*="filterByRole"]')?.value || '';
+    document.querySelectorAll('.app-card').forEach(c => {
+      const status = c.dataset.status;
+      const role = c.dataset.role;
+      let show = c.innerText.toLowerCase().includes(val);
+      if (statusF && status !== statusF) show = false;
+      if (roleF && role !== roleF) show = false;
+      if (currentTab !== 'all' && status !== currentTab) show = false;
+      c.style.display = show ? '' : 'none';
+    });
+  }
+
+  function filterByStatus(val) { filterApps(''); }
+  function filterByRole(val) { filterApps(''); }
+
+  function openApp(i) {
+    const a = apps[i];
+    document.getElementById('modalAppName').textContent = a.name + ' — ' + a.role;
+    document.getElementById('modalAppBody').innerHTML = `
+      <div class="modal-section"><h4>Personal Details</h4>
+        <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${a.name}</span></div>
+        <div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">${a.dob}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${a.email}</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${a.phone}</span></div>
+        <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${a.location}</span></div>
+      </div>
+      <div class="modal-section"><h4>Professional Details</h4>
+        <div class="detail-row"><span class="detail-label">Role Applied For</span><span class="detail-value">${a.role}</span></div>
+        <div class="detail-row"><span class="detail-label">Experience</span><span class="detail-value">${a.experience}</span></div>
+        <div class="detail-row"><span class="detail-label">Qualification</span><span class="detail-value">${a.qualification}</span></div>
+        <div class="detail-row"><span class="detail-label">Employment Status</span><span class="detail-value">${a.employment}</span></div>
+        <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${a.specialisations}</span></div>
+        <div class="detail-row"><span class="detail-label">Summary</span><span class="detail-value">${a.summary}</span></div>
+      </div>
+      <div class="modal-section"><h4>Availability</h4>
+        <div class="detail-row"><span class="detail-label">Availability</span><span class="detail-value">${a.availability}</span></div>
+        <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${a.coverage}</span></div>
+      </div>
+      <div class="modal-section"><h4>References</h4>
+        <div class="detail-row"><span class="detail-label">Reference 1</span><span class="detail-value">${a.ref1}</span></div>
+        <div class="detail-row"><span class="detail-label">Reference 2</span><span class="detail-value">${a.ref2}</span></div>
+      </div>
+      <div class="modal-section"><h4>Application Status</h4>
+        <div class="detail-row"><span class="detail-label">Submitted</span><span class="detail-value">${a.submitted}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${a.status}</span></div>
+      </div>
+    `;
+
+    const footer = document.getElementById('modalAppFooter');
+    if (a.status === 'Pending Review') {
+      footer.innerHTML = `
+        <button class="btn-modal-close" onclick="document.getElementById('appModal').classList.remove('open')">Close</button>
+        <button class="btn-modal-reject" onclick="rejectApp(${i}, null); document.getElementById('appModal').classList.remove('open')">Reject</button>
+        <button class="btn-modal-approve" onclick="approveApp(${i}, null); document.getElementById('appModal').classList.remove('open')">Approve</button>
+      `;
+    } else if (a.status.includes('Screening')) {
+      footer.innerHTML = `
+        <button class="btn-modal-close" onclick="document.getElementById('appModal').classList.remove('open')">Close</button>
+        <button class="btn-modal-schedule">Reschedule Call</button>
+      `;
+    } else {
+      footer.innerHTML = `<button class="btn-modal-close" onclick="document.getElementById('appModal').classList.remove('open')">Close</button>`;
+    }
+
+    document.getElementById('appModal').classList.add('open');
+  }
+
+  function approveApp(i, btn) {
+    apps[i].status = 'Approved';
+    showBanner('approved', apps[i].name + ' has been approved and will receive an onboarding email.');
+    if (btn) {
+      const card = btn.closest('.app-card');
+      card.dataset.status = 'approved';
+      card.querySelector('.app-status .badge').className = 'badge badge-approved';
+      card.querySelector('.app-status .badge').textContent = 'Approved';
+      btn.remove();
+      card.querySelectorAll('.act-btn.act-reject').forEach(b => b.remove());
+    }
+    updateBadge();
+  }
+
+  function rejectApp(i, btn) {
+    apps[i].status = 'Rejected';
+    showBanner('rejected', apps[i].name + '\'s application has been rejected.');
+    if (btn) {
+      const card = btn.closest('.app-card');
+      card.dataset.status = 'rejected';
+      card.querySelector('.app-status .badge').className = 'badge badge-rejected';
+      card.querySelector('.app-status .badge').textContent = 'Rejected';
+      btn.remove();
+      card.querySelectorAll('.act-btn.act-approve').forEach(b => b.remove());
+    }
+    updateBadge();
+  }
+
+  function showBanner(type, msg) {
+    const banner = document.getElementById(type === 'approved' ? 'approvedBanner' : 'rejectedBanner');
+    document.getElementById(type === 'approved' ? 'approvedText' : 'rejectedText').textContent = msg;
+    banner.classList.add('show');
+    banner.style.position = 'fixed';
+    banner.style.bottom = '24px';
+    banner.style.left = '50%';
+    banner.style.transform = 'translateX(-50%)';
+    banner.style.zIndex = '300';
+    banner.style.minWidth = '320px';
+    banner.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)';
+    setTimeout(() => banner.classList.remove('show'), 3500);
+  }
+
+  function updateBadge() {
+    const pending = document.querySelectorAll('.app-card[data-status="review"]').length;
+    document.getElementById('appBadge').textContent = pending;
+    document.getElementById('statPending').textContent = pending;
+  }
+
+  document.getElementById('appModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('appModal')) document.getElementById('appModal').classList.remove('open');
+  });
+</script>
+</body>
+</html>
