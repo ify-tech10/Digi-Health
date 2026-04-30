@@ -334,6 +334,61 @@
     .icon { width: 16px; height: 16px; flex-shrink: 0; }
 
     /* ── RESPONSIVE ── */
+    @media (max-width: 1450px) {
+      .nav-links {
+      display: flex;
+      gap: 3px;
+      list-style: none;
+      }
+       .nav-links a {
+      padding: 7px 8px;
+      font-size: .9em;
+      font-weight: bolder;
+      color: #4a5580;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background .18s, color .18s;
+    }
+    }
+
+    @media (max-width: 1400px) {
+      .nav-links {
+      display: flex;
+      gap: 3px;
+      list-style: none;
+      }
+       .nav-links a {
+      padding: 7px 9px;
+      font-size: .8em;
+      font-weight: bolder;
+      color: #4a5580;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background .18s, color .18s;
+    }
+    }
+
+    @media (max-width: 1350px) {
+      .nav-links {
+      display: flex;
+      gap: 3px;
+      list-style: none;
+      }
+       .nav-links a {
+      padding: 7px 7px;
+      font-size: .8em;
+      font-weight: bolder;
+      color: #4a5580;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background .18s, color .18s;
+    }
+    }
+
+    @media (max-width: 1200px) {
+      .nav-links, .btn-book { display: none; }
+      .hamburger { display: flex; }
+    }
     @media (max-width: 1024px) {
       nav { padding: 14px 28px; }
       .contact-hero { margin: 16px 20px; padding: 44px 36px; }

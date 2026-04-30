@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Visit Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../personnel-styles/reports.css">
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="/Dashboards/dashboard-caregiver.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Caregiver Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="/Dashboards/dashboard-caregiver.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="personnel-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Schedule</a>
+    <a class="nav-item" href="personnel-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Patients</a>
+    <a class="nav-item active" href="personel-reports.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Earnings</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Visit Reports</h1><p>Log and review all your patient visit reports</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="user-avatar">BA</div><span>Nurse Blessing</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card green"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-value">47</div><div class="stat-label">Total Reports</div></div>
+      <div class="stat-card blue"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="stat-value">3</div><div class="stat-label">This Week</div></div>
+      <div class="stat-card purple"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value">1</div><div class="stat-label">Pending Log</div></div>
+      <div class="stat-card orange"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="stat-value">4.9★</div><div class="stat-label">Avg. Rating</div></div>
+    </div>
+ 
+    <!-- Main grid -->
+    <div class="page-grid">
+ 
+      <!-- LOG FORM -->
+      <div class="log-form">
+ 
+        <div class="success-banner" id="successBanner">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Visit report submitted successfully! The admin team has been notified.
+        </div>
+ 
+        <!-- Section 1: Visit Details -->
+        <div class="form-section-header">
+          <div class="section-num">1</div>
+          <h3>Visit Details</h3>
+        </div>
+        <div class="form-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Patient <span class="req">*</span></label>
+              <select id="vr_patient">
+                <option value="" disabled selected>Select patient</option>
+                <option>Amara Osei</option>
+                <option>Emeka Nwachukwu</option>
+                <option>Grace Okonkwo</option>
+                <option>Fatima Kabir</option>
+                <option>Taiwo Oluwaseun</option>
+                <option>Bukola Ibrahim</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Visit Date <span class="req">*</span></label>
+              <input type="date" id="vr_date" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Visit Start Time <span class="req">*</span></label>
+              <input type="time" id="vr_start" />
+            </div>
+            <div class="form-group">
+              <label>Visit End Time <span class="req">*</span></label>
+              <input type="time" id="vr_end" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Service Type</label>
+              <select id="vr_service">
+                <option value="" disabled selected>Select service</option>
+                <option>Post-Discharge Recovery</option>
+                <option>Home Nursing Care</option>
+                <option>Chronic Care Management</option>
+                <option>Elderly Care Support</option>
+                <option>Postnatal Mother & Baby Care</option>
+                <option>Physiotherapy & Rehabilitation</option>
+                <option>Wound Care</option>
+                <option>Medication Administration</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Visit Location</label>
+              <input type="text" id="vr_location" placeholder="e.g. Egbeda, Lagos" />
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Section 2: Vitals -->
+        <div class="form-section-header">
+          <div class="section-num">2</div>
+          <h3>Vital Signs</h3>
+        </div>
+        <div class="form-body">
+          <div class="vitals-grid">
+            <div class="vital-input">
+              <label>Blood Pressure</label>
+              <input type="text" id="vr_bp" placeholder="e.g. 120/80" />
+              <div class="vital-unit">mmHg</div>
+            </div>
+            <div class="vital-input">
+              <label>Heart Rate</label>
+              <input type="number" id="vr_hr" placeholder="e.g. 72" min="30" max="200" />
+              <div class="vital-unit">bpm</div>
+            </div>
+            <div class="vital-input">
+              <label>Temperature</label>
+              <input type="number" id="vr_temp" placeholder="e.g. 36.6" step="0.1" />
+              <div class="vital-unit">°C</div>
+            </div>
+            <div class="vital-input">
+              <label>SpO₂</label>
+              <input type="number" id="vr_spo2" placeholder="e.g. 98" min="50" max="100" />
+              <div class="vital-unit">%</div>
+            </div>
+            <div class="vital-input">
+              <label>Blood Sugar</label>
+              <input type="number" id="vr_sugar" placeholder="e.g. 5.4" step="0.1" />
+              <div class="vital-unit">mmol/L</div>
+            </div>
+            <div class="vital-input">
+              <label>Weight</label>
+              <input type="number" id="vr_weight" placeholder="e.g. 72" step="0.1" />
+              <div class="vital-unit">kg</div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Section 3: Care Provided -->
+        <div class="form-section-header">
+          <div class="section-num">3</div>
+          <h3>Care Provided</h3>
+        </div>
+        <div class="form-body">
+          <div class="form-row single" style="margin-bottom:12px;">
+            <div class="form-group">
+              <label>Activities Performed <span class="req">*</span></label>
+              <div class="check-grid" style="margin-top:6px;">
+                <label class="check-item"><input type="checkbox" name="care_act" value="Wound dressing" /> Wound dressing</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Medication administration" /> Medication administration</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Vital signs monitoring" /> Vital signs monitoring</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Patient education" /> Patient education</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Mobility support" /> Mobility support</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Breastfeeding support" /> Breastfeeding support</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Physiotherapy exercises" /> Physiotherapy exercises</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Blood sample collection" /> Blood sample collection</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Emotional support" /> Emotional support</label>
+                <label class="check-item"><input type="checkbox" name="care_act" value="Family education" /> Family education</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Medications Given</label>
+              <input type="text" id="vr_meds" placeholder="e.g. Amlodipine 5mg, Metformin 500mg (or None)" />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Clinical Observations <span class="req">*</span></label>
+              <textarea id="vr_observations" placeholder="Describe what you observed — wound condition, patient demeanour, pain level, mobility, etc..."></textarea>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Section 4: Assessment & Plan -->
+        <div class="form-section-header">
+          <div class="section-num">4</div>
+          <h3>Assessment & Follow-up Plan</h3>
+        </div>
+        <div class="form-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Patient Condition</label>
+              <select id="vr_condition">
+                <option value="" disabled selected>Select condition</option>
+                <option>Improving — on track</option>
+                <option>Stable — no change</option>
+                <option>Slightly deteriorated</option>
+                <option>Requires urgent review</option>
+                <option>Escalation needed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Next Visit Recommended</label>
+              <input type="date" id="vr_next" />
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Follow-up Instructions</label>
+              <textarea id="vr_followup" placeholder="Instructions for the patient, family, or next visit nurse..."></textarea>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Escalation / Concerns</label>
+              <textarea id="vr_escalation" placeholder="Any concerns to flag to admin or the medical team? Leave blank if none." style="min-height:60px;"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Caregiver Signature</label>
+              <input type="text" id="vr_sig" placeholder="Type your full name to sign" />
+            </div>
+            <div class="form-group">
+              <label>Patient / Family Confirmation</label>
+              <select id="vr_confirm">
+                <option value="" disabled selected>Select</option>
+                <option>Patient confirmed visit</option>
+                <option>Family member confirmed</option>
+                <option>Patient unavailable — visit logged by nurse</option>
+              </select>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Submit -->
+        <div class="form-submit-bar">
+          <button class="btn-submit" onclick="submitReport()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Submit Report
+          </button>
+          <button class="btn-draft" onclick="saveDraft()">Save as Draft</button>
+          <span style="font-size:12px;color:#b0b8d0;margin-left:auto;">All reports are reviewed by admin</span>
+        </div>
+ 
+      </div>
+ 
+      <!-- PAST REPORTS PANEL -->
+      <div class="reports-panel">
+ 
+        <div class="panel-card">
+          <div class="panel-header"><h3>Recent Reports</h3><a href="#">View all</a></div>
+          <div class="toolbar">
+            <div class="search-sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search reports..." oninput="filterReports(this.value)" /></div>
+            <select class="filter-sm">
+              <option>All</option>
+              <option>This Week</option>
+              <option>This Month</option>
+            </select>
+          </div>
+ 
+          <div id="reportsList">
+ 
+            <div class="report-item" onclick="openReport(0)">
+              <div class="ri-top"><span class="ri-patient">Amara Osei</span><span class="ri-date">22 Apr 2026</span></div>
+              <div class="ri-service">Post-Discharge Recovery · Egbeda</div>
+              <div class="ri-preview">Wound dressing changed. Healing well. BP 128/82. Medication Amlodipine confirmed taken.</div>
+              <div class="ri-footer">
+                <span class="ri-vitals">BP: 128/82 · HR: 76 · Temp: 36.5°C</span>
+                <div class="ri-actions"><span class="badge badge-done" style="font-size:10.5px;padding:2px 8px;">Submitted</span><button class="ri-btn">View</button></div>
+              </div>
+            </div>
+ 
+            <div class="report-item" onclick="openReport(1)">
+              <div class="ri-top"><span class="ri-patient">Emeka Nwachukwu</span><span class="ri-date">21 Apr 2026</span></div>
+              <div class="ri-service">Chronic Care Management · Surulere</div>
+              <div class="ri-preview">Blood sugar 6.1 mmol/L — improved. HbA1c trend positive. Dietary plan reviewed with family.</div>
+              <div class="ri-footer">
+                <span class="ri-vitals">BP: 132/84 · BS: 6.1 · HR: 80</span>
+                <div class="ri-actions"><span class="badge badge-done" style="font-size:10.5px;padding:2px 8px;">Submitted</span><button class="ri-btn">View</button></div>
+              </div>
+            </div>
+ 
+            <div class="report-item" onclick="openReport(2)">
+              <div class="ri-top"><span class="ri-patient">Grace Okonkwo</span><span class="ri-date">21 Apr 2026</span></div>
+              <div class="ri-service">Elderly Care Support · Yaba</div>
+              <div class="ri-preview">Daily care visit. Patient in good spirits. Mobility exercises completed. Medication given.</div>
+              <div class="ri-footer">
+                <span class="ri-vitals">BP: 126/80 · HR: 72 · Temp: 36.7°C</span>
+                <div class="ri-actions"><span class="badge badge-done" style="font-size:10.5px;padding:2px 8px;">Submitted</span><button class="ri-btn">View</button></div>
+              </div>
+            </div>
+ 
+            <div class="report-item" onclick="openReport(3)">
+              <div class="ri-top"><span class="ri-patient">Fatima Kabir</span><span class="ri-date">26 Apr 2026</span></div>
+              <div class="ri-service">Postnatal Care · Ikeja</div>
+              <div class="ri-preview">Day 2 newborn check. Baby weight 3.1kg — gaining. Breastfeeding improving. Mother reassured.</div>
+              <div class="ri-footer">
+                <span class="ri-vitals">Baby wt: 3.1kg · Temp: 36.8°C</span>
+                <div class="ri-actions"><span class="badge badge-submitted" style="font-size:10.5px;padding:2px 8px;">Submitted</span><button class="ri-btn">View</button></div>
+              </div>
+            </div>
+ 
+            <div class="report-item" onclick="openReport(4)">
+              <div class="ri-top"><span class="ri-patient">Amara Osei</span><span class="ri-date">19 Apr 2026</span></div>
+              <div class="ri-service">Post-Discharge Recovery · Egbeda</div>
+              <div class="ri-preview">Vital signs monitoring. BP elevated at 134/86. Medication adjusted per care plan.</div>
+              <div class="ri-footer">
+                <span class="ri-vitals">BP: 134/86 · HR: 78 · Temp: 36.6°C</span>
+                <div class="ri-actions"><span class="badge badge-done" style="font-size:10.5px;padding:2px 8px;">Submitted</span><button class="ri-btn">View</button></div>
+              </div>
+            </div>
+ 
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- Report Detail Modal -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalReportTitle">Visit Report</h2>
+      <button class="modal-close" onclick="document.getElementById('reportModal').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalReportBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="document.getElementById('reportModal').classList.remove('open')">Close</button>
+      <button class="btn-modal-primary">Download PDF</button>
+    </div>
+  </div>
+</div>
+ 
+<script src="../personnel-scripts/reports.js"></script>
+</body>
+</html>
+ 
