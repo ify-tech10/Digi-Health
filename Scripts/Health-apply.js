@@ -24,79 +24,71 @@
   }
 
   // ── Submit handler ──
-  function handleApply() {
-    const name      = document.getElementById('full_name').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const phone     = document.getElementById('phone').value.trim();
-    const careType  = document.getElementById('caregiver_type').value;
-    const avail     = document.getElementById('availability_type').value;
+ async function handleApply() {
+  const formData = new FormData();
 
-    if (!name || !email || !phone || !careType || !avail) {
-      alert('Please fill in all required fields marked with *');
+  // Basic fields
+  formData.append("fullName", document.getElementById('full_name').value);
+  formData.append("Email", document.getElementById('email').value);
+  formData.append("phoneNumber", document.getElementById('phone').value);
+  formData.append("serviceProviderType", document.getElementById('caregiver_type').value);
+
+  // Other fields
+  formData.append("applicant_location", document.getElementById('location').value);
+  formData.append("applicant_gender", document.getElementById('gender').value);
+  formData.append("YearsOfExperience", document.getElementById('experience').value);
+  formData.append("qualification", document.getElementById('qualification').value);
+  formData.append("employment_status", document.getElementById('employment_status').value);
+  formData.append("specialisations", getChecked('spec_'));
+  formData.append("professional_summary", document.getElementById('professional_summary').value);
+  formData.append("cv", document.getElementById('cv_file').files[0]);
+
+  formData.append("ref1FullName", document.getElementById('ref1_name').value || 'Not provided');
+  formData.append("ref1Relationship", document.getElementById('ref1_relationship').value || 'Not provided');
+  formData.append("ref1Phone", document.getElementById('ref1_phone').value || 'Not provided');
+  formData.append("ref1Email", document.getElementById('ref1_email').value || 'Not provided');
+
+  formData.append("ref2FullName", document.getElementById('ref2_name').value || 'Not provided');
+  formData.append("ref2Relationship", document.getElementById('ref2_relationship').value || 'Not provided');
+  formData.append("ref2Phone", document.getElementById('ref2_phone').value || 'Not provided');
+  formData.append("ref2Email", document.getElementById('ref2_email').value || 'Not provided');
+
+  formData.append("availabilityType", document.getElementById('availability_type').value);
+  formData.append("preferredHours", getChecked('hours_'));
+  formData.append("locationArea", document.getElementById('coverage_areas').value || 'Not specified');
+  formData.append("start_date", document.getElementById('start_date').value || 'Not specified');
+  formData.append("additional_info", document.getElementById('additional_info').value || 'None');
+
+  // Example file input (if you have one)
+  const fileInput = document.getElementById("cv");
+  if (fileInput && fileInput.files.length > 0) {
+    formData.append("cv", fileInput.files[0]);
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = "Submitting...";
+  btn.disabled = true;
+
+  try {
+    const response = await fetch("https://digihealth-6uy7.onrender.com/api/auth/provider/apply", {
+      method: "POST",
+      body: formData // ✅ NO headers
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Submission failed");
       return;
     }
 
-    const btn = document.getElementById('submitBtn');
-    btn.textContent = 'Submitting...';
-    btn.disabled = true;
+    alert("Application submitted successfully!");
 
-    // ── Params for admin notification email ──
-    const adminParams = {
-      applicant_name:        name,
-      applicant_email:       email,
-      applicant_phone:       phone,
-      applicant_location:    document.getElementById('location').value.trim(),
-      applicant_gender:      document.getElementById('gender').value || 'Not specified',
-      caregiver_type:        careType,
-      experience:            document.getElementById('experience').value || 'Not specified',
-      qualification:         document.getElementById('qualification').value || 'Not specified',
-      employment_status:     document.getElementById('employment_status').value || 'Not specified',
-      specialisations:       getChecked('spec_'),
-      professional_summary:  document.getElementById('professional_summary').value.trim() || 'Not provided',
-      ref1_name:             document.getElementById('ref1_name').value.trim() || 'Not provided',
-      ref1_relationship:     document.getElementById('ref1_relationship').value.trim() || 'Not provided',
-      ref1_phone:            document.getElementById('ref1_phone').value.trim() || 'Not provided',
-      ref1_email:            document.getElementById('ref1_email').value.trim() || 'Not provided',
-      ref2_name:             document.getElementById('ref2_name').value.trim() || 'Not provided',
-      ref2_relationship:     document.getElementById('ref2_relationship').value.trim() || 'Not provided',
-      ref2_phone:            document.getElementById('ref2_phone').value.trim() || 'Not provided',
-      ref2_email:            document.getElementById('ref2_email').value.trim() || 'Not provided',
-      availability_type:     avail,
-      preferred_hours:       getChecked('hours_'),
-      coverage_areas:        document.getElementById('coverage_areas').value.trim() || 'Not specified',
-      start_date:            document.getElementById('start_date').value || 'Not specified',
-      additional_info:       document.getElementById('additional_info').value.trim() || 'None',
-    };
-
-    // ── Params for applicant confirmation email ──
-    const confirmParams = {
-      applicant_name:  name,
-      applicant_email: email,
-      caregiver_type:  careType,
-    };
-
-    // Send both emails
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_ADMIN_TEMPLATE_ID', adminParams)  // 🔁 Replace IDs
-      .then(() => {
-        return emailjs.send('YOUR_SERVICE_ID', 'YOUR_CONFIRM_TEMPLATE_ID', confirmParams); // 🔁 Replace IDs
-      })
-      .then(() => {
-        document.getElementById('successBanner').classList.add('show');
-        document.getElementById('apply-form').scrollIntoView({ behavior: 'smooth' });
-        // Reset form
-        document.querySelectorAll('#apply-form input:not([type="checkbox"]):not([type="file"]), #apply-form select, #apply-form textarea').forEach(el => {
-          if (el.tagName === 'SELECT') el.selectedIndex = 0;
-          else el.value = '';
-        });
-        document.querySelectorAll('#apply-form input[type="checkbox"]').forEach(cb => cb.checked = false);
-        document.querySelectorAll('.file-name').forEach(el => el.textContent = '');
-      })
-      .catch((err) => {
-        alert('Something went wrong. Please WhatsApp us directly.');
-        console.error('EmailJS error:', err);
-      })
-      .finally(() => {
-        btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Application';
-        btn.disabled = false;
-      });
+  } catch (err) {
+    alert("Network error");
+    console.error(err);
+  } finally {
+    btn.textContent = "Submit Application";
+    btn.disabled = false;
   }
+}

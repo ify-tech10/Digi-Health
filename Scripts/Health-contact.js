@@ -10,49 +10,63 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
 
   document.querySelector('.form-submit-row').addEventListener('click',handleSubmit);
 
-  function handleSubmit() {
+  async function handleSubmit() {
   const name = document.getElementById('fullname').value.trim();
   const email = document.getElementById('email').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const service = document.getElementById('service').value;
 
   if (!name || !phone || !service || !email) {
-    alert('Please fill in your name, phone number, and the service needed.');
+    alert('Please fill in all required fields.');
     return;
   }
 
-  const templateParams = {
-    from_name:   name,
-    email:       email,
-    phone:       phone,
-    location:    document.getElementById('location').value.trim(),
-    service:     service,
+  const payload = {
+    fullName: name,
+    email: email,
+    phoneNumber: phone,
+    locationArea: document.getElementById('location').value.trim(),
+    serviceNeeded: service,
     description: document.getElementById('description').value.trim(),
-    contact_time: document.getElementById('contact-time').value,
+    contactTime: document.getElementById('contact-time').value
   };
 
-  // Show loading state
   const btn = document.querySelector('.btn-submit');
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
-  emailjs.send('service_bd7u8qo', 'template_6yhegps', templateParams)
-    .then(() => {
-      alert('Thank you! We\'ll be in touch within 1 hour during operating hours.');
-      // Clear form
-      document.getElementById('fullname').value = '';
-      document.getElementById('phone').value = '';
-      document.getElementById('location').value = '';
-      document.getElementById('service').selectedIndex = 0;
-      document.getElementById('description').value = '';
-      document.getElementById('contact-time').selectedIndex = 0;
-    })
-    .catch((error) => {
-      alert('Something went wrong. Please call or WhatsApp us directly.');
-      console.error('EmailJS error:', error);
-    })
-    .finally(() => {
-      btn.textContent = 'Submit Request';
-      btn.disabled = false;
+  try {
+    const response = await fetch("https://digihealth-6uy7.onrender.com/api/care-requests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Submission failed");
+      return;
+    }
+
+    alert("Request submitted successfully! We will contact you soon.");
+
+    // reset form
+    document.getElementById('fullname').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('location').value = '';
+    document.getElementById('service').selectedIndex = 0;
+    document.getElementById('description').value = '';
+    document.getElementById('contact-time').selectedIndex = 0;
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error. Please try again later.");
+  } finally {
+    btn.textContent = 'Submit Request';
+    btn.disabled = false;
+  }
 }

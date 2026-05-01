@@ -240,7 +240,8 @@
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   if (!user.loggedIn || user.role !== 'admin') {
-    window.location.href = 'login.html';
+   // window.location.href = 'login.html';
+   logout();
   }
   function logout() {
    localStorage.removeItem('dh_user');
