@@ -83,6 +83,12 @@
         </div>
         <span>Admin</span>
       </div>
+       <div class="role-btn" id="role-hmo" onclick="selectRole('hmo')">
+        <div class="role-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <span>HMO Admin</span>
+      </div>
     </div>
 
     <!-- Error -->
@@ -135,11 +141,16 @@
         <span class="demo-creds">admin@demo.com / demo123</span>
         <button class="demo-fill" onclick="fillDemo('admin@demo.com','demo123','admin')">Fill</button>
       </div>
+      <div class="demo-row">
+        <span class="demo-role">HMO Admin</span>
+        <span class="demo-creds">hmo@demo.com / demo123</span>
+        <button class="demo-fill" onclick="fillDemo('hmo@demo.com','demo123','hmo')">Fill</button>
+      </div>
     </div>
 
     <p class="register-link">
       New patient? <a href="home-health-contact.html">Book care instead</a> &nbsp;·&nbsp;
-      Caregiver? <a href="digi-health-apply.html">Apply here</a>
+      Service provider? <a href="digi-health-apply.html">Apply here</a>
     </p>
   </div>
 </div>
@@ -151,6 +162,7 @@
     'patient@demo.com':   { password: 'demo123', role: 'patient',   redirect: 'Dashboards/dashboard-patient.html' },
     'service-provider@demo.com': { password: 'demo123', role: 'service-provider', redirect: 'Dashboards/dashboard-caregiver.html' },
     'admin@demo.com':     { password: 'demo123', role: 'admin',     redirect: 'Dashboards/dashboard-admin.html' },
+    'hmo@demo.com':       { password: 'demo123', role: 'hmo',       redirect: 'Dashboards/dashboard-hmo-admin.html' },
   };
 
   function selectRole(role) {
@@ -222,7 +234,8 @@
         email,
         role: account.role,
         name: account.role === 'patient' ? 'Amara Osei' :
-              account.role === 'service-provider' ? 'Nurse Blessing Adeyemi' : 'Admin User',
+              account.role === 'service-provider' ? 'Nurse Blessing Adeyemi' :
+              account.role === 'hmo'       ? 'HMO Admin' : 'Admin User',
         loggedIn: true
       }));
 

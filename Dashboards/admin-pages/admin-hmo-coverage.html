@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --teal: #0891b2; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 240px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 12px 6px 6px; }
+    .user-avatar { width: 26px; height: 26px; background: #7c3aed; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* Status badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-new { background: #eff6ff; color: #2563eb; } .badge-new::before { background: #3b82f6; }
+    .badge-active { background: #f0fdf4; color: var(--green-dark); } .badge-active::before { background: var(--green); }
+    .badge-pending { background: #fff7ed; color: #c2410c; } .badge-pending::before { background: #f97316; }
+    .badge-done { background: #f0f2fb; color: #5a6690; } .badge-done::before { background: #8898c8; }
+    .badge-urgent { background: #fef2f2; color: #dc2626; } .badge-urgent::before { background: #ef4444; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 20px; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .stat-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #f0fdf4; color: var(--green-dark); }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+    .stat-sub { font-size: 11.5px; color: #b0b8d0; margin-top: 2px; }
+    .teal .stat-icon { background: #ecfeff; } .teal .stat-icon svg { stroke: var(--teal); }
+    .green .stat-icon { background: #f0fdf4; } .green .stat-icon svg { stroke: var(--green-dark); }
+    .purple .stat-icon { background: #faf5ff; } .purple .stat-icon svg { stroke: #9333ea; }
+    .orange .stat-icon { background: #fff7ed; } .orange .stat-icon svg { stroke: #f97316; }
+ 
+    /* TABS */
+    .tabs { display: flex; gap: 4px; background: #f0f2fb; border-radius: 9px; padding: 4px; margin-bottom: 20px; width: fit-content; }
+    .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #8898c8; cursor: pointer; border: none; background: none; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+    .tab.active { background: var(--white); color: var(--navy); font-weight: 700; box-shadow: 0 1px 4px rgba(26,37,80,0.08); }
+ 
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 14px; flex: 1; min-width: 200px; }
+    .search-box svg { width: 15px; height: 15px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .search-box input { border: none; outline: none; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .search-box input::placeholder { color: #b0b8d0; }
+    .filter-select { border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 32px 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .btn-primary { display: flex; align-items: center; gap: 7px; background: var(--teal); color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; transition: background .15s; }
+    .btn-primary:hover { background: #0e7490; }
+    .btn-primary svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+ 
+    /* LAYOUT */
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+    .card:last-child { margin-bottom: 0; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .card-header .ch-right { display: flex; align-items: center; gap: 10px; }
+    .ch-sub { font-size: 12px; color: #8898c8; }
+ 
+    /* COMPANY TABLE */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; background: #fafbff; border-bottom: 1px solid #eef0f8; white-space: nowrap; }
+    .data-table td { padding: 14px 16px; font-size: 13px; color: #3a4570; border-bottom: 1px solid #f5f6fc; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafbff; cursor: pointer; }
+    .td-name { font-weight: 700; color: var(--navy); }
+    .td-sub { font-size: 11.5px; color: #8898c8; margin-top: 1px; }
+    .td-actions { display: flex; gap: 6px; }
+    .act-btn { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all .15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+    .act-view { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; }
+    .act-view:hover { background: #e8eaf4; }
+    .act-employees { background: #ecfeff; color: var(--teal); border-color: #a5f3fc; }
+    .act-employees:hover { background: #cffafe; }
+    .act-payment { background: #f0fdf4; color: var(--green-dark); border-color: #bbf7d0; }
+    .act-payment:hover { background: #dcfce7; }
+ 
+    /* EMPLOYEE TABLE */
+    .emp-avatar { width: 30px; height: 30px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; margin-right: 8px; vertical-align: middle; flex-shrink: 0; }
+ 
+    /* SUMMARY CARDS (right panel) */
+    .summary-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; }
+    .summary-card:last-child { margin-bottom: 0; }
+    .sc-label { font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 6px; }
+    .sc-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .sc-sub { font-size: 12px; color: #8898c8; }
+    .sc-bar-wrap { margin-top: 10px; }
+    .sc-bar { height: 6px; background: #eef0f8; border-radius: 3px; overflow: hidden; }
+    .sc-fill { height: 100%; border-radius: 3px; }
+ 
+    /* billing row */
+    .billing-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f6fc; font-size: 13px; }
+    .billing-row:last-child { border-bottom: none; }
+    .billing-row .bl-label { color: #5a6690; }
+    .billing-row .bl-val { font-weight: 700; color: var(--navy); }
+    .billing-row .bl-val.green { color: var(--green-dark); }
+    .billing-row .bl-val.red { color: #dc2626; }
+ 
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 640px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 20px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 160px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .btn-modal-close { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-primary { background: var(--teal); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-danger { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+ 
+    /* Add employee form */
+    .add-emp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+    .ae-group { display: flex; flex-direction: column; gap: 5px; }
+    .ae-group label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .ae-group input, .ae-group select {
+      border: 1.5px solid #dde0ee; border-radius: 7px;
+      padding: 9px 12px; font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif; color: var(--navy);
+      outline: none; transition: border-color .18s; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-color: #fff;
+    }
+    .ae-group input { background-image: none; }
+    .ae-group input:focus, .ae-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8,145,178,0.08); }
+    .ae-group.full { grid-column: 1 / -1; }
+ 
+    /* toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+ 
+    @media (max-width: 1024px) { .grid-3-1 { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; } }
+   
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-admin.html">
+    <div class="s-logo">DH</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Admin Panel</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item" href="admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Patients</a>
+    <a class="nav-item" href="pq"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
+    <a class="nav-item" href="admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+    <a class="nav-item" href="admin-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Applications <span class="nav-badge">3</span></a>
+    <a class="nav-item active" href="admin-hmo-coverage.html"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>HMO Coverage</a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="admin-analytics.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+    <a class="nav-item" href="admin-financials.html"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financials</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>HMO coverage</h1>
+      <p>Monday, 28 April 2026 · All systems operational</p>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+      <div class="user-chip">
+        <div class="user-avatar">AD</div>
+        <span>Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+ 
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card teal">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><span class="stat-delta">+2 this month</span></div>
+        <div class="stat-value">8</div><div class="stat-label">Enrolled Companies</div><div class="stat-sub">Across all plan tiers</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="stat-delta">+14 this month</span></div>
+        <div class="stat-value">247</div><div class="stat-label">Covered Employees</div><div class="stat-sub">Active coverage</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="stat-delta">+18%</span></div>
+        <div class="stat-value">₦4.2M</div><div class="stat-label">Monthly Premium</div><div class="stat-sub">vs ₦3.6M last month</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+        <div class="stat-value">2</div><div class="stat-label">Overdue Payments</div><div class="stat-sub">₦380K outstanding</div>
+      </div>
+    </div>
+ 
+    <!-- COMPANIES + BILLING SUMMARY -->
+    <div class="grid-3-1">
+ 
+      <!-- Companies table -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Enrolled Companies</h3>
+            <div class="ch-right">
+              <span class="ch-sub" id="companyCount">8 companies</span>
+              <button class="btn-primary" onclick="openAddCompany()">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Company
+              </button>
+            </div>
+          </div>
+          <div class="toolbar" style="padding:12px 16px 0; margin-bottom:0;">
+            <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search companies..." oninput="filterCompanies(this.value)" /></div>
+            <select class="filter-select" onchange="filterByPlan(this.value)">
+              <option value="">All Plans</option>
+              <option value="Basic">Basic</option>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+              <option value="Enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="companiesTable">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Plan</th>
+                  <th>Employees</th>
+                  <th>Monthly Premium</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="companiesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Right: billing summary -->
+      <div>
+        <div class="summary-card">
+          <div class="sc-label">Premium Collection Rate</div>
+          <div class="sc-value">91.4%</div>
+          <div class="sc-sub">₦3.84M of ₦4.2M collected</div>
+          <div class="sc-bar-wrap"><div class="sc-bar"><div class="sc-fill" style="background:#22c55e;width:91.4%;"></div></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Employee Coverage Rate</div>
+          <div class="sc-value">247 / 260</div>
+          <div class="sc-sub">13 employees pending activation</div>
+          <div class="sc-bar-wrap"><div class="sc-bar"><div class="sc-fill" style="background:#0891b2;width:95%;"></div></div></div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Billing Summary — April 2026</div>
+          <div class="billing-row"><span class="bl-label">Total billed</span><span class="bl-val">₦4,200,000</span></div>
+          <div class="billing-row"><span class="bl-label">Collected</span><span class="bl-val green">₦3,840,000</span></div>
+          <div class="billing-row"><span class="bl-label">Outstanding</span><span class="bl-val red">₦360,000</span></div>
+          <div class="billing-row"><span class="bl-label">Overdue companies</span><span class="bl-val red">2</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-label">Plan Distribution</div>
+          <div class="billing-row"><span class="bl-label">Enterprise</span><span class="bl-val">2 companies</span></div>
+          <div class="billing-row"><span class="bl-label">Premium</span><span class="bl-val">2 companies</span></div>
+          <div class="billing-row"><span class="bl-label">Standard</span><span class="bl-val">3 companies</span></div>
+          <div class="billing-row"><span class="bl-label">Basic</span><span class="bl-val">1 company</span></div>
+        </div>
+      </div>
+ 
+    </div>
+ 
+    <!-- ALL EMPLOYEES TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <h3>All Covered Employees</h3>
+        <div class="ch-right">
+          <span class="ch-sub" id="empCount">247 employees</span>
+          <button class="btn-primary" onclick="openAddEmployee(null)">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Employee
+          </button>
+        </div>
+      </div>
+ 
+      <!-- Tabs -->
+      <div style="padding:12px 16px 0;">
+        <div class="tabs">
+          <button class="tab active" onclick="setEmpTab(this,'all')">All</button>
+          <button class="tab" onclick="setEmpTab(this,'active')">Active</button>
+          <button class="tab" onclick="setEmpTab(this,'pending')">Pending</button>
+          <button class="tab" onclick="setEmpTab(this,'inactive')">Inactive</button>
+        </div>
+      </div>
+ 
+      <div class="toolbar" style="padding:0 16px 12px; margin-bottom:0;">
+        <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search by name, email or company..." oninput="filterEmployees(this.value)" /></div>
+        <select class="filter-select" id="empCompanyFilter" onchange="filterEmployeesByCompany(this.value)">
+          <option value="">All Companies</option>
+        </select>
+      </div>
+ 
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="employeesTable">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Company</th>
+              <th>Plan</th>
+              <th>Coverage Start</th>
+              <th>Policy #</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employeesBody"></tbody>
+        </table>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+
+<!-- COMPANY DETAIL MODAL -->
+<div class="modal-overlay" id="companyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="companyModalTitle">Company Details</h2>
+      <button class="modal-close" onclick="closeModal('companyModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="companyModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('companyModal')">Close</button>
+      <button class="btn-modal-primary" id="companyModalPayBtn">Send Payment Link</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ADD COMPANY MODAL -->
+<div class="modal-overlay" id="addCompanyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add New Company</h2>
+      <button class="modal-close" onclick="closeModal('addCompanyModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="add-emp-form">
+        <div class="ae-group full"><label>Company Name <span style="color:#ef4444;">*</span></label><input type="text" id="nc_name" placeholder="e.g. Zenith Tech Nigeria Ltd" /></div>
+        <div class="ae-group"><label>Company Email <span style="color:#ef4444;">*</span></label><input type="email" id="nc_email" placeholder="hr@company.com" /></div>
+        <div class="ae-group"><label>Phone Number <span style="color:#ef4444;">*</span></label><input type="tel" id="nc_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="ae-group full"><label>Address <span style="color:#ef4444;">*</span></label><input type="text" id="nc_address" placeholder="e.g. 12 Marina Street, Lagos Island, Lagos" /></div>
+        <div class="ae-group"><label>Company Size <span style="color:#ef4444;">*</span></label>
+          <select id="nc_size">
+            <option value="" disabled selected>Select size range</option>
+            <option>1 – 10 employees</option>
+            <option>11 – 50 employees</option>
+            <option>51 – 100 employees</option>
+            <option>101 – 250 employees</option>
+            <option>251 – 500 employees</option>
+            <option>500+ employees</option>
+          </select>
+        </div>
+        <div class="ae-group"><label>HMO Plan <span style="color:#ef4444;">*</span></label>
+          <select id="nc_plan">
+            <option value="" disabled selected>Select plan</option>
+            <option>Basic</option>
+            <option>Standard</option>
+            <option>Premium</option>
+            <option>Enterprise</option>
+          </select>
+        </div>
+        <div class="ae-group"><label>Industry</label><input type="text" id="nc_industry" placeholder="e.g. Technology, Finance, Healthcare" /></div>
+        <div class="ae-group"><label>HR Contact Name</label><input type="text" id="nc_contact" placeholder="Full name of HR contact" /></div>
+        <div class="ae-group"><label>Start Date</label><input type="date" id="nc_start" /></div>
+        <div class="ae-group"><label>Monthly Premium (₦)</label><input type="number" id="nc_premium" placeholder="e.g. 500000" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addCompanyModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="saveCompany()">Add Company</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ADD EMPLOYEE MODAL -->
+<div class="modal-overlay" id="addEmployeeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="addEmpTitle">Add Employee</h2>
+      <button class="modal-close" onclick="closeModal('addEmployeeModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="add-emp-form">
+        <div class="ae-group"><label>First Name <span style="color:#ef4444;">*</span></label><input type="text" id="ne_firstname" placeholder="First name" /></div>
+        <div class="ae-group"><label>Last Name <span style="color:#ef4444;">*</span></label><input type="text" id="ne_lastname" placeholder="Last name" /></div>
+        <div class="ae-group"><label>Email <span style="color:#ef4444;">*</span></label><input type="email" id="ne_email" placeholder="employee@company.com" /></div>
+        <div class="ae-group"><label>Phone</label><input type="tel" id="ne_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="ae-group"><label>Company <span style="color:#ef4444;">*</span></label>
+          <select id="ne_company"></select>
+        </div>
+        <div class="ae-group"><label>Job Title</label><input type="text" id="ne_title" placeholder="e.g. Software Engineer" /></div>
+        <div class="ae-group"><label>Date of Birth</label><input type="date" id="ne_dob" /></div>
+        <div class="ae-group"><label>Coverage Start Date</label><input type="date" id="ne_start" /></div>
+        <div class="ae-group full"><label>Plan</label>
+          <select id="ne_plan">
+            <option value="" disabled selected>Select plan</option>
+            <option>Basic</option>
+            <option>Standard</option>
+            <option>Premium</option>
+            <option>Enterprise</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addEmployeeModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="saveEmployee()">Add Employee</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- EMPLOYEE DETAIL MODAL -->
+<div class="modal-overlay" id="empDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="empDetailTitle">Employee Coverage</h2>
+      <button class="modal-close" onclick="closeModal('empDetailModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="empDetailBody"></div>
+    <div class="modal-footer" id="empDetailFooter"></div>
+  </div>
+</div>
+ 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  /*if (!user.loggedIn || user.role !== 'hmo') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }*/
+ 
+  // ── DATA ──
+  const companies = [
+    { id:1, name:'Zenith Tech Nigeria Ltd', email:'hr@zenithtech.ng', phone:'+234 801 100 2000', address:'12 Marina St, Lagos Island, Lagos', size:'101 – 250 employees', industry:'Technology', contact:'Adaeze Okafor', plan:'Enterprise', employees:87, premium:1200000, status:'active', since:'Jan 2026', nextBilling:'1 May 2026' },
+    { id:2, name:'First Bank of Nigeria', email:'hmo@firstbank.ng', phone:'+234 802 200 3000', address:'35 Marina, Lagos Island, Lagos', size:'500+ employees', industry:'Finance', contact:'Emeka Nwaka', plan:'Enterprise', employees:62, premium:900000, status:'active', since:'Feb 2026', nextBilling:'1 May 2026' },
+    { id:3, name:'HealthPlus Pharmacy', email:'hr@healthplus.ng', phone:'+234 803 300 4000', address:'Lekki Phase 1, Lagos', size:'51 – 100 employees', industry:'Healthcare', contact:'Ngozi Obi', plan:'Premium', employees:34, premium:480000, status:'active', since:'Mar 2026', nextBilling:'1 May 2026' },
+    { id:4, name:'Dangote Industries', email:'hmo@dangote.ng', phone:'+234 804 400 5000', address:'Union Marble House, Lagos', size:'500+ employees', industry:'Manufacturing', contact:'Kola Balogun', plan:'Premium', employees:29, premium:420000, status:'overdue', since:'Jan 2026', nextBilling:'Overdue' },
+    { id:5, name:'MTN Nigeria', email:'hr@mtn.ng', phone:'+234 805 500 6000', address:'MTN House, Falomo, Lagos', size:'251 – 500 employees', industry:'Telecoms', contact:'Fatima Aliyu', plan:'Standard', employees:18, premium:280000, status:'active', since:'Mar 2026', nextBilling:'1 May 2026' },
+    { id:6, name:'Stanbic IBTC Bank', email:'hmo@stanbicibtc.ng', phone:'+234 806 600 7000', address:'Stanbic IBTC Towers, VI, Lagos', size:'251 – 500 employees', industry:'Finance', contact:'Taiwo Adeyemi', plan:'Standard', employees:8, premium:120000, status:'overdue', since:'Feb 2026', nextBilling:'Overdue' },
+    { id:7, name:'Andela Nigeria', email:'hr@andela.com', phone:'+234 807 700 8000', address:'Ikorodu Road, Lagos', size:'51 – 100 employees', industry:'Technology', contact:'Chidi Okafor', plan:'Standard', employees:6, premium:96000, status:'active', since:'Apr 2026', nextBilling:'1 May 2026' },
+    { id:8, name:'Chicken Republic', email:'hmo@chickenrepublic.ng', phone:'+234 808 800 9000', address:'26 Adeola Odeku, VI, Lagos', size:'11 – 50 employees', industry:'Food & Beverage', contact:'Sade Coker', plan:'Basic', employees:3, premium:36000, status:'pending', since:'Apr 2026', nextBilling:'1 May 2026' },
+  ];
+ 
+  const employees = [
+    { id:1, first:'Amara', last:'Osei', email:'amara.osei@zenithtech.ng', phone:'+234 811 111 1111', company:'Zenith Tech Nigeria Ltd', companyId:1, title:'Senior Developer', dob:'12 Mar 1985', plan:'Enterprise', since:'1 Jan 2026', policy:'DH-HMO-001-0001', status:'active' },
+    { id:2, first:'Emeka', last:'Nwachukwu', email:'emeka@zenithtech.ng', phone:'+234 812 222 2222', company:'Zenith Tech Nigeria Ltd', companyId:1, title:'Product Manager', dob:'4 Jun 1980', plan:'Enterprise', since:'1 Jan 2026', policy:'DH-HMO-001-0002', status:'active' },
+    { id:3, first:'Grace', last:'Okonkwo', email:'grace@firstbank.ng', phone:'+234 813 333 3333', company:'First Bank of Nigeria', companyId:2, title:'Branch Manager', dob:'29 Aug 1975', plan:'Enterprise', since:'1 Feb 2026', policy:'DH-HMO-002-0001', status:'active' },
+    { id:4, first:'Fatima', last:'Kabir', email:'fatima@firstbank.ng', phone:'+234 814 444 4444', company:'First Bank of Nigeria', companyId:2, title:'Loans Officer', dob:'11 Jan 1992', plan:'Enterprise', since:'1 Feb 2026', policy:'DH-HMO-002-0002', status:'active' },
+    { id:5, first:'Taiwo', last:'Oluwaseun', email:'taiwo@healthplus.ng', phone:'+234 815 555 5555', company:'HealthPlus Pharmacy', companyId:3, title:'Pharmacist', dob:'7 May 1988', plan:'Premium', since:'1 Mar 2026', policy:'DH-HMO-003-0001', status:'active' },
+    { id:6, first:'Bukola', last:'Ibrahim', email:'bukola@healthplus.ng', phone:'+234 816 666 6666', company:'HealthPlus Pharmacy', companyId:3, title:'Store Manager', dob:'3 Oct 1990', plan:'Premium', since:'1 Mar 2026', policy:'DH-HMO-003-0002', status:'active' },
+    { id:7, first:'Chukwuemeka', last:'Uche', email:'chukwu@dangote.ng', phone:'+234 817 777 7777', company:'Dangote Industries', companyId:4, title:'Engineer', dob:'7 May 1978', plan:'Premium', since:'1 Jan 2026', policy:'DH-HMO-004-0001', status:'inactive' },
+    { id:8, first:'Ngozi', last:'Anyanwu', email:'ngozi@mtn.ng', phone:'+234 818 888 8888', company:'MTN Nigeria', companyId:5, title:'Sales Executive', dob:'3 Oct 1993', plan:'Standard', since:'1 Mar 2026', policy:'DH-HMO-005-0001', status:'active' },
+    { id:9, first:'Rotimi', last:'Fadahunsi', email:'rotimi@mtn.ng', phone:'+234 819 999 9999', company:'MTN Nigeria', companyId:5, title:'Network Engineer', dob:'19 Jul 1986', plan:'Standard', since:'1 Mar 2026', policy:'DH-HMO-005-0002', status:'active' },
+    { id:10, first:'Chiamaka', last:'Nwosu', email:'chiamaka@stanbic.ng', phone:'+234 820 000 1111', company:'Stanbic IBTC Bank', companyId:6, title:'Relationship Manager', dob:'14 Mar 1991', plan:'Standard', since:'1 Feb 2026', policy:'DH-HMO-006-0001', status:'pending' },
+    { id:11, first:'Yusuf', last:'Lawal', email:'yusuf@andela.com', phone:'+234 821 111 2222', company:'Andela Nigeria', companyId:7, title:'Software Engineer', dob:'3 Sep 1994', plan:'Standard', since:'1 Apr 2026', policy:'DH-HMO-007-0001', status:'active' },
+    { id:12, first:'Blessing', last:'Eze', email:'blessing@chickenrep.ng', phone:'+234 822 222 3333', company:'Chicken Republic', companyId:8, title:'Store Supervisor', dob:'22 Jul 1997', plan:'Basic', since:'1 Apr 2026', policy:'DH-HMO-008-0001', status:'pending' },
+  ];
+ 
+  const planColors = { 'Enterprise':'#1a2550', 'Premium':'#9333ea', 'Standard':'#0891b2', 'Basic':'#6b7280' };
+  let currentEmpTab = 'all';
+ 
+  function getInitials(first, last) { return (first[0] + last[0]).toUpperCase(); }
+ 
+  // ── RENDER COMPANIES ──
+  function renderCompanies(data) {
+    const tbody = document.getElementById('companiesBody');
+    tbody.innerHTML = data.map((c, i) => `
+      <tr>
+        <td>
+          <div class="td-name">${c.name}</div>
+          <div class="td-sub">${c.industry} · ${c.size}</div>
+        </td>
+        <td><span style="background:${planColors[c.plan]}18;color:${planColors[c.plan]};font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:5px;">${c.plan}</span></td>
+        <td><strong>${c.employees}</strong></td>
+        <td>₦${c.premium.toLocaleString()}</td>
+        <td>${statusBadge(c.status)}</td>
+        <td>
+          <div class="td-actions">
+            <button class="act-btn act-view" onclick="openCompany(${companies.indexOf(c)})">View</button>
+            <button class="act-btn act-employees" onclick="filterEmployeesForCompany('${c.name}')">Employees</button>
+            <button class="act-btn act-payment" onclick="showToast('Payment link sent to ${c.email}')">Pay Link</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    document.getElementById('companyCount').textContent = data.length + ' companies';
+  }
+ 
+  function statusBadge(s) {
+    if (s === 'active') return '<span class="badge badge-active">Active</span>';
+    if (s === 'overdue') return '<span class="badge badge-overdue">Overdue</span>';
+    if (s === 'pending') return '<span class="badge badge-pending">Pending</span>';
+    return '<span class="badge badge-inactive">Inactive</span>';
+  }
+ 
+  // ── RENDER EMPLOYEES ──
+  function renderEmployees(data) {
+    const tbody = document.getElementById('employeesBody');
+    tbody.innerHTML = data.map(e => `
+      <tr data-status="${e.status}">
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="emp-avatar" style="background:${planColors[e.plan]};">${getInitials(e.first, e.last)}</div>
+            <div>
+              <div class="td-name">${e.first} ${e.last}</div>
+              <div class="td-sub">${e.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>${e.company}</td>
+        <td><span style="background:${planColors[e.plan]}18;color:${planColors[e.plan]};font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">${e.plan}</span></td>
+        <td>${e.since}</td>
+        <td style="font-family:monospace;font-size:12px;color:#8898c8;">${e.policy}</td>
+        <td>${statusBadge(e.status)}</td>
+        <td>
+          <div class="td-actions">
+            <button class="act-btn act-view" onclick="openEmployee(${employees.indexOf(e)})">View</button>
+            <button class="act-btn act-payment" onclick="removeEmployee(${employees.indexOf(e)}, this)">Remove</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    document.getElementById('empCount').textContent = data.length + ' employees';
+  }
+ 
+  // ── COMPANY FILTER / SEARCH ──
+  function filterCompanies(val) {
+    val = val.toLowerCase();
+    renderCompanies(companies.filter(c => c.name.toLowerCase().includes(val) || c.industry.toLowerCase().includes(val)));
+  }
+  function filterByPlan(val) {
+    renderCompanies(val ? companies.filter(c => c.plan === val) : companies);
+  }
+ 
+  // ── EMPLOYEE FILTER ──
+  function filterEmployees(val) {
+    val = val.toLowerCase();
+    const filtered = employees.filter(e =>
+      (e.first + ' ' + e.last).toLowerCase().includes(val) ||
+      e.email.toLowerCase().includes(val) ||
+      e.company.toLowerCase().includes(val)
+    );
+    renderEmployees(applyEmpTab(filtered));
+  }
+  function filterEmployeesByCompany(val) {
+    renderEmployees(applyEmpTab(val ? employees.filter(e => e.company === val) : employees));
+  }
+  function filterEmployeesForCompany(companyName) {
+    document.getElementById('empCompanyFilter').value = companyName;
+    renderEmployees(employees.filter(e => e.company === companyName));
+    document.querySelector('.card:last-child').scrollIntoView({ behavior: 'smooth' });
+  }
+  function setEmpTab(el, tab) {
+    currentEmpTab = tab;
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderEmployees(applyEmpTab(employees));
+  }
+  function applyEmpTab(data) {
+    if (currentEmpTab === 'all') return data;
+    return data.filter(e => e.status === currentEmpTab);
+  }
+ 
+  // ── OPEN COMPANY ──
+  function openCompany(i) {
+    const c = companies[i];
+    document.getElementById('companyModalTitle').textContent = c.name;
+    const empList = employees.filter(e => e.companyId === c.id);
+    document.getElementById('companyModalBody').innerHTML = `
+      <div class="modal-section"><h4>Company Details</h4>
+        <div class="detail-row"><span class="detail-label">Company Name</span><span class="detail-value">${c.name}</span></div>
+        <div class="detail-row"><span class="detail-label">Industry</span><span class="detail-value">${c.industry}</span></div>
+        <div class="detail-row"><span class="detail-label">Company Size</span><span class="detail-value">${c.size}</span></div>
+        <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${c.address}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${c.email}</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${c.phone}</span></div>
+        <div class="detail-row"><span class="detail-label">HR Contact</span><span class="detail-value">${c.contact}</span></div>
+      </div>
+      <div class="modal-section"><h4>Plan & Billing</h4>
+        <div class="detail-row"><span class="detail-label">HMO Plan</span><span class="detail-value">${c.plan}</span></div>
+        <div class="detail-row"><span class="detail-label">Enrolled Since</span><span class="detail-value">${c.since}</span></div>
+        <div class="detail-row"><span class="detail-label">Employees Covered</span><span class="detail-value">${c.employees}</span></div>
+        <div class="detail-row"><span class="detail-label">Monthly Premium</span><span class="detail-value" style="font-weight:700;">₦${c.premium.toLocaleString()}</span></div>
+        <div class="detail-row"><span class="detail-label">Next Billing</span><span class="detail-value">${c.nextBilling}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</span></div>
+      </div>
+      <div class="modal-section"><h4>Covered Employees (${empList.length})</h4>
+        ${empList.map(e => `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f6fc;font-size:13px;"><div class="emp-avatar" style="background:${planColors[e.plan]};width:28px;height:28px;font-size:10px;">${getInitials(e.first,e.last)}</div><div><strong>${e.first} ${e.last}</strong> · ${e.title}</div>${statusBadge(e.status)}</div>`).join('')}
+      </div>
+    `;
+    document.getElementById('companyModalPayBtn').onclick = () => {
+      showToast('Payment link sent to ' + c.email);
+      closeModal('companyModal');
+    };
+    document.getElementById('companyModal').classList.add('open');
+  }
+ 
+  // ── OPEN EMPLOYEE ──
+  function openEmployee(i) {
+    const e = employees[i];
+    document.getElementById('empDetailTitle').textContent = e.first + ' ' + e.last;
+    document.getElementById('empDetailBody').innerHTML = `
+      <div class="modal-section"><h4>Personal Details</h4>
+        <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${e.first} ${e.last}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${e.email}</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${e.phone}</span></div>
+        <div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">${e.dob}</span></div>
+        <div class="detail-row"><span class="detail-label">Job Title</span><span class="detail-value">${e.title}</span></div>
+      </div>
+      <div class="modal-section"><h4>Coverage Details</h4>
+        <div class="detail-row"><span class="detail-label">Company</span><span class="detail-value">${e.company}</span></div>
+        <div class="detail-row"><span class="detail-label">HMO Plan</span><span class="detail-value">${e.plan}</span></div>
+        <div class="detail-row"><span class="detail-label">Policy Number</span><span class="detail-value" style="font-family:monospace;">${e.policy}</span></div>
+        <div class="detail-row"><span class="detail-label">Coverage Start</span><span class="detail-value">${e.since}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${e.status.charAt(0).toUpperCase() + e.status.slice(1)}</span></div>
+      </div>
+    `;
+    document.getElementById('empDetailFooter').innerHTML = `
+      <button class="btn-modal-close" onclick="closeModal('empDetailModal')">Close</button>
+      <button class="btn-modal-danger" onclick="removeEmployee(${i}, null); closeModal('empDetailModal')">Remove Employee</button>
+      <button class="btn-modal-primary" onclick="showToast('Coverage card sent to ${e.email}'); closeModal('empDetailModal')">Send Coverage Card</button>
+    `;
+    document.getElementById('empDetailModal').classList.add('open');
+  }
+ 
+  // ── ADD COMPANY ──
+  function openAddCompany() {
+    ['nc_name','nc_email','nc_phone','nc_address','nc_industry','nc_contact','nc_premium'].forEach(id => document.getElementById(id).value = '');
+    ['nc_size','nc_plan'].forEach(id => document.getElementById(id).selectedIndex = 0);
+    document.getElementById('nc_start').value = new Date().toISOString().split('T')[0];
+    document.getElementById('addCompanyModal').classList.add('open');
+  }
+ 
+  function saveCompany() {
+    const name = document.getElementById('nc_name').value.trim();
+    const email = document.getElementById('nc_email').value.trim();
+    const phone = document.getElementById('nc_phone').value.trim();
+    const address = document.getElementById('nc_address').value.trim();
+    const size = document.getElementById('nc_size').value;
+    const plan = document.getElementById('nc_plan').value;
+    if (!name || !email || !phone || !address || !size || !plan) {
+      showToast('Please fill in all required fields.');
+      return;
+    }
+    const newCo = {
+      id: companies.length + 1, name, email, phone, address, size,
+      industry: document.getElementById('nc_industry').value || 'Other',
+      contact: document.getElementById('nc_contact').value || '—',
+      plan, employees: 0,
+      premium: parseInt(document.getElementById('nc_premium').value) || 0,
+      status: 'pending',
+      since: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+      nextBilling: '1 May 2026'
+    };
+    companies.push(newCo);
+    // Add to employee company filter
+    const opt = document.createElement('option');
+    opt.value = newCo.name; opt.textContent = newCo.name;
+    document.getElementById('empCompanyFilter').appendChild(opt);
+    renderCompanies(companies);
+    closeModal('addCompanyModal');
+    showToast('✅ ' + name + ' added successfully!');
+  }
+ 
+  // ── ADD EMPLOYEE ──
+  function openAddEmployee(companyName) {
+    ['ne_firstname','ne_lastname','ne_email','ne_phone','ne_title'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ne_dob').value = '';
+    document.getElementById('ne_start').value = new Date().toISOString().split('T')[0];
+    document.getElementById('ne_plan').selectedIndex = 0;
+    // Populate company dropdown
+    const sel = document.getElementById('ne_company');
+    sel.innerHTML = '<option value="" disabled selected>Select company</option>' +
+      companies.map(c => `<option value="${c.name}" ${companyName === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
+    document.getElementById('addEmpTitle').textContent = companyName ? 'Add Employee — ' + companyName : 'Add Employee';
+    document.getElementById('addEmployeeModal').classList.add('open');
+  }
+ 
+  function saveEmployee() {
+    const first = document.getElementById('ne_firstname').value.trim();
+    const last = document.getElementById('ne_lastname').value.trim();
+    const email = document.getElementById('ne_email').value.trim();
+    const company = document.getElementById('ne_company').value;
+    const plan = document.getElementById('ne_plan').value;
+    if (!first || !last || !email || !company || !plan) {
+      showToast('Please fill in all required fields.');
+      return;
+    }
+    const co = companies.find(c => c.name === company);
+    const newEmp = {
+      id: employees.length + 1, first, last, email,
+      phone: document.getElementById('ne_phone').value || '—',
+      company, companyId: co ? co.id : 0,
+      title: document.getElementById('ne_title').value || '—',
+      dob: document.getElementById('ne_dob').value || '—',
+      plan,
+      since: document.getElementById('ne_start').value || new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+      policy: 'DH-HMO-' + String(co ? co.id : 99).padStart(3,'0') + '-' + String(employees.length + 1).padStart(4,'0'),
+      status: 'pending'
+    };
+    employees.push(newEmp);
+    if (co) co.employees++;
+    renderEmployees(applyEmpTab(employees));
+    renderCompanies(companies);
+    closeModal('addEmployeeModal');
+    showToast('✅ ' + first + ' ' + last + ' added successfully!');
+  }
+ 
+  function removeEmployee(i, btn) {
+    const e = employees[i];
+    if (!confirm('Remove ' + e.first + ' ' + e.last + ' from HMO coverage?')) return;
+    e.status = 'inactive';
+    renderEmployees(applyEmpTab(employees));
+    showToast(e.first + ' ' + e.last + ' removed from active coverage.');
+  }
+ 
+  // ── UTILS ──
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+ 
+  // ── INIT ──
+  // Populate company filter
+  const empCo = document.getElementById('empCompanyFilter');
+  companies.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name; opt.textContent = c.name;
+    empCo.appendChild(opt);
+  });
+  renderCompanies(companies);
+  renderEmployees(employees);
+</script>
+</body>
+</html>

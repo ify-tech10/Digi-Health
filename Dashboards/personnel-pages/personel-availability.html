@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — My Availability</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../personnel-styles/availability.css">
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="/Dashboards/dashboard-caregiver.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Caregiver Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="/Dashboards/dashboard-caregiver.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="personnel-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Schedule</a>
+    <a class="nav-item" href="personnel-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Patients</a>
+    <a class="nav-item" href="personel-availability.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Availability</a>
+    <a class="nav-item active" href="personel-reports.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Earnings</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>My Availability</h1>
+      <p>Set and manage your monthly schedule so admin can assign visits correctly</p>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <div class="user-chip"><div class="user-avatar">BA</div><span>Nurse Blessing</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+    <div class="page-grid">
+ 
+      <!-- ── LEFT: CALENDAR ── -->
+      <div>
+        <div class="cal-card">
+          <!-- Header -->
+          <div class="cal-header">
+            <h3>Availability Calendar</h3>
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <span class="cal-month-label" id="calMonthLabel"></span>
+              <button class="cal-nav-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+ 
+          <!-- Legend -->
+          <div class="cal-legend">
+            <span class="legend-item"><span class="legend-dot available"></span>Available</span>
+            <span class="legend-item"><span class="legend-dot unavailable"></span>Unavailable</span>
+            <span class="legend-item"><span class="legend-dot partial"></span>Partial Day</span>
+            <span class="legend-item"><span class="legend-dot booked"></span>Visit Booked</span>
+            <span class="legend-item"><span class="legend-dot today"></span>Today</span>
+          </div>
+ 
+          <!-- Calendar grid -->
+          <div class="cal-body">
+            <div class="cal-weekdays">
+              <div class="cal-weekday">Sun</div>
+              <div class="cal-weekday">Mon</div>
+              <div class="cal-weekday">Tue</div>
+              <div class="cal-weekday">Wed</div>
+              <div class="cal-weekday">Thu</div>
+              <div class="cal-weekday">Fri</div>
+              <div class="cal-weekday">Sat</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+ 
+          <!-- Bulk actions -->
+          <div class="bulk-bar">
+            <span class="bulk-label">Bulk set:</span>
+            <button class="bulk-btn bulk-available" onclick="bulkSet('available')">✓ All Weekdays Available</button>
+            <button class="bulk-btn bulk-unavailable" onclick="bulkSet('unavailable')">✕ Mark Weekends Off</button>
+            <button class="bulk-btn bulk-clear" onclick="bulkSet('clear')">Clear All</button>
+            <button class="save-btn" onclick="saveAvailability()">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Schedule
+            </button>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ── RIGHT PANEL ── -->
+      <div class="right-panel">
+ 
+        <!-- Day detail -->
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h3>Day Settings</h3>
+            <p id="detailSubtitle">Click any day on the calendar to set availability</p>
+          </div>
+          <div class="detail-card-body">
+            <div id="noDaySelected" style="text-align:center;padding:24px 0;">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c8d6e8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <p style="font-size:13px;color:#b0b8d0;">No day selected.<br/>Click a day to edit.</p>
+            </div>
+            <div id="dayEditor" style="display:none;">
+              <!-- Selected day banner -->
+              <div class="selected-day-banner">
+                <div class="sdb-date" id="editorDateLabel">Monday, 28 April 2026</div>
+                <div class="sdb-status" id="editorStatusLabel">Not set</div>
+              </div>
+ 
+              <!-- Status options -->
+              <div class="status-options">
+                <div class="status-option s-available" id="opt-available" onclick="setDayStatus('available')">
+                  <div class="so-dot so-dot-green"></div>
+                  <div><div class="so-label">Available</div><div class="so-sub">Open for visit assignments</div></div>
+                </div>
+                <div class="status-option s-partial" id="opt-partial" onclick="setDayStatus('partial')">
+                  <div class="so-dot so-dot-orange"></div>
+                  <div><div class="so-label">Partial Day</div><div class="so-sub">Available for specific hours only</div></div>
+                </div>
+                <div class="status-option s-unavailable" id="opt-unavailable" onclick="setDayStatus('unavailable')">
+                  <div class="so-dot so-dot-red"></div>
+                  <div><div class="so-label">Unavailable</div><div class="so-sub">No visits on this day</div></div>
+                </div>
+              </div>
+ 
+              <!-- Time slots (shown when available or partial) -->
+              <div id="timeSlotsSection">
+                <div class="time-slots-label">Available Time Slots</div>
+                <div class="time-slots-grid" id="timeSlotsGrid">
+                  <div class="time-slot" data-slot="6AM-9AM" onclick="toggleSlot(this)">6AM – 9AM</div>
+                  <div class="time-slot" data-slot="9AM-12PM" onclick="toggleSlot(this)">9AM – 12PM</div>
+                  <div class="time-slot" data-slot="12PM-3PM" onclick="toggleSlot(this)">12PM – 3PM</div>
+                  <div class="time-slot" data-slot="3PM-6PM" onclick="toggleSlot(this)">3PM – 6PM</div>
+                  <div class="time-slot" data-slot="6PM-8PM" onclick="toggleSlot(this)">6PM – 8PM</div>
+                  <div class="time-slot" data-slot="Emergency" onclick="toggleSlot(this)">Emergency Only</div>
+                </div>
+              </div>
+ 
+              <!-- Note -->
+              <div class="note-label">Note (optional)</div>
+              <textarea class="note-input" id="dayNote" placeholder="e.g. Available from 10AM only, doctor's appointment in morning..."></textarea>
+ 
+              <button class="apply-day-btn" onclick="applyDaySettings()">Apply to This Day</button>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Monthly summary -->
+        <div class="detail-card">
+          <div class="detail-card-header"><h3>Month Summary</h3></div>
+          <div class="detail-card-body">
+            <div class="summary-row"><span class="sr-label"><span class="sr-dot" style="background:var(--green);"></span>Available days</span><span class="sr-val" id="sumAvailable">0</span></div>
+            <div class="summary-row"><span class="sr-label"><span class="sr-dot" style="background:#f97316;"></span>Partial days</span><span class="sr-val" id="sumPartial">0</span></div>
+            <div class="summary-row"><span class="sr-label"><span class="sr-dot" style="background:#ef4444;"></span>Unavailable days</span><span class="sr-val" id="sumUnavailable">0</span></div>
+            <div class="summary-row"><span class="sr-label"><span class="sr-dot" style="background:#3b82f6;"></span>Visits booked</span><span class="sr-val" id="sumBooked">0</span></div>
+            <div class="summary-row"><span class="sr-label"><span class="sr-dot" style="background:#e0e4f0;"></span>Not set</span><span class="sr-val" id="sumUnset">0</span></div>
+          </div>
+        </div>
+ 
+        <!-- Default working hours -->
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h3>Default Working Days</h3>
+            <p style="font-size:12px;color:#8898c8;margin-top:2px;">Toggle days you work by default</p>
+          </div>
+          <div class="detail-card-body">
+            <div id="workingDaysWrap"></div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f2fb;">
+              <div class="time-slots-label" style="margin-bottom:6px;">Default Hours</div>
+              <div style="display:flex;gap:10px;align-items:center;font-size:13px;">
+                <select id="defaultStart" style="border:1.5px solid #dde0ee;border-radius:7px;padding:7px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;flex:1;">
+                  <option>6:00 AM</option><option>7:00 AM</option><option selected>8:00 AM</option><option>9:00 AM</option><option>10:00 AM</option>
+                </select>
+                <span style="color:#8898c8;font-weight:600;">to</span>
+                <select id="defaultEnd" style="border:1.5px solid #dde0ee;border-radius:7px;padding:7px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;flex:1;">
+                  <option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option><option selected>6:00 PM</option><option>8:00 PM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+ 
+<script src="../personnel-scripts/availability.js"></script>
+</body>
+</html>
+ 
