@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Pharmacies</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../admin-styles/pharmacies.css">
+</head>
+<body>
+ 
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-admin.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Admin Panel</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item" href="admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</a>
+    <a class="nav-item" href="admin-personnel.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
+    <a class="nav-item" href="admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+    <a class="nav-item" href="admin-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Applications <span class="nav-badge">3</span></a>
+    <a class="nav-item" href="admin-hmo-coverage.html"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>HMO Coverage <span class="nav-badge-teal">5</span></a>
+    <div class="nav-section-label">Infrastructure</div>
+    <a class="nav-item" href="admin-hospitals.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Hospitals</a>
+    <a class="nav-item active" href="admin-pharmacies.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/></svg>Pharmacies</a>
+    <a class="nav-item" href="admin-laboratories.html"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h20l-5-5V3"/></svg>Laboratories</a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="admin-analytics.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</a>
+    <a class="nav-item" href="admin-financials.html"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financials</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+ 
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Pharmacies</h1><p>Manage partner pharmacies across Lagos</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">AD</div><span>Admin</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- API Integration Banner -->
+    <div class="api-banner">
+      <div class="api-banner-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="api-banner-text">
+        <strong>Backend Integration Ready</strong>
+        <span id="apiEndpointLabel">Endpoint: GET /api/pharmacies — currently using local data</span>
+      </div>
+      <div class="api-banner-status mock" id="apiStatusBadge">
+        <div class="api-dot"></div> Mock Data
+      </div>
+    </div>
+ 
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card c-green"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/></svg></div><span class="stat-delta" id="deltaLabel">+2 this month</span></div><div class="stat-value" id="statTotal">—</div><div class="stat-label">Total Pharmacies</div></div>
+      <div class="stat-card c-blue"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="stat-value" id="statActive">—</div><div class="stat-label">Active Partners</div></div>
+      <div class="stat-card c-purple"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div><div class="stat-value" id="stat24h">—</div><div class="stat-label">24hr Pharmacies</div></div>
+      <div class="stat-card c-orange"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div><div class="stat-value" id="statDelivery">—</div><div class="stat-label">Offer Delivery</div></div>
+    </div>
+ 
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search pharmacies by name, area or chain..." oninput="filterCards(this.value)" /></div>
+      <select class="filter-select" onchange="filterByStatus(this.value)">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <select class="filter-select" onchange="filterByArea(this.value)" id="areaFilter">
+        <option value="">All Areas</option>
+      </select>
+      <button class="btn-add" onclick="openAdd()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Pharmacy</button>
+    </div>
+ 
+    <!-- Skeleton (shown while loading) -->
+    <div class="skeleton-grid" id="skeleton">
+      ${Array(6).fill(0).map(()=>`<div class="skeleton-card"><div class="skel skel-h4"></div><div class="skel skel-h3"></div><div class="skel skel-line" style="width:100%"></div><div class="skel skel-line" style="width:85%"></div><div class="skel skel-line"></div></div>`).join('')}
+    </div>
+ 
+    <!-- Cards grid -->
+    <div class="infra-grid" id="infraGrid" style="display:none;"></div>
+  </div>
+</div>
+ 
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="viewModalTitle">Pharmacy Details</h2><button class="modal-close" onclick="closeModal('viewModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="viewModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('viewModal')">Close</button>
+      <button class="btn-modal-delete" id="viewDeleteBtn">Delete Pharmacy</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add New Pharmacy</h2><button class="modal-close" onclick="closeModal('addModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div id="addApiNotice" class="api-notice" style="display:none;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        API unavailable — saving locally. Data will sync when backend is connected.
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Pharmacy Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="e.g. MedPlus Pharmacy — VI Branch" /></div>
+        <div class="form-group"><label>Chain / Brand</label><input type="text" id="f_chain" placeholder="e.g. MedPlus, HealthPlus, Drugfield" /></div>
+        <div class="form-group"><label>Status</label>
+          <select id="f_status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        <div class="form-group full"><label>Address <span class="req">*</span></label><input type="text" id="f_address" placeholder="Full street address" /></div>
+        <div class="form-group"><label>Area / LGA <span class="req">*</span></label><input type="text" id="f_area" placeholder="e.g. Victoria Island" /></div>
+        <div class="form-group"><label>Phone <span class="req">*</span></label><input type="tel" id="f_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="f_email" placeholder="pharmacy@email.com" /></div>
+        <div class="form-group"><label>Contact Person</label><input type="text" id="f_contact" placeholder="Pharmacist in charge" /></div>
+        <div class="form-group"><label>Opening Hours</label><input type="text" id="f_hours" placeholder="e.g. 8AM – 10PM" /></div>
+        <div class="form-group"><label>NAFDAC Reg. No.</label><input type="text" id="f_nafdac" placeholder="e.g. PCN/0001/2025" /></div>
+        <div class="form-group full">
+          <label style="margin-bottom:8px;">Services Offered</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <label class="check-row"><input type="checkbox" id="s_24h" name="svc" value="24hr"/> Open 24 Hours</label>
+            <label class="check-row"><input type="checkbox" id="s_delivery" name="svc" value="Home Delivery"/> Home Delivery</label>
+            <label class="check-row"><input type="checkbox" id="s_compound" name="svc" value="Compounding"/> Compounding</label>
+            <label class="check-row"><input type="checkbox" id="s_vaccine" name="svc" value="Vaccinations"/> Vaccinations</label>
+            <label class="check-row"><input type="checkbox" id="s_consult" name="svc" value="Pharmacist Consultation"/> Pharmacist Consultation</label>
+            <label class="check-row"><input type="checkbox" id="s_generic" name="svc" value="Generic Medicines"/> Generic Medicines</label>
+          </div>
+        </div>
+        <div class="form-group full"><label>Notes</label><textarea id="f_notes" placeholder="Any additional details..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-submit" id="addSubmitBtn" onclick="addItem()">Add Pharmacy</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:420px;">
+    <div class="modal-header"><h2>Delete Pharmacy</h2><button class="modal-close" onclick="closeModal('deleteModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="delete-confirm">⚠️ This action cannot be undone. The pharmacy will be permanently removed.</div>
+      <p style="font-size:13.5px;color:#5a6690;">Are you sure you want to delete <strong id="deleteItemName"></strong>?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn-modal-delete" id="confirmDeleteBtn">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+ 
+<script>
+  /* ═══════════════════════════════════════════════════
+     API CONFIG — swap API_BASE to your Render URL when ready
+     and set USE_API = true
+  ═══════════════════════════════════════════════════ */
+  const API_BASE = 'https://your-app.onrender.com/api'; // 🔧 Change this
+  const USE_API  = false; // 🔧 Set to true when backend is ready
+ 
+  async function apiFetch(path, options = {}) {
+    const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(user.token ? { Authorization: `Bearer ${user.token}` } : {}),
+      ...options.headers,
+    };
+    const res = await fetch(API_BASE + path, { ...options, headers });
+    if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = '../../../login.html'; }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+ 
+  /* ═══ AUTH ═══ */
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  if (!user.loggedIn || user.role !== 'admin') window.location.href = '../../../login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../../login.html'; }
+ 
+  /* ═══ LOCAL FALLBACK DATA ═══ */
+  const SEED = [
+    { id:1, name:'MedPlus Pharmacy — Victoria Island', chain:'MedPlus', status:'active', address:'12 Adeola Odeku Street, Victoria Island, Lagos', area:'Victoria Island', phone:'+234 1 271 5050', email:'vi@medplus.ng', contact:'PharmD. Amara Osei', hours:'8AM – 10PM', nafdac:'PCN/1001/2025', services:['Home Delivery','Pharmacist Consultation','Generic Medicines'], notes:'Flagship VI branch. Fast prescription filling. Key partner for patient medication supply.', added:'Jan 2026' },
+    { id:2, name:'HealthPlus Pharmacy — Lekki Phase 1', chain:'HealthPlus', status:'active', address:'5A Hakeem Dickson Drive, Lekki Phase 1, Lagos', area:'Lekki', phone:'+234 1 271 6060', email:'lekki@healthplus.ng', contact:'Pharm. Ngozi Obiechina', hours:'8AM – 11PM', nafdac:'PCN/1002/2025', services:['Home Delivery','24hr','Vaccinations','Pharmacist Consultation'], notes:'24hr pharmacy. Strong relationship for emergency medication dispatch.', added:'Jan 2026' },
+    { id:3, name:'Drugfield Pharmacy — Ikeja GRA', chain:'Drugfield', status:'active', address:'4B Oba Akinjobi Street, Ikeja GRA, Lagos', area:'Ikeja', phone:'+234 802 333 4444', email:'ikeja@drugfield.ng', contact:'Pharm. Emeka Nwachukwu', hours:'24 Hours', nafdac:'PCN/1003/2025', services:['24hr','Compounding','Generic Medicines','Home Delivery'], notes:'Compounding specialist. Good for customised prescriptions.', added:'Feb 2026' },
+    { id:4, name:'Renny Pharmacy — Surulere', chain:'Independent', status:'active', address:'14 Adeniran Ogunsanya Street, Surulere, Lagos', area:'Surulere', phone:'+234 803 444 5555', email:'renny@pharmacy.ng', contact:'Pharm. Taiwo Adeyinka', hours:'8AM – 9PM', nafdac:'PCN/1004/2025', services:['Generic Medicines','Pharmacist Consultation'], notes:'Community pharmacy. Covers Surulere and Ajeromi area for DiGi patients.', added:'Feb 2026' },
+    { id:5, name:'Alpha Pharmacy — Gbagada', chain:'Alpha Pharmacy', status:'active', address:'12 Hospital Road, Gbagada, Lagos', area:'Gbagada', phone:'+234 804 555 6666', email:'gbagada@alphapharmacy.ng', contact:'Pharm. Blessing Eze', hours:'8AM – 8PM', nafdac:'PCN/1005/2025', services:['Generic Medicines','Vaccinations'], notes:'Close to Gbagada General Hospital. Good for post-discharge medication pickup.', added:'Mar 2026' },
+    { id:6, name:'PharmaCare — Yaba', chain:'PharmaCare', status:'active', address:'3 Herbert Macaulay Way, Yaba, Lagos', area:'Yaba', phone:'+234 805 666 7777', email:'yaba@pharmacare.ng', contact:'Pharm. Chukwuemeka Uche', hours:'7AM – 10PM', nafdac:'PCN/1006/2025', services:['Home Delivery','Generic Medicines','Pharmacist Consultation'], notes:'Near LUTH. Frequently used for patient medication top-ups.', added:'Mar 2026' },
+    { id:7, name:'MedHub Pharmacy — Magodo', chain:'MedHub', status:'active', address:'6 Magodo Phase 2, Lagos', area:'Magodo', phone:'+234 806 777 8888', email:'magodo@medhub.ng', contact:'Pharm. Fatima Kabir', hours:'8AM – 9PM', nafdac:'PCN/1007/2025', services:['Home Delivery','Generic Medicines'], notes:'Key pharmacy for Magodo and Ojodu patient coverage zone.', added:'Apr 2026' },
+    { id:8, name:'WellCare Pharmacy — Ikoyi', chain:'WellCare', status:'inactive', address:'22 Bourdillon Road, Ikoyi, Lagos', area:'Ikoyi', phone:'+234 807 888 9999', email:'ikoyi@wellcare.ng', contact:'Pharm. Admin', hours:'Closed temporarily', nafdac:'PCN/1008/2025', services:['Pharmacist Consultation'], notes:'Currently inactive — undergoing re-licensing. Do not refer patients.', added:'Jan 2026' },
+  ];
+ 
+  let items = [];
+  let deleteId = null;
+  let filterSearch = '';
+  let filterStatus = '';
+  let filterArea = '';
+ 
+  /* ═══ LOAD DATA ═══ */
+  async function loadData() {
+    if (USE_API) {
+      try {
+        updateApiStatus('loading');
+        items = await apiFetch('/pharmacies');
+        updateApiStatus('live');
+      } catch (err) {
+        console.warn('API unavailable, using local data.', err);
+        items = SEED;
+        updateApiStatus('error');
+        document.getElementById('addApiNotice').style.display = 'flex';
+      }
+    } else {
+      items = SEED;
+    }
+    showGrid();
+    render();
+    populateAreaFilter();
+  }
+ 
+  function updateApiStatus(state) {
+    const badge = document.getElementById('apiStatusBadge');
+    const label = document.getElementById('apiEndpointLabel');
+    if (state === 'live') {
+      badge.className = 'api-banner-status live';
+      badge.innerHTML = '<div class="api-dot"></div> Live — Render';
+      label.textContent = 'Endpoint: GET ' + API_BASE + '/pharmacies — connected';
+    } else if (state === 'error') {
+      badge.className = 'api-banner-status mock';
+      badge.innerHTML = '<div class="api-dot"></div> API Offline — Local';
+      label.textContent = 'Endpoint: GET ' + API_BASE + '/pharmacies — unreachable';
+    } else if (state === 'loading') {
+      badge.innerHTML = '<div class="api-dot"></div> Connecting…';
+    } else {
+      badge.className = 'api-banner-status mock';
+      badge.innerHTML = '<div class="api-dot"></div> Mock Data';
+      label.textContent = 'Endpoint: GET /api/pharmacies — set USE_API = true to connect';
+    }
+  }
+ 
+  function showGrid() {
+    document.getElementById('skeleton').style.display = 'none';
+    document.getElementById('infraGrid').style.display = 'grid';
+  }
+ 
+  function populateAreaFilter() {
+    const areas = [...new Set(items.map(i => i.area))].sort();
+    const sel = document.getElementById('areaFilter');
+    sel.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+  }
+ 
+  /* ═══ RENDER ═══ */
+  const getFiltered = () => items.filter(item => {
+    const ms = !filterSearch || item.name.toLowerCase().includes(filterSearch) || item.area.toLowerCase().includes(filterSearch) || (item.chain||'').toLowerCase().includes(filterSearch);
+    const mst = !filterStatus || item.status === filterStatus;
+    const ma = !filterArea || item.area === filterArea;
+    return ms && mst && ma;
+  });
+ 
+  function render() {
+    const filtered = getFiltered();
+    // Update stats
+    document.getElementById('statTotal').textContent = items.length;
+    document.getElementById('statActive').textContent = items.filter(i=>i.status==='active').length;
+    document.getElementById('stat24h').textContent = items.filter(i=>i.services.includes('24hr')).length;
+    document.getElementById('statDelivery').textContent = items.filter(i=>i.services.includes('Home Delivery')).length;
+ 
+    const grid = document.getElementById('infraGrid');
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state"><svg width="52" height="52" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/></svg><h4>No pharmacies found</h4><p>Try adjusting your filters or add a new pharmacy.</p></div>`;
+      return;
+    }
+ 
+    grid.innerHTML = filtered.map(item => {
+      const tags = item.services.slice(0,3).map(s => {
+        const cls = s === '24hr' ? 'ic-tag-24' : s === 'Home Delivery' ? 'ic-tag-delivery' : '';
+        return `<span class="ic-tag ${cls}">${s}</span>`;
+      }).join('') + (item.services.length > 3 ? `<span class="ic-tag">+${item.services.length-3}</span>` : '');
+ 
+      return `
+      <div class="infra-card">
+        <div class="card-accent"></div>
+        <div class="ic-body">
+          <div class="ic-top">
+            <div class="ic-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/></svg></div>
+            <div class="ic-info">
+              <h3>${item.name}</h3>
+              <div class="ic-type">${item.chain || 'Independent'}</div>
+            </div>
+            <div class="ic-status"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase()+item.status.slice(1)}</span></div>
+          </div>
+          <div class="ic-details">
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${item.area}, Lagos</div>
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>${item.phone}</div>
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${item.hours}</div>
+          </div>
+          <div class="ic-tags">${tags}</div>
+        </div>
+        <div class="ic-footer">
+          <button class="ic-btn ic-btn-view" onclick="openView(${item.id})">View Details</button>
+          <button class="ic-btn ic-btn-delete" onclick="openDelete(${item.id})">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+ 
+  function filterCards(val) { filterSearch = val.toLowerCase(); render(); }
+  function filterByStatus(val) { filterStatus = val; render(); }
+  function filterByArea(val) { filterArea = val; render(); }
+ 
+  /* ═══ VIEW ═══ */
+  function openView(id) {
+    const item = items.find(i => i.id === id);
+    document.getElementById('viewModalTitle').textContent = item.name;
+    document.getElementById('viewModalBody').innerHTML = `
+      <div class="modal-section"><h4>Details</h4>
+        <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${item.name}</span></div>
+        <div class="detail-row"><span class="detail-label">Chain / Brand</span><span class="detail-value">${item.chain || 'Independent'}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase()+item.status.slice(1)}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${item.address}</span></div>
+        <div class="detail-row"><span class="detail-label">Area</span><span class="detail-value">${item.area}, Lagos</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${item.phone}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${item.email || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Contact</span><span class="detail-value">${item.contact || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Opening Hours</span><span class="detail-value">${item.hours}</span></div>
+        <div class="detail-row"><span class="detail-label">NAFDAC Reg.</span><span class="detail-value">${item.nafdac || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Services</span><span class="detail-value">${item.services.join(', ')}</span></div>
+        <div class="detail-row"><span class="detail-label">Added</span><span class="detail-value">${item.added}</span></div>
+      </div>
+      ${item.notes ? `<div class="modal-section"><h4>Notes</h4><p style="font-size:13px;color:#5a6690;line-height:1.65;">${item.notes}</p></div>` : ''}
+    `;
+    document.getElementById('viewDeleteBtn').onclick = () => { closeModal('viewModal'); openDelete(id); };
+    document.getElementById('viewModal').classList.add('open');
+  }
+ 
+  /* ═══ ADD ═══ */
+  function openAdd() {
+    ['f_name','f_chain','f_address','f_area','f_phone','f_email','f_contact','f_hours','f_nafdac','f_notes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    ['s_24h','s_delivery','s_compound','s_vaccine','s_consult','s_generic'].forEach(id => { const el = document.getElementById(id); if(el) el.checked=false; });
+    document.getElementById('addModal').classList.add('open');
+  }
+ 
+  async function addItem() {
+    const name = document.getElementById('f_name').value.trim();
+    const address = document.getElementById('f_address').value.trim();
+    const area = document.getElementById('f_area').value.trim();
+    const phone = document.getElementById('f_phone').value.trim();
+    if (!name || !address || !area || !phone) { showToast('Please fill in all required fields.', false); return; }
+ 
+    const services = [];
+    if (document.getElementById('s_24h').checked) services.push('24hr');
+    if (document.getElementById('s_delivery').checked) services.push('Home Delivery');
+    if (document.getElementById('s_compound').checked) services.push('Compounding');
+    if (document.getElementById('s_vaccine').checked) services.push('Vaccinations');
+    if (document.getElementById('s_consult').checked) services.push('Pharmacist Consultation');
+    if (document.getElementById('s_generic').checked) services.push('Generic Medicines');
+ 
+    const payload = {
+      name, address, area, phone, services,
+      chain: document.getElementById('f_chain').value.trim() || 'Independent',
+      status: document.getElementById('f_status').value,
+      email: document.getElementById('f_email').value.trim() || '—',
+      contact: document.getElementById('f_contact').value.trim() || '—',
+      hours: document.getElementById('f_hours').value.trim() || '—',
+      nafdac: document.getElementById('f_nafdac').value.trim() || '—',
+      notes: document.getElementById('f_notes').value.trim(),
+    };
+ 
+    const btn = document.getElementById('addSubmitBtn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+ 
+    if (USE_API) {
+      try {
+        const saved = await apiFetch('/pharmacies', { method: 'POST', body: JSON.stringify(payload) });
+        items.unshift(saved);
+      } catch {
+        payload.id = Date.now();
+        payload.added = new Date().toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+        items.unshift(payload);
+        showToast('Saved locally — API unavailable.', false);
+      }
+    } else {
+      payload.id = Date.now();
+      payload.added = new Date().toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+      items.unshift(payload);
+    }
+ 
+    btn.textContent = 'Add Pharmacy'; btn.disabled = false;
+    closeModal('addModal');
+    populateAreaFilter();
+    render();
+    showToast('✅ ' + name + ' added successfully!');
+  }
+ 
+  /* ═══ DELETE ═══ */
+  function openDelete(id) {
+    deleteId = id;
+    const item = items.find(i => i.id === id);
+    document.getElementById('deleteItemName').textContent = item.name;
+    document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
+    document.getElementById('deleteModal').classList.add('open');
+  }
+ 
+  async function confirmDelete() {
+    const item = items.find(i => i.id === deleteId);
+    if (USE_API) {
+      try {
+        await apiFetch(`/pharmacies/${deleteId}`, { method: 'DELETE' });
+      } catch { /* local delete still happens */ }
+    }
+    items = items.filter(i => i.id !== deleteId);
+    closeModal('deleteModal');
+    populateAreaFilter();
+    render();
+    showToast(item.name + ' deleted.');
+    deleteId = null;
+  }
+ 
+  /* ═══ UTILS ═══ */
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+ 
+  function showToast(msg, success = true) {
+    const t = document.getElementById('toast');
+    const icon = t.querySelector('svg');
+    document.getElementById('toastMsg').textContent = msg;
+    icon.style.display = success ? 'block' : 'none';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+ 
+  /* ═══ INIT ═══ */
+  loadData();
+</script>
+</body>
+</html>
+ 
