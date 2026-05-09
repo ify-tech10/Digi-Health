@@ -168,7 +168,7 @@
     document.getElementById('errorMsg').classList.remove('show');
   }
 
-    async function handleLogin() {
+async function handleLogin() {
   const email    = document.getElementById('email').value.trim().toLowerCase();
   const password = document.getElementById('password').value;
   const btn      = document.getElementById('loginBtn');
@@ -210,6 +210,10 @@
 
     const data = await response.json();
 
+
+    console.log(response.status);
+    console.log(data);
+
     // ❌ Handle errors
     if (!response.ok) {
       showError(data.message || "Login failed");
@@ -224,7 +228,7 @@
     localStorage.setItem("dh_user", JSON.stringify({
       email: email,
       role: selectedRole,
-      token: data.accessToken || null,
+      token: data.accessToken || data.token || data.jwt || null,
       loggedIn: true
     }));
 

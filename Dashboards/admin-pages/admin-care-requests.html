@@ -19,7 +19,7 @@
     <div class="nav-section-label">Overview</div>
     <a class="nav-item" href="../dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
     <div class="nav-section-label">Management</div>
-    <a class="nav-item active" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item active" href="admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="badge-count" id="careRequestCount">0</span></a>
     <a class="nav-item" href="admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Patients</a>
     <a class="nav-item" href="admin-personnel.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
     <a class="nav-item" href="admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
@@ -133,68 +133,15 @@
           </thead>
           <tbody id="tableBody">
             <tr data-status="urgent" data-service="Post-Discharge Recovery">
-              <td><div class="td-name">Adaeze Onyekwere</div><div class="td-sub">adaeze@email.com</div></td>
-              <td>Post-Discharge Recovery</td>
-              <td>Lekki, Lagos</td>
-              <td>Today, 7:42 AM</td>
-              <td>+234 801 234 5678</td>
-              <td><span class="badge badge-urgent">Urgent</span></td>
+              <td><div class="td-name"></div><div class="td-sub"></div></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td><span class="badge badge-urgent"></span></td>
               <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Adaeze Onyekwere')">Assign</button><button class="act-btn act-view" onclick="openView(0)">View</button></div></td>
             </tr>
-            <tr data-status="new" data-service="Elderly Care Support">
-              <td><div class="td-name">Rotimi Fadahunsi</div><div class="td-sub">rotimi@email.com</div></td>
-              <td>Elderly Care Support</td>
-              <td>Ikeja, Lagos</td>
-              <td>Today, 6:18 AM</td>
-              <td>+234 802 345 6789</td>
-              <td><span class="badge badge-new">New</span></td>
-              <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Rotimi Fadahunsi')">Assign</button><button class="act-btn act-view" onclick="openView(1)">View</button></div></td>
-            </tr>
-            <tr data-status="new" data-service="Postnatal Mother & Baby">
-              <td><div class="td-name">Chidinma Okafor</div><div class="td-sub">chidinma@email.com</div></td>
-              <td>Postnatal Mother & Baby</td>
-              <td>Surulere, Lagos</td>
-              <td>Yesterday, 11:55 PM</td>
-              <td>+234 803 456 7890</td>
-              <td><span class="badge badge-new">New</span></td>
-              <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Chidinma Okafor')">Assign</button><button class="act-btn act-view" onclick="openView(2)">View</button></div></td>
-            </tr>
-            <tr data-status="assigned" data-service="Chronic Care Management">
-              <td><div class="td-name">Kunle Adesanya</div><div class="td-sub">kunle@email.com</div></td>
-              <td>Chronic Care Management</td>
-              <td>Yaba, Lagos</td>
-              <td>Yesterday, 4:30 PM</td>
-              <td>+234 804 567 8901</td>
-              <td><span class="badge badge-active">Assigned</span></td>
-              <td><div class="td-actions"><button class="act-btn act-view" onclick="openView(3)">View</button><button class="act-btn act-close">Close</button></div></td>
-            </tr>
-            <tr data-status="assigned" data-service="Home Nursing Care">
-              <td><div class="td-name">Sade Coker</div><div class="td-sub">sade@email.com</div></td>
-              <td>Home Nursing Care</td>
-              <td>Victoria Island, Lagos</td>
-              <td>Yesterday, 2:10 PM</td>
-              <td>+234 805 678 9012</td>
-              <td><span class="badge badge-active">Assigned</span></td>
-              <td><div class="td-actions"><button class="act-btn act-view" onclick="openView(4)">View</button><button class="act-btn act-close">Close</button></div></td>
-            </tr>
-            <tr data-status="pending" data-service="Lab & Diagnostic Services">
-              <td><div class="td-name">Ibrahim Musa</div><div class="td-sub">ibrahim@email.com</div></td>
-              <td>Lab & Diagnostic Services</td>
-              <td>Gbagada, Lagos</td>
-              <td>26 Apr, 9:00 AM</td>
-              <td>+234 806 789 0123</td>
-              <td><span class="badge badge-pending">Pending</span></td>
-              <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Ibrahim Musa')">Assign</button><button class="act-btn act-view" onclick="openView(5)">View</button></div></td>
-            </tr>
-            <tr data-status="pending" data-service="Physiotherapy & Rehab">
-              <td><div class="td-name">Ngozi Obiechina</div><div class="td-sub">ngozi@email.com</div></td>
-              <td>Physiotherapy & Rehab</td>
-              <td>Magodo, Lagos</td>
-              <td>26 Apr, 8:15 AM</td>
-              <td>+234 807 890 1234</td>
-              <td><span class="badge badge-pending">Pending</span></td>
-              <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Ngozi Obiechina')">Assign</button><button class="act-btn act-view" onclick="openView(6)">View</button></div></td>
-            </tr>
+           
           </tbody>
         </table>
       </div>

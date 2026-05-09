@@ -18,7 +18,7 @@
     <div class="nav-section-label">Overview</div>
     <a class="nav-item active" href="dashboard-admin.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
     <div class="nav-section-label">Management</div>
-    <a class="nav-item" href="../Dashboards/admin-pages/admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="nav-badge">7</span></a>
+    <a class="nav-item" href="../Dashboards/admin-pages/admin-care-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests <span class="badge-count" id="careRequestCount">0</span>
     <a class="nav-item" href="../Dashboards/admin-pages/admin-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Patients</a>
     <a class="nav-item" href="../Dashboards/admin-pages/admin-personnel.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Personnel</a>
     <a class="nav-item" href="../Dashboards/admin-pages/admin-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
@@ -198,7 +198,10 @@
   </div>
 </div>
 
+
+
 <script>
+
 let careRequestsCache = [];
 let providersCache = [];
 let currentStatus = "PENDING";
@@ -208,12 +211,28 @@ let selectedRequestId = null;
    AUTH
 ========================= */
 function getAuth() {
-  const user = JSON.parse(localStorage.getItem("dh_user") || "{}");
-  return {
-    token: user.token,
-    role: user.role,
-    loggedIn: user.loggedIn
-  };
+  try {
+    const user = JSON.parse(localStorage.getItem("dh_user"));
+
+    if (!user || !user.token) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    if (user.role !== "admin") {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    return { token: user.token, role: user.role };
+
+  } catch (err) {
+    localStorage.removeItem("dh_user");
+    window.location.href = "../../login.html";
+    return null;
+  }
 }
 
 /* =========================
@@ -224,20 +243,22 @@ async function loadCareRequests() {
   tbody.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
 
   try {
-    const { token } = getAuth();
-
-    if (!token) {
-      tbody.innerHTML = `<tr><td colspan="7">No token found</td></tr>`;
-      return;
-    }
+    const auth = getAuth();
+    if (!auth) return;
 
     const url = currentStatus === "ALL"
       ? "https://digihealth-6uy7.onrender.com/api/admin/care-requests"
-      : `https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=${currentStatus}`;
+      : `https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=PENDING`;
 
     const res = await fetch(url, {
-      headers: { "Authorization": `Bearer ${token}` }
+      headers: { "Authorization": `Bearer ${auth.token}` }
     });
+
+    if (res.status === 401) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return;
+    }
 
     if (!res.ok) {
       tbody.innerHTML = `<tr><td colspan="7">Error ${res.status}</td></tr>`;
@@ -291,14 +312,19 @@ async function loadProviders() {
   const select = document.getElementById("providerSelect");
 
   try {
-    const { token } = getAuth();
+    const auth = getAuth();
+    if (!auth) return;
 
     const res = await fetch(
       "https://digihealth-6uy7.onrender.com/api/admin/providers",
-      {
-        headers: { "Authorization": `Bearer ${token}` }
-      }
+      { headers: { "Authorization": `Bearer ${auth.token}` } }
     );
+
+    if (res.status === 401) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return;
+    }
 
     if (!res.ok) throw new Error("Failed");
 
@@ -327,22 +353,24 @@ let applicationsCache = [];
 ========================= */
 async function loadApplications() {
   const tbody = document.getElementById("applications-body");
-
-  if (!tbody) return; // safety
+  if (!tbody) return;
 
   tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
 
   try {
-    const { token } = getAuth();
+    const auth = getAuth();
+    if (!auth) return;
 
     const res = await fetch(
       "https://digihealth-6uy7.onrender.com/api/admin/providers?status=PENDING",
-      {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      }
+      { headers: { "Authorization": `Bearer ${auth.token}` } }
     );
+
+    if (res.status === 401) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return;
+    }
 
     if (!res.ok) {
       tbody.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
@@ -364,7 +392,10 @@ async function loadApplications() {
       tr.dataset.id = app.id;
 
       tr.innerHTML = `
-        <td class="td-name">${app.fullName}</td>
+        <td class="td-name">
+          ${app.fullName}<br/>
+          <small style="color:#888;">${app.email}</small>
+        </td>
         <td>${app.serviceProviderType}</td>
         <td>${formatDate(app.appliedAt)}</td>
         <td>
@@ -402,7 +433,6 @@ document.addEventListener("click", async (e) => {
   if (viewBtn) {
     const row = viewBtn.closest("tr");
     const id = row.dataset.id;
-
     const req = careRequestsCache.find(r => r.id == id);
     if (req) openModal(req);
     return;
@@ -412,60 +442,56 @@ document.addEventListener("click", async (e) => {
   const assignBtn = e.target.closest(".act-assign");
   if (assignBtn) {
     const row = assignBtn.closest("tr");
-    const id = row.dataset.id;
-
-    selectedRequestId = id;
-
+    selectedRequestId = row.dataset.id;
     document.getElementById("assignModal").classList.add("show");
     loadProviders();
-
     return;
   }
 
-    // APPROVE APPLICATION
+  /* ===== APPROVE APPLICATION ===== */
   if (e.target.classList.contains("act-approve")) {
-  const row = e.target.closest("tr");
-  const id = row.dataset.id;
+    const row = e.target.closest("tr");
+    const id = row.dataset.id;
+    const auth = getAuth();
+    if (!auth) return;
 
-  const { token } = getAuth();
+    try {
+      e.target.textContent = "Approving...";
 
-  try {
-    e.target.textContent = "Approving...";
-
-    const res = await fetch(
-      `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
-      {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`
+      const res = await fetch(
+        `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
+        {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${auth.token}` }
         }
+      );
+
+      if (res.status === 401) {
+        localStorage.removeItem("dh_user");
+        window.location.href = "../../login.html";
+        return;
       }
-    );
 
-    if (!res.ok) {
-      alert("Approve failed");
-      e.target.textContent = "Approve";
-      return;
+      if (!res.ok) {
+        alert("Approve failed");
+        e.target.textContent = "Approve";
+        return;
+      }
+
+      loadApplications();
+
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
     }
-
-    loadApplications();
-
-  } catch (err) {
-    console.error(err);
-    alert("Network error");
   }
-}
 
-  // VIEW APPLICATION
+  /* ===== VIEW APPLICATION ===== */
   if (e.target.classList.contains("act-view-app")) {
     const row = e.target.closest("tr");
     const id = row.dataset.id;
-
     const app = applicationsCache.find(a => a.id == id);
-
-    if (app) {
-      openApplicationModal(app);
-    }
+    if (app) openApplicationModal(app);
   }
 
 });
@@ -482,7 +508,8 @@ async function confirmAssign() {
     return;
   }
 
-  const { token } = getAuth();
+  const auth = getAuth();
+  if (!auth) return;
 
   try {
     const res = await fetch(
@@ -490,7 +517,7 @@ async function confirmAssign() {
       {
         method: "PUT",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${auth.token}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -499,6 +526,12 @@ async function confirmAssign() {
         })
       }
     );
+
+    if (res.status === 401) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return;
+    }
 
     if (!res.ok) {
       const err = await res.text();
@@ -548,16 +581,11 @@ function closeAssignModal() {
 ========================= */
 function getStatusBadge(status) {
   switch (status?.toLowerCase()) {
-    case "urgent":
-      return `<span class="badge badge-urgent">Urgent</span>`;
-    case "new":
-      return `<span class="badge badge-new">New</span>`;
-    case "assigned":
-      return `<span class="badge badge-active">Assigned</span>`;
-    case "pending":
-      return `<span class="badge badge-pending">Pending</span>`;
-    default:
-      return `<span class="badge">${status}</span>`;
+    case "urgent":   return `<span class="badge badge-urgent">Urgent</span>`;
+    case "new":      return `<span class="badge badge-new">New</span>`;
+    case "assigned": return `<span class="badge badge-active">Assigned</span>`;
+    case "pending":  return `<span class="badge badge-pending">Pending</span>`;
+    default:         return `<span class="badge">${status}</span>`;
   }
 }
 
@@ -565,7 +593,6 @@ function renderActions(status) {
   if (status?.toLowerCase() === "assigned") {
     return `<button class="act-btn act-view">View</button>`;
   }
-
   return `
     <button class="act-btn act-assign">Assign</button>
     <button class="act-btn act-view">View</button>
@@ -575,10 +602,8 @@ function renderActions(status) {
 function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleString(undefined, {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit"
+    day: "numeric", month: "short",
+    hour: "2-digit", minute: "2-digit"
   });
 }
 
@@ -588,7 +613,7 @@ function formatDate(dateString) {
 document.addEventListener("DOMContentLoaded", () => {
 
   loadCareRequests();
-  loadApplications();   // ✅ ADD THIS
+  loadApplications();
 
   setInterval(loadCareRequests, 30000);
 
@@ -602,6 +627,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
+function logout() {
+  localStorage.removeItem("dh_user");
+  window.location.href = "../../login.html";
+}
+
 </script>
 
 

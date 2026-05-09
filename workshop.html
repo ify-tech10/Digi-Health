@@ -1,0 +1,441 @@
+<script>
+
+
+let careRequestsCache = [];
+let providersCache = [];
+let currentStatus = "PENDING";
+let selectedRequestId = null;
+
+/* =========================
+   AUTH
+========================= */
+function getAuth() {
+  try {
+    const user = JSON.parse(localStorage.getItem("dh_user"));
+
+    // No saved user
+    if (!user) {
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    // Missing token
+    if (!user.token) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    // Wrong role
+    if (user.role !== "admin") {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    return {
+      token: user.token,
+      role: user.role
+    };
+
+  } catch (err) {
+    localStorage.removeItem("dh_user");
+    window.location.href = "../../login.html";
+    return null;
+  }
+}
+
+/* =========================
+   LOAD CARE REQUESTS
+========================= */
+async function loadCareRequests() {
+  const tbody = document.getElementById("care-requests-body");
+  tbody.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
+
+  try {
+    const { token } = getAuth();
+
+    if (!token) {
+      tbody.innerHTML = `<tr><td colspan="7">No token found</td></tr>`;
+      return;
+    }
+
+    const url = currentStatus === "ALL"
+      ? "https://digihealth-6uy7.onrender.com/api/admin/care-requests"
+      : `https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=${currentStatus}`;
+
+    const res = await fetch(url, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="7">Error ${res.status}</td></tr>`;
+      return;
+    }
+
+    const data = await res.json();
+    careRequestsCache = data;
+
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="7">No requests found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    data.forEach(req => {
+      const tr = document.createElement("tr");
+      tr.dataset.id = req.id;
+
+      tr.innerHTML = `
+        <td class="td-name">
+          ${req.fullName}<br/>
+          <small style="color:#888;">${req.email}</small>
+        </td>
+        <td>${req.serviceNeeded}</td>
+        <td>${req.locationArea}</td>
+        <td>${formatDate(req.submittedAt)}</td>
+        <td>${req.preferredContactTime || "-"}</td>
+        <td>${getStatusBadge(req.status)}</td>
+        <td>
+          <div class="td-action">
+            ${renderActions(req.status)}
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="7">Network error</td></tr>`;
+  }
+}
+
+/* =========================
+   LOAD PROVIDERS
+========================= */
+async function loadProviders() {
+  const select = document.getElementById("providerSelect");
+
+  try {
+    const { token } = getAuth();
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/providers",
+      {
+        headers: { "Authorization": `Bearer ${token}` }
+      }
+    );
+
+    if (!res.ok) throw new Error("Failed");
+
+    const data = await res.json();
+    providersCache = data;
+
+    select.innerHTML = `<option value="">Select provider</option>`;
+
+    data.forEach(p => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = `${p.fullName} (${p.specialty || "General"})`;
+      select.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error(err);
+    select.innerHTML = `<option>Error loading providers</option>`;
+  }
+}
+
+let applicationsCache = [];
+
+/* =========================
+   LOAD APPLICATIONS
+========================= */
+async function loadApplications() {
+  const tbody = document.getElementById("applications-body");
+
+  if (!tbody) return; // safety
+
+  tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
+
+  try {
+    const { token } = getAuth();
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/providers?status=PENDING",
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
+      return;
+    }
+
+    const data = await res.json();
+    applicationsCache = data;
+
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="4">No applications found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    data.forEach(app => {
+      const tr = document.createElement("tr");
+      tr.dataset.id = app.id;
+
+      tr.innerHTML = `
+        <td class="td-name">
+          ${app.fullName}<br/>
+          <small style="color:#888;">${app.email}</small>
+        </td>
+        <td>${app.serviceProviderType}</td>
+        <td>${formatDate(app.appliedAt)}</td>
+        <td>
+          <div class="td-action">
+            <button class="act-btn act-approve">Approve</button>
+            <button class="act-btn act-view-app">View</button>
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="4">Network error</td></tr>`;
+  }
+}
+
+/* =========================
+   FILTER
+========================= */
+function setFilter(status) {
+  currentStatus = status;
+  loadCareRequests();
+}
+
+/* =========================
+   EVENT DELEGATION
+========================= */
+document.addEventListener("click", async (e) => {
+
+  /* ===== VIEW ===== */
+  const viewBtn = e.target.closest(".act-view");
+  if (viewBtn) {
+    const row = viewBtn.closest("tr");
+    const id = row.dataset.id;
+
+    const req = careRequestsCache.find(r => r.id == id);
+    if (req) openModal(req);
+    return;
+  }
+
+  /* ===== OPEN ASSIGN MODAL ===== */
+  const assignBtn = e.target.closest(".act-assign");
+  if (assignBtn) {
+    const row = assignBtn.closest("tr");
+    const id = row.dataset.id;
+
+    selectedRequestId = id;
+
+    document.getElementById("assignModal").classList.add("show");
+    loadProviders();
+
+    return;
+  }
+
+    // APPROVE APPLICATION
+  if (e.target.classList.contains("act-approve")) {
+  const row = e.target.closest("tr");
+  const id = row.dataset.id;
+
+  const { token } = getAuth();
+
+  try {
+    e.target.textContent = "Approving...";
+
+    const res = await fetch(
+      `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!res.ok) {
+      alert("Approve failed");
+      e.target.textContent = "Approve";
+      return;
+    }
+
+    loadApplications();
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error");
+  }
+}
+
+  // VIEW APPLICATION
+  if (e.target.classList.contains("act-view-app")) {
+    const row = e.target.closest("tr");
+    const id = row.dataset.id;
+
+    const app = applicationsCache.find(a => a.id == id);
+
+    if (app) {
+      openApplicationModal(app);
+    }
+  }
+
+});
+
+/* =========================
+   CONFIRM ASSIGN
+========================= */
+async function confirmAssign() {
+  const providerId = document.getElementById("providerSelect").value;
+  const adminNote = document.getElementById("adminNoteInput").value;
+
+  if (!providerId) {
+    alert("Please select a provider");
+    return;
+  }
+
+  const { token } = getAuth();
+
+  try {
+    const res = await fetch(
+      `https://digihealth-6uy7.onrender.com/api/admin/care-requests/${selectedRequestId}/assign`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          providerId: Number(providerId),
+          adminNote
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error(err);
+      alert("Assignment failed");
+      return;
+    }
+
+    closeAssignModal();
+    loadCareRequests();
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error");
+  }
+}
+
+/* =========================
+   MODALS
+========================= */
+function openModal(req) {
+  const modal = document.getElementById("requestModal");
+  const body = document.getElementById("modalBody");
+
+  body.innerHTML = `
+    <h2>${req.fullName}</h2>
+    <p><strong>Email:</strong> ${req.email}</p>
+    <p><strong>Service:</strong> ${req.serviceNeeded}</p>
+    <p><strong>Location:</strong> ${req.locationArea}</p>
+    <p><strong>Status:</strong> ${req.status}</p>
+    <p><strong>Received:</strong> ${formatDate(req.submittedAt)}</p>
+  `;
+
+  modal.classList.add("show");
+}
+
+function closeViewModal() {
+  document.getElementById("requestModal").classList.remove("show");
+}
+
+function closeAssignModal() {
+  document.getElementById("assignModal").classList.remove("show");
+}
+
+/* =========================
+   UI HELPERS
+========================= */
+function getStatusBadge(status) {
+  switch (status?.toLowerCase()) {
+    case "urgent":
+      return `<span class="badge badge-urgent">Urgent</span>`;
+    case "new":
+      return `<span class="badge badge-new">New</span>`;
+    case "assigned":
+      return `<span class="badge badge-active">Assigned</span>`;
+    case "pending":
+      return `<span class="badge badge-pending">Pending</span>`;
+    default:
+      return `<span class="badge">${status}</span>`;
+  }
+}
+
+function renderActions(status) {
+  if (status?.toLowerCase() === "assigned") {
+    return `<button class="act-btn act-view">View</button>`;
+  }
+
+  return `
+    <button class="act-btn act-assign">Assign</button>
+    <button class="act-btn act-view">View</button>
+  `;
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  loadCareRequests();
+  loadApplications();   // ✅ ADD THIS
+
+  setInterval(loadCareRequests, 30000);
+
+  document.getElementById("closeModal")?.addEventListener("click", closeViewModal);
+  document.getElementById("closeAssignModal")?.addEventListener("click", closeAssignModal);
+  document.getElementById("confirmAssignBtn")?.addEventListener("click", confirmAssign);
+
+  window.addEventListener("click", (e) => {
+    if (e.target.id === "requestModal") closeViewModal();
+    if (e.target.id === "assignModal") closeAssignModal();
+  });
+
+});
+function logout() {
+    localStorage.removeItem('dh_user');
+    window.location.href = '../../login.html';
+  }
+</script>

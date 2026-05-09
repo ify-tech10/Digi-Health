@@ -1,96 +1,397 @@
-const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
-  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
 
-  const requests = [
-    { patient: 'Adaeze Onyekwere', email: 'adaeze@email.com', phone: '+234 801 234 5678', service: 'Post-Discharge Recovery', location: 'Lekki, Lagos', received: 'Today, 7:42 AM', status: 'Urgent', description: 'Patient discharged from Lagos Island Hospital after appendectomy. Needs daily wound care and medication monitoring.', preferred: 'Morning (6AM – 12PM)' },
-    { patient: 'Rotimi Fadahunsi', email: 'rotimi@email.com', phone: '+234 802 345 6789', service: 'Elderly Care Support', location: 'Ikeja, Lagos', received: 'Today, 6:18 AM', status: 'New', description: '78-year-old father living alone. Family requests daily check-ins, mobility support, and medication reminders.', preferred: 'Morning (6AM – 12PM)' },
-    { patient: 'Chidinma Okafor', email: 'chidinma@email.com', phone: '+234 803 456 7890', service: 'Postnatal Mother & Baby', location: 'Surulere, Lagos', received: 'Yesterday, 11:55 PM', status: 'New', description: 'First-time mother, delivered 48 hours ago. Needs breastfeeding guidance and newborn health monitoring.', preferred: 'Afternoon (12PM – 5PM)' },
-    { patient: 'Kunle Adesanya', email: 'kunle@email.com', phone: '+234 804 567 8901', service: 'Chronic Care Management', location: 'Yaba, Lagos', received: 'Yesterday, 4:30 PM', status: 'Assigned', description: 'Type 2 diabetic. Needs weekly blood sugar monitoring and lifestyle guidance. Currently assigned to Nurse Kemi Ojo.', preferred: 'Flexible' },
-    { patient: 'Sade Coker', email: 'sade@email.com', phone: '+234 805 678 9012', service: 'Home Nursing Care', location: 'Victoria Island, Lagos', received: 'Yesterday, 2:10 PM', status: 'Assigned', description: 'Post-surgical wound care needed 3x weekly. Assigned to Nurse Blessing Adeyemi.', preferred: 'Morning (6AM – 12PM)' },
-    { patient: 'Ibrahim Musa', email: 'ibrahim@email.com', phone: '+234 806 789 0123', service: 'Lab & Diagnostic Services', location: 'Gbagada, Lagos', received: '26 Apr, 9:00 AM', status: 'Pending', description: 'Needs blood panel and HbA1c test done at home. Doctor referred.', preferred: 'Morning (6AM – 12PM)' },
-    { patient: 'Ngozi Obiechina', email: 'ngozi@email.com', phone: '+234 807 890 1234', service: 'Physiotherapy & Rehab', location: 'Magodo, Lagos', received: '26 Apr, 8:15 AM', status: 'Pending', description: 'Stroke rehabilitation — needs 3 sessions per week. Partial right-side weakness.', preferred: 'Afternoon (12PM – 5PM)' },
-  ];
+/* =========================
+   AUTH
+========================= */
+function getAuth() {
+  try {
+    const user = JSON.parse(localStorage.getItem("dh_user"));
 
-  let currentTab = 'all';
-  let assignPatient = '';
+    if (!user || !user.token || user.role !== "admin") {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
 
-  function setTab(el, tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    filterTable();
+    return {
+      token: user.token,
+      role: user.role
+    };
+
+  } catch (err) {
+    localStorage.removeItem("dh_user");
+    window.location.href = "../../login.html";
+    return null;
   }
+}
 
-  function filterTable() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const statusF = document.getElementById('statusFilter').value.toLowerCase();
-    const serviceF = document.getElementById('serviceFilter').value.toLowerCase();
-    const rows = document.querySelectorAll('#tableBody tr');
-    let count = 0;
-    rows.forEach(row => {
-      const status = row.dataset.status;
-      const service = row.dataset.service.toLowerCase();
-      const text = row.innerText.toLowerCase();
-      let show = text.includes(search);
-      if (statusF && status !== statusF) show = false;
-      if (serviceF && !service.includes(serviceF)) show = false;
-      if (currentTab === 'unassigned' && (status === 'assigned')) show = false;
-      if (currentTab === 'assigned' && status !== 'assigned') show = false;
-      if (currentTab === 'completed' && status !== 'done') show = false;
-      row.style.display = show ? '' : 'none';
-      if (show) count++;
-    });
-    document.getElementById('rowCount').textContent = count + ' request' + (count !== 1 ? 's' : '');
-  }
+function logout() {
+  localStorage.removeItem("dh_user");
+  window.location.href = "../../login.html";
+}
 
-  function openView(i) {
-    const r = requests[i];
-    document.getElementById('viewModalBody').innerHTML = `
-      <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${r.patient}</span></div>
-      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${r.email}</span></div>
-      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${r.phone}</span></div>
-      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${r.service}</span></div>
-      <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${r.location}</span></div>
-      <div class="detail-row"><span class="detail-label">Received</span><span class="detail-value">${r.received}</span></div>
-      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${r.status}</span></div>
-      <div class="detail-row"><span class="detail-label">Preferred Time</span><span class="detail-value">${r.preferred}</span></div>
-      <div class="detail-row"><span class="detail-label">Description</span><span class="detail-value">${r.description}</span></div>
+/* =========================
+   STATE
+========================= */
+let careRequestsCache = [];
+let currentTab = "all";
+
+/* =========================
+   LOAD CARE REQUESTS
+========================= */
+async function loadCareRequests() {
+  const tbody = document.getElementById("tableBody");
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7">Loading...</td>
+    </tr>
+  `;
+
+  try {
+    const auth = getAuth();
+
+    if (!auth) return;
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/care-requests",
+      {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      }
+    );
+
+    // Unauthorized
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return;
+    }
+
+    // Other errors
+    if (!res.ok) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7">Error ${res.status}</td>
+        </tr>
+      `;
+      return;
+    }
+
+    const data = await res.json();
+
+    careRequestsCache = data || [];
+
+
+    // Update sidebar badge
+     document.getElementById("careRequestCount").textContent =
+    careRequestsCache.length;
+
+    renderTable(careRequestsCache);
+
+  } catch (err) {
+    console.error(err);
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">Network error</td>
+      </tr>
     `;
-    document.getElementById('viewModal').classList.add('open');
+  }
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderTable(data) {
+  const tbody = document.getElementById("tableBody");
+
+  if (!data.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">No care requests found</td>
+      </tr>
+    `;
+
+    document.getElementById("rowCount").textContent = "0 requests";
+    return;
   }
 
-  function openAssign(name) {
-    assignPatient = name;
-    document.getElementById('assignTitle').textContent = 'Assign Service provider — ' + name;
-    document.getElementById('caregiverSelect').selectedIndex = 0;
-    document.getElementById('assignModal').classList.add('open');
-  }
+  tbody.innerHTML = "";
 
-  function confirmAssign() {
-    const sel = document.getElementById('caregiverSelect');
-    if (!sel.value) { alert('Please select a caregiver.'); return; }
-    alert(`✅ ${assignPatient} has been assigned to ${sel.value.split('—')[0].trim()}`);
-    closeModal('assignModal');
-  }
+  data.forEach(req => {
+    const tr = document.createElement("tr");
 
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    tr.dataset.status = (req.status || "").toLowerCase();
+    tr.dataset.service = (req.serviceNeeded || "").toLowerCase();
 
-  function exportCSV() {
-    const rows = [['Patient','Service','Location','Received','Status']];
-    requests.forEach(r => rows.push([r.patient, r.service, r.location, r.received, r.status]));
-    const csv = rows.map(r => r.join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = 'data:text/csv,' + encodeURIComponent(csv);
-    a.download = 'care-requests.csv';
-    a.click();
-  }
+    tr.innerHTML = `
+      <td class="td-name">
+        ${req.fullName || "-"}<br>
+        <small style="color:#888;">
+          ${req.email || "-"}
+        </small>
+      </td>
 
-  document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+      <td>${req.serviceNeeded || "-"}</td>
+
+      <td>${req.locationArea || "-"}</td>
+
+      <td>${formatDate(req.submittedAt)}</td>
+
+       <td>
+        ${req.phoneNumber || "-"}
+      </td>
+
+      <td>
+        ${getStatusBadge(req.status)}
+      </td>
+
+     
+
+      <td>
+        <div class="td-action">
+          <button 
+            class="act-btn"
+            onclick="openView('${req.id}')"
+          >
+            View
+          </button>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
   });
 
-    function logout() {
-   localStorage.removeItem('dh_user');
-   window.location.href = '../../../login.html';
+  document.getElementById("rowCount").textContent =
+    `${data.length} request${data.length !== 1 ? "s" : ""}`;
+}
+
+/* =========================
+   FILTER TABLE
+========================= */
+function filterTable() {
+  const search =
+    document.getElementById("searchInput")
+      .value
+      .toLowerCase();
+
+  const statusF =
+    document.getElementById("statusFilter")
+      .value
+      .toLowerCase();
+
+  const serviceF =
+    document.getElementById("serviceFilter")
+      .value
+      .toLowerCase();
+
+  const rows = document.querySelectorAll("#tableBody tr");
+
+  let count = 0;
+
+  rows.forEach(row => {
+
+    const status = row.dataset.status || "";
+    const service = row.dataset.service || "";
+    const text = row.innerText.toLowerCase();
+
+    let show = text.includes(search);
+
+    if (statusF && status !== statusF) {
+      show = false;
+    }
+
+    if (serviceF && !service.includes(serviceF)) {
+      show = false;
+    }
+
+    if (currentTab === "unassigned" && status === "assigned") {
+      show = false;
+    }
+
+    if (currentTab === "assigned" && status !== "assigned") {
+      show = false;
+    }
+
+    row.style.display = show ? "" : "none";
+
+    if (show) count++;
+  });
+
+  document.getElementById("rowCount").textContent =
+    `${count} request${count !== 1 ? "s" : ""}`;
+}
+
+/* =========================
+   VIEW REQUEST
+========================= */
+function openView(id) {
+  const req = careRequestsCache.find(r => r.id == id);
+
+  if (!req) return;
+
+  document.getElementById("viewModalBody").innerHTML = `
+    <div class="detail-row">
+      <span class="detail-label">Patient</span>
+      <span class="detail-value">${req.fullName || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Email</span>
+      <span class="detail-value">${req.email || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Phone</span>
+      <span class="detail-value">${req.phoneNumber || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Service</span>
+      <span class="detail-value">${req.serviceNeeded || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Location</span>
+      <span class="detail-value">${req.locationArea || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Status</span>
+      <span class="detail-value">${req.status || "-"}</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Preferred Time</span>
+      <span class="detail-value">
+        ${req.preferredContactTime || "-"}
+      </span>
+    </div>
+
+    <div class="detail-row">
+      <span class="detail-label">Assigned Provider</span>
+      <span class="detail-value">
+        ${req.assignedProviderName || "-"}
+      </span>
+    </div>
+  `;
+
+  document.getElementById("viewModal")
+    .classList
+    .add("open");
+}
+
+/* =========================
+   MODALS
+========================= */
+function closeModal(id) {
+  document.getElementById(id)
+    .classList
+    .remove("open");
+}
+
+/* =========================
+   TABS
+========================= */
+function setTab(el, tab) {
+  currentTab = tab;
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(t => t.classList.remove("active"));
+
+  el.classList.add("active");
+
+  filterTable();
+}
+
+/* =========================
+   HELPERS
+========================= */
+function getStatusBadge(status) {
+  switch ((status || "").toLowerCase()) {
+
+    case "urgent":
+      return `<span class="badge badge-urgent">Urgent</span>`;
+
+    case "new":
+      return `<span class="badge badge-new">New</span>`;
+
+    case "assigned":
+      return `<span class="badge badge-active">Assigned</span>`;
+
+    case "pending":
+      return `<span class="badge badge-pending">Pending</span>`;
+
+    default:
+      return `<span class="badge">${status || "-"}</span>`;
   }
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "-";
+
+  return new Date(dateString).toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+/* =========================
+   EXPORT CSV
+========================= */
+function exportCSV() {
+
+  const rows = [
+    [
+      "Patient",
+      "Service",
+      "Location",
+      "Status",
+      "Submitted"
+    ]
+  ];
+
+  careRequestsCache.forEach(r => {
+    rows.push([
+      r.fullName || "",
+      r.serviceNeeded || "",
+      r.locationArea || "",
+      r.status || "",
+      formatDate(r.submittedAt)
+    ]);
+  });
+
+  const csv = rows.map(r => r.join(",")).join("\n");
+
+  const a = document.createElement("a");
+
+  a.href = "data:text/csv;charset=utf-8," +
+    encodeURIComponent(csv);
+
+  a.download = "care-requests.csv";
+
+  a.click();
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  loadCareRequests();
+
+  document
+    .querySelectorAll(".modal-overlay")
+    .forEach(m => {
+      m.addEventListener("click", e => {
+        if (e.target === m) {
+          m.classList.remove("open");
+        }
+      });
+    });
+});

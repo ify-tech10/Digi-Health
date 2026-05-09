@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 240px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+ 
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+ 
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 12px 6px 6px; }
+    .user-avatar-top { width: 26px; height: 26px; background: var(--green-dark); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+ 
+    /* LAYOUT */
+    .profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+ 
+    /* ── LEFT PANEL ── */
+    .left-panel { display: flex; flex-direction: column; gap: 16px; }
+ 
+    /* Profile card */
+    .profile-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .profile-card-top { background: linear-gradient(135deg, #111c47 0%, #1a2d6b 100%); padding: 28px 20px 20px; text-align: center; position: relative; }
+    .profile-card-top::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 120%, rgba(34,197,94,0.15) 0%, transparent 60%); }
+    .avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+    .avatar-circle { width: 80px; height: 80px; background: var(--green-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: 700; border: 3px solid rgba(255,255,255,0.2); margin: 0 auto; position: relative; }
+    .avatar-edit-btn { position: absolute; bottom: 0; right: 0; width: 26px; height: 26px; background: var(--white); border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all .15s; }
+    .avatar-edit-btn:hover { background: #f0f2fb; }
+    .avatar-edit-btn svg { width: 12px; height: 12px; stroke: var(--navy); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .profile-name { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 3px; position: relative; }
+    .profile-role { font-size: 13px; color: #8898c8; position: relative; }
+    .profile-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-top: 8px; position: relative; }
+    .profile-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+ 
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid #eef0f8; }
+    .ps-item { padding: 14px 8px; text-align: center; border-right: 1px solid #eef0f8; }
+    .ps-item:last-child { border-right: none; }
+    .ps-val { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .ps-lbl { font-size: 11px; color: #8898c8; margin-top: 2px; }
+ 
+    /* Rating stars */
+    .rating-row { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 12px 16px; border-top: 1px solid #eef0f8; }
+    .star { font-size: 16px; color: #fbbf24; }
+    .star-empty { color: #e0e4f0; }
+    .rating-num { font-size: 14px; font-weight: 700; color: var(--navy); margin-left: 4px; }
+    .rating-count { font-size: 12px; color: #8898c8; }
+ 
+    /* Quick info card */
+    .info-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 16px 18px; }
+    .info-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 12px; }
+    .info-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f6fc; }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { width: 30px; height: 30px; background: #f0f2fb; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .info-icon svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .info-text { flex: 1; }
+    .info-label { font-size: 10.5px; color: #b0b8d0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 13px; font-weight: 600; color: var(--navy); margin-top: 1px; }
+ 
+    /* specialisations */
+    .spec-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .spec-tag { background: #f0fdf4; color: var(--green-dark); font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 5px; }
+ 
+    /* ── RIGHT PANEL ── */
+    .right-panel { display: flex; flex-direction: column; gap: 20px; }
+ 
+    /* Section card */
+    .section-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .section-header { padding: 14px 22px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; }
+    .section-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .section-header p { font-size: 12px; color: #8898c8; margin-top: 1px; }
+    .edit-btn { display: flex; align-items: center; gap: 6px; background: #f0f2fb; border: 1.5px solid #e0e4f0; color: var(--navy); padding: 6px 13px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .edit-btn:hover { background: #e8eaf4; }
+    .edit-btn svg { width: 13px; height: 13px; stroke: var(--navy); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .section-body { padding: 20px 22px; }
+ 
+    /* FORM FIELDS (edit mode) */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1/-1; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 1.5px solid #dde0ee; border-radius: 7px; padding: 10px 12px;
+      font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy);
+      outline: none; transition: border-color .18s; background: #fff; appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,37,80,0.07); }
+    .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group input[readonly] { background: #f8f9fc; color: #8898c8; cursor: not-allowed; }
+ 
+    /* VIEW mode fields */
+    .view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .view-field { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; background: #f8f9fc; border-radius: 8px; }
+    .view-field.full { grid-column: 1/-1; }
+    .vf-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: #b0b8d0; }
+    .vf-value { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.5; }
+ 
+    /* Coverage area chips */
+    .area-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .area-chip { background: #f0f2fb; border: 1px solid #e0e4f0; color: #5a6690; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+ 
+    /* Documents */
+    .doc-list { display: flex; flex-direction: column; gap: 10px; }
+    .doc-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f8f9fc; border-radius: 8px; border: 1.5px solid #eef0f8; transition: border-color .15s; }
+    .doc-item:hover { border-color: #c8d0e8; }
+    .doc-icon { width: 36px; height: 36px; background: #eff6ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .doc-icon svg { width: 16px; height: 16px; stroke: #3b82f6; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .doc-info { flex: 1; }
+    .doc-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .doc-meta { font-size: 11.5px; color: #8898c8; margin-top: 1px; }
+    .doc-status { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; }
+    .doc-status.verified { color: var(--green-dark); }
+    .doc-status.pending { color: #c2410c; }
+    .doc-status svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .doc-upload { font-size: 12px; color: var(--blue-light); font-weight: 600; cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; padding: 0; }
+ 
+    /* Performance metrics */
+    .perf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .perf-card { background: #f8f9fc; border-radius: 8px; padding: 14px; text-align: center; }
+    .perf-val { font-size: 22px; font-weight: 700; color: var(--navy); }
+    .perf-lbl { font-size: 11px; color: #8898c8; margin-top: 3px; }
+    .perf-trend { font-size: 11px; font-weight: 600; margin-top: 4px; }
+    .trend-up { color: var(--green-dark); }
+    .trend-down { color: #dc2626; }
+    .trend-flat { color: #8898c8; }
+ 
+    /* Recent reviews */
+    .review-item { padding: 14px 0; border-bottom: 1px solid #f5f6fc; }
+    .review-item:last-child { border-bottom: none; }
+    .review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .review-patient { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .review-stars { display: flex; gap: 2px; }
+    .review-star { font-size: 13px; color: #fbbf24; }
+    .review-date { font-size: 11.5px; color: #b0b8d0; }
+    .review-text { font-size: 13px; color: #5a6690; line-height: 1.6; }
+ 
+    /* Save button */
+    .save-bar { display: flex; align-items: center; gap: 12px; padding: 16px 22px; border-top: 1px solid #f0f2fb; }
+    .btn-save { background: var(--navy); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 8px; transition: background .15s, transform .12s; }
+    .btn-save:hover { background: var(--blue-light); transform: translateY(-1px); }
+    .btn-save svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-cancel { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-cancel:hover { background: #e8eaf4; }
+    .save-hint { font-size: 12px; color: #b0b8d0; margin-left: auto; }
+ 
+    /* Change password section */
+    .pwd-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .pwd-grid .form-group.full { grid-column: 1/-1; }
+ 
+    /* Danger zone */
+    .danger-zone { border: 1.5px solid #fecaca; border-radius: var(--radius); overflow: hidden; }
+    .danger-header { padding: 14px 22px; background: #fef2f2; border-bottom: 1px solid #fecaca; display: flex; align-items: center; gap: 8px; }
+    .danger-header svg { width: 16px; height: 16px; stroke: #dc2626; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .danger-header h3 { font-size: 13.5px; font-weight: 700; color: #dc2626; }
+    .danger-body { padding: 18px 22px; background: #fff; }
+    .danger-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #fef2f2; }
+    .danger-row:last-child { border-bottom: none; }
+    .danger-text h4 { font-size: 13.5px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+    .danger-text p { font-size: 12.5px; color: #8898c8; }
+    .btn-danger { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 8px 16px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .btn-danger:hover { background: #fee2e2; border-color: #ef4444; }
+ 
+    /* toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+ 
+    @media (max-width: 1100px) { .profile-layout { grid-template-columns: 1fr; } .perf-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .form-grid, .view-grid, .pwd-grid { grid-template-columns: 1fr; } .perf-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="/Dashboards/dashboard-caregiver.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Caregiver Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="/Dashboards/dashboard-caregiver.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item " href="personnel-schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Schedule</a>
+     <a class="nav-item" href="personnel-patients.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Patients</a>
+    <a class="nav-item" href="personel-availability.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Availability</a>
+    <a class="nav-item" href="personel-reports.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item active" href="personnel-my-profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="personnel-earnings.html"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Earnings</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>My Profile</h1><p>Manage your personal details, documents and settings</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <div class="user-chip"><div class="user-avatar-top">BA</div><span>Nurse Blessing</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+    <div class="profile-layout">
+ 
+      <!-- ── LEFT PANEL ── -->
+      <div class="left-panel">
+ 
+        <!-- Profile card -->
+        <div class="profile-card">
+          <div class="profile-card-top">
+            <div class="avatar-wrap">
+              <div class="avatar-circle">BA</div>
+              <button class="avatar-edit-btn" onclick="showToast('Photo upload coming soon.')">
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </button>
+            </div>
+            <div class="profile-name">Nurse Blessing Adeyemi</div>
+            <div class="profile-role">Registered Nurse (RN)</div>
+            <div class="profile-badge">Active</div>
+          </div>
+          <div class="profile-stats">
+            <div class="ps-item"><div class="ps-val">8</div><div class="ps-lbl">Patients</div></div>
+            <div class="ps-item"><div class="ps-val">47</div><div class="ps-lbl">Visits</div></div>
+            <div class="ps-item"><div class="ps-val">5y</div><div class="ps-lbl">Experience</div></div>
+          </div>
+          <div class="rating-row">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            <span class="rating-num">4.9</span>
+            <span class="rating-count">(34 reviews)</span>
+          </div>
+        </div>
+ 
+        <!-- Quick info -->
+        <div class="info-card">
+          <h4>Quick Info</h4>
+          <div class="info-row">
+            <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg></div>
+            <div class="info-text"><div class="info-label">Phone</div><div class="info-value">+234 811 111 2222</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div class="info-text"><div class="info-label">Email</div><div class="info-value">blessing@digihealth.com</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+            <div class="info-text"><div class="info-label">Coverage Areas</div><div class="info-value">Egbeda · Surulere · Yaba</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="info-text"><div class="info-label">Joined DiGi Health</div><div class="info-value">January 2025</div></div>
+          </div>
+          <div style="padding-top:10px;">
+            <div class="info-label" style="margin-bottom:8px;">Specialisations</div>
+            <div class="spec-tags">
+              <span class="spec-tag">Post-Discharge</span>
+              <span class="spec-tag">Wound Care</span>
+              <span class="spec-tag">Elderly Care</span>
+              <span class="spec-tag">Chronic Care</span>
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+ 
+      <!-- ── RIGHT PANEL ── -->
+      <div class="right-panel">
+ 
+        <!-- Personal Information -->
+        <div class="section-card">
+          <div class="section-header">
+            <div><h3>Personal Information</h3><p>Your basic personal and contact details</p></div>
+            <button class="edit-btn" id="personalEditBtn" onclick="toggleEdit('personal')">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+ 
+          <!-- VIEW mode -->
+          <div class="section-body" id="personalView">
+            <div class="view-grid">
+              <div class="view-field"><div class="vf-label">First Name</div><div class="vf-value">Blessing</div></div>
+              <div class="view-field"><div class="vf-label">Last Name</div><div class="vf-value">Adeyemi</div></div>
+              <div class="view-field"><div class="vf-label">Date of Birth</div><div class="vf-value">14 March 1990</div></div>
+              <div class="view-field"><div class="vf-label">Gender</div><div class="vf-value">Female</div></div>
+              <div class="view-field"><div class="vf-label">Phone Number</div><div class="vf-value">+234 811 111 2222</div></div>
+              <div class="view-field"><div class="vf-label">Alt. Phone</div><div class="vf-value">+234 812 222 3333</div></div>
+              <div class="view-field full"><div class="vf-label">Email Address</div><div class="vf-value">blessing@digihealth.com</div></div>
+              <div class="view-field full"><div class="vf-label">Home Address</div><div class="vf-value">14 Bode Thomas Street, Surulere, Lagos</div></div>
+              <div class="view-field"><div class="vf-label">State of Origin</div><div class="vf-value">Ogun State</div></div>
+              <div class="view-field"><div class="vf-label">Next of Kin</div><div class="vf-value">Taiwo Adeyemi (Husband) — +234 813 333 4444</div></div>
+            </div>
+          </div>
+ 
+          <!-- EDIT mode -->
+          <div class="section-body" id="personalEdit" style="display:none;">
+            <div class="form-grid">
+              <div class="form-group"><label>First Name</label><input type="text" id="p_first" value="Blessing" /></div>
+              <div class="form-group"><label>Last Name</label><input type="text" id="p_last" value="Adeyemi" /></div>
+              <div class="form-group"><label>Date of Birth</label><input type="date" id="p_dob" value="1990-03-14" /></div>
+              <div class="form-group"><label>Gender</label>
+                <select id="p_gender"><option selected>Female</option><option>Male</option><option>Other</option></select>
+              </div>
+              <div class="form-group"><label>Phone Number</label><input type="tel" id="p_phone" value="+234 811 111 2222" /></div>
+              <div class="form-group"><label>Alt. Phone</label><input type="tel" id="p_phone2" value="+234 812 222 3333" /></div>
+              <div class="form-group full"><label>Email Address</label><input type="email" id="p_email" value="blessing@digihealth.com" readonly /></div>
+              <div class="form-group full"><label>Home Address</label><input type="text" id="p_address" value="14 Bode Thomas Street, Surulere, Lagos" /></div>
+              <div class="form-group"><label>State of Origin</label><input type="text" id="p_state" value="Ogun State" /></div>
+              <div class="form-group"><label>Next of Kin</label><input type="text" id="p_kin" value="Taiwo Adeyemi (Husband) — +234 813 333 4444" /></div>
+            </div>
+          </div>
+          <div class="save-bar" id="personalSaveBar" style="display:none;">
+            <button class="btn-save" onclick="saveSection('personal')"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes</button>
+            <button class="btn-cancel" onclick="cancelEdit('personal')">Cancel</button>
+            <span class="save-hint">Changes will be reviewed by admin</span>
+          </div>
+        </div>
+ 
+        <!-- Professional Details -->
+        <div class="section-card">
+          <div class="section-header">
+            <div><h3>Professional Details</h3><p>Your qualifications, role and work information</p></div>
+            <button class="edit-btn" id="professionalEditBtn" onclick="toggleEdit('professional')">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+          <div class="section-body" id="professionalView">
+            <div class="view-grid">
+              <div class="view-field"><div class="vf-label">Role</div><div class="vf-value">Registered Nurse (RN)</div></div>
+              <div class="view-field"><div class="vf-label">Experience</div><div class="vf-value">5 years</div></div>
+              <div class="view-field"><div class="vf-label">Qualification</div><div class="vf-value">B.Sc Nursing — University of Lagos (2018)</div></div>
+              <div class="view-field"><div class="vf-label">Nursing Council #</div><div class="vf-value">NMCN/2019/004521</div></div>
+              <div class="view-field"><div class="vf-label">Employment Type</div><div class="vf-value">Freelance / Contract</div></div>
+              <div class="view-field"><div class="vf-label">Availability</div><div class="vf-value">Mon – Sat, 6AM – 6PM</div></div>
+              <div class="view-field full"><div class="vf-label">Bio / Summary</div><div class="vf-value">Experienced Registered Nurse with 5 years in home healthcare. Specialised in post-discharge recovery, wound care, and elderly care. Passionate about patient-centred care and clear communication with families.</div></div>
+              <div class="view-field full">
+                <div class="vf-label">Specialisations</div>
+                <div class="area-chips" style="margin-top:6px;">
+                  <span class="area-chip">Post-Discharge Recovery</span>
+                  <span class="area-chip">Wound Care</span>
+                  <span class="area-chip">Elderly Care Support</span>
+                  <span class="area-chip">Chronic Care Management</span>
+                </div>
+              </div>
+              <div class="view-field full">
+                <div class="vf-label">Coverage Areas</div>
+                <div class="area-chips" style="margin-top:6px;">
+                  <span class="area-chip">Egbeda</span>
+                  <span class="area-chip">Surulere</span>
+                  <span class="area-chip">Yaba</span>
+                  <span class="area-chip">Agege</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section-body" id="professionalEdit" style="display:none;">
+            <div class="form-grid">
+              <div class="form-group"><label>Role</label><input type="text" id="pr_role" value="Registered Nurse (RN)" readonly /></div>
+              <div class="form-group"><label>Years of Experience</label>
+                <select id="pr_exp"><option>1 year</option><option>2 years</option><option>3 years</option><option>4 years</option><option selected>5 years</option><option>6 years</option><option>7+ years</option><option>10+ years</option></select>
+              </div>
+              <div class="form-group"><label>Highest Qualification</label><input type="text" id="pr_qual" value="B.Sc Nursing — University of Lagos (2018)" /></div>
+              <div class="form-group"><label>Nursing Council / Reg. No.</label><input type="text" id="pr_reg" value="NMCN/2019/004521" /></div>
+              <div class="form-group"><label>Employment Type</label>
+                <select id="pr_emp"><option selected>Freelance / Contract</option><option>Full-time</option><option>Part-time</option></select>
+              </div>
+              <div class="form-group"><label>Availability</label><input type="text" id="pr_avail" value="Mon – Sat, 6AM – 6PM" /></div>
+              <div class="form-group full"><label>Specialisations (comma separated)</label><input type="text" id="pr_specs" value="Post-Discharge Recovery, Wound Care, Elderly Care Support, Chronic Care Management" /></div>
+              <div class="form-group full"><label>Coverage Areas (comma separated)</label><input type="text" id="pr_areas" value="Egbeda, Surulere, Yaba, Agege" /></div>
+              <div class="form-group full"><label>Bio / Summary</label><textarea id="pr_bio">Experienced Registered Nurse with 5 years in home healthcare. Specialised in post-discharge recovery, wound care, and elderly care. Passionate about patient-centred care and clear communication with families.</textarea></div>
+            </div>
+          </div>
+          <div class="save-bar" id="professionalSaveBar" style="display:none;">
+            <button class="btn-save" onclick="saveSection('professional')"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes</button>
+            <button class="btn-cancel" onclick="cancelEdit('professional')">Cancel</button>
+            <span class="save-hint">Changes will be reviewed by admin</span>
+          </div>
+        </div>
+ 
+        <!-- Documents -->
+        <div class="section-card">
+          <div class="section-header">
+            <div><h3>Documents & Credentials</h3><p>Your certificates and verification documents</p></div>
+          </div>
+          <div class="section-body">
+            <div class="doc-list">
+              <div class="doc-item">
+                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="doc-info"><div class="doc-name">Nursing Council Certificate</div><div class="doc-meta">NMCN/2019/004521 · Uploaded Jan 2025</div></div>
+                <div class="doc-status verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verified</div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="doc-info"><div class="doc-name">University Degree Certificate</div><div class="doc-meta">B.Sc Nursing, UNILAG · Uploaded Jan 2025</div></div>
+                <div class="doc-status verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verified</div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="doc-info"><div class="doc-name">Government-Issued ID (NIN)</div><div class="doc-meta">National Identity Card · Uploaded Jan 2025</div></div>
+                <div class="doc-status verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verified</div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="doc-info"><div class="doc-name">BLS / CPR Certificate</div><div class="doc-meta">Not yet uploaded</div></div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="doc-status pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Missing</div>
+                  <button class="doc-upload" onclick="showToast('Document upload coming soon.')">Upload</button>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="doc-info"><div class="doc-name">Police Clearance Certificate</div><div class="doc-meta">Awaiting admin review</div></div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="doc-status pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Under Review</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Performance -->
+        <div class="section-card">
+          <div class="section-header"><div><h3>Performance Overview</h3><p>Your stats for the last 30 days</p></div></div>
+          <div class="section-body">
+            <div class="perf-grid">
+              <div class="perf-card"><div class="perf-val">47</div><div class="perf-lbl">Total Visits</div><div class="perf-trend trend-up">↑ 18% vs last month</div></div>
+              <div class="perf-card"><div class="perf-val">96%</div><div class="perf-lbl">Completion Rate</div><div class="perf-trend trend-up">↑ 3% vs last month</div></div>
+              <div class="perf-card"><div class="perf-val">4.9★</div><div class="perf-lbl">Avg. Rating</div><div class="perf-trend trend-flat">→ Same as last month</div></div>
+              <div class="perf-card"><div class="perf-val">1.4h</div><div class="perf-lbl">Avg. Resp. Time</div><div class="perf-trend trend-up">↓ 12min improvement</div></div>
+            </div>
+ 
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f0f2fb;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8898c8;margin-bottom:14px;">Recent Patient Reviews</div>
+              <div>
+                <div class="review-item">
+                  <div class="review-top">
+                    <span class="review-patient">Amara Osei</span>
+                    <div style="display:flex;align-items:center;gap:8px;"><div class="review-stars"><span class="review-star">★★★★★</span></div><span class="review-date">22 Apr 2026</span></div>
+                  </div>
+                  <div class="review-text">Nurse Blessing is incredible. Very professional, gentle, and thorough. She always explains everything clearly and made my recovery so much easier.</div>
+                </div>
+                <div class="review-item">
+                  <div class="review-top">
+                    <span class="review-patient">Grace Okonkwo's Family</span>
+                    <div style="display:flex;align-items:center;gap:8px;"><div class="review-stars"><span class="review-star">★★★★★</span></div><span class="review-date">20 Apr 2026</span></div>
+                  </div>
+                  <div class="review-text">Our mother looks forward to Nurse Blessing's visits. She is patient, kind and treats her with so much dignity. Highly recommended.</div>
+                </div>
+                <div class="review-item">
+                  <div class="review-top">
+                    <span class="review-patient">Emeka Nwachukwu</span>
+                    <div style="display:flex;align-items:center;gap:8px;"><div class="review-stars"><span class="review-star">★★★★</span><span class="review-star" style="color:#e0e4f0;">★</span></div><span class="review-date">15 Apr 2026</span></div>
+                  </div>
+                  <div class="review-text">Very knowledgeable about diabetes management. Helped me understand my diet and medication better. Would give 5 stars but she was a little late twice.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Change Password -->
+        <div class="section-card">
+          <div class="section-header">
+            <div><h3>Change Password</h3><p>Update your account password</p></div>
+          </div>
+          <div class="section-body">
+            <div class="pwd-grid">
+              <div class="form-group full"><label>Current Password</label><input type="password" id="pwd_current" placeholder="Enter current password" /></div>
+              <div class="form-group"><label>New Password</label><input type="password" id="pwd_new" placeholder="Minimum 8 characters" /></div>
+              <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwd_confirm" placeholder="Re-enter new password" /></div>
+            </div>
+          </div>
+          <div class="save-bar">
+            <button class="btn-save" onclick="changePassword()"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Update Password</button>
+            <span class="save-hint">Use a strong password with letters, numbers and symbols</span>
+          </div>
+        </div>
+ 
+        <!-- Notification Preferences -->
+        <div class="section-card">
+          <div class="section-header"><div><h3>Notification Preferences</h3><p>Choose how you receive updates</p></div></div>
+          <div class="section-body">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f6fc;">
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--navy);">New patient assignment</div><div style="font-size:12px;color:#8898c8;">Get notified when a patient is assigned to you</div></div>
+                <label class="wh-toggle" style="position:relative;width:36px;height:20px;flex-shrink:0;"><input type="checkbox" checked onchange="" style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:#22c55e;border-radius:20px;transition:.3s;"><span style="position:absolute;content:'';width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(16px);display:block;"></span></span></label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f6fc;">
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--navy);">Visit schedule reminders</div><div style="font-size:12px;color:#8898c8;">Reminders 1 hour before each visit</div></div>
+                <label style="position:relative;width:36px;height:20px;flex-shrink:0;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:#22c55e;border-radius:20px;transition:.3s;"><span style="position:absolute;content:'';width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(16px);display:block;"></span></span></label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f6fc;">
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--navy);">Report submission confirmation</div><div style="font-size:12px;color:#8898c8;">Confirm when your visit report is received</div></div>
+                <label style="position:relative;width:36px;height:20px;flex-shrink:0;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:#22c55e;border-radius:20px;transition:.3s;"><span style="position:absolute;content:'';width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(16px);display:block;"></span></span></label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+                <div><div style="font-size:13.5px;font-weight:600;color:var(--navy);">Earnings & payment notifications</div><div style="font-size:12px;color:#8898c8;">Get notified when payments are processed</div></div>
+                <label style="position:relative;width:36px;height:20px;flex-shrink:0;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:#22c55e;border-radius:20px;transition:.3s;"><span style="position:absolute;content:'';width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(16px);display:block;"></span></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+          <div class="danger-header">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <h3>Danger Zone</h3>
+          </div>
+          <div class="danger-body">
+            <div class="danger-row">
+              <div class="danger-text"><h4>Deactivate Account</h4><p>Temporarily pause your account and stop receiving patient assignments.</p></div>
+              <button class="btn-danger" onclick="showToast('Please contact admin to deactivate your account.')">Deactivate</button>
+            </div>
+            <div class="danger-row">
+              <div class="danger-text"><h4>Delete Account</h4><p>Permanently delete your account and all associated data. This cannot be undone.</p></div>
+              <button class="btn-danger" onclick="showToast('Please contact admin to request account deletion.')">Delete Account</button>
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+ 
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  /*if (!user.loggedIn || user.role !== 'caregiver') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+ 
+  /* ── API CONFIG ── */
+  const API_BASE = 'https://your-app.onrender.com/api'; // 🔧 Change to your Render URL
+  const USE_API  = false; // 🔧 Set to true when backend is ready
+ 
+  async function apiFetch(path, options = {}) {
+    const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+    const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+    const res = await fetch(API_BASE + path, { ...options, headers });
+    if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+ 
+  /* ── EDIT TOGGLE ── */
+  function toggleEdit(section) {
+    const view   = document.getElementById(section + 'View');
+    const edit   = document.getElementById(section + 'Edit');
+    const bar    = document.getElementById(section + 'SaveBar');
+    const btn    = document.getElementById(section + 'EditBtn');
+    const isEdit = edit.style.display === 'block';
+ 
+    view.style.display  = isEdit ? 'block' : 'none';
+    edit.style.display  = isEdit ? 'none'  : 'block';
+    bar.style.display   = isEdit ? 'none'  : 'flex';
+    btn.innerHTML = isEdit
+      ? `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`
+      : `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancel`;
+  }
+ 
+  function cancelEdit(section) {
+    document.getElementById(section + 'View').style.display = 'block';
+    document.getElementById(section + 'Edit').style.display = 'none';
+    document.getElementById(section + 'SaveBar').style.display = 'none';
+    const btn = document.getElementById(section + 'EditBtn');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
+  }
+ 
+  /* ── SAVE SECTION ── */
+  async function saveSection(section) {
+    let payload = {};
+ 
+    if (section === 'personal') {
+      payload = {
+        firstName:  document.getElementById('p_first').value.trim(),
+        lastName:   document.getElementById('p_last').value.trim(),
+        dob:        document.getElementById('p_dob').value,
+        gender:     document.getElementById('p_gender').value,
+        phone:      document.getElementById('p_phone').value.trim(),
+        phone2:     document.getElementById('p_phone2').value.trim(),
+        address:    document.getElementById('p_address').value.trim(),
+        stateOrigin: document.getElementById('p_state').value.trim(),
+        nextOfKin:  document.getElementById('p_kin').value.trim(),
+      };
+    } else if (section === 'professional') {
+      payload = {
+        experience:      document.getElementById('pr_exp').value,
+        qualification:   document.getElementById('pr_qual').value.trim(),
+        regNumber:       document.getElementById('pr_reg').value.trim(),
+        employmentType:  document.getElementById('pr_emp').value,
+        availability:    document.getElementById('pr_avail').value.trim(),
+        specialisations: document.getElementById('pr_specs').value.split(',').map(s => s.trim()),
+        coverageAreas:   document.getElementById('pr_areas').value.split(',').map(s => s.trim()),
+        bio:             document.getElementById('pr_bio').value.trim(),
+      };
+    }
+ 
+    if (USE_API) {
+      try {
+        await apiFetch('/caregivers/me/' + section, { method: 'PUT', body: JSON.stringify(payload) });
+        showToast('✅ Profile updated successfully!');
+      } catch {
+        showToast('Saved locally — API unavailable.', false);
+      }
+    } else {
+      // In mock mode — just show success
+      showToast('✅ Changes saved!');
+    }
+ 
+    cancelEdit(section);
+  }
+ 
+  /* ── CHANGE PASSWORD ── */
+  async function changePassword() {
+    const current = document.getElementById('pwd_current').value;
+    const newPwd  = document.getElementById('pwd_new').value;
+    const confirm = document.getElementById('pwd_confirm').value;
+    if (!current || !newPwd || !confirm) { showToast('Please fill in all password fields.', false); return; }
+    if (newPwd !== confirm) { showToast('New passwords do not match.', false); return; }
+    if (newPwd.length < 8) { showToast('Password must be at least 8 characters.', false); return; }
+ 
+    if (USE_API) {
+      try {
+        await apiFetch('/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword: current, newPassword: newPwd }) });
+        showToast('✅ Password updated successfully!');
+      } catch (err) {
+        showToast('Failed to update password. Check your current password.', false);
+        return;
+      }
+    } else {
+      showToast('✅ Password updated! (mock mode)');
+    }
+ 
+    document.getElementById('pwd_current').value = '';
+    document.getElementById('pwd_new').value = '';
+    document.getElementById('pwd_confirm').value = '';
+  }
+ 
+  /* ── TOAST ── */
+  function showToast(msg, success = true) {
+    const t = document.getElementById('toast');
+    t.querySelector('svg').style.display = success ? 'block' : 'none';
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

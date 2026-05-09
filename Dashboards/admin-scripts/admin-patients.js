@@ -2,38 +2,259 @@ const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
   function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
 
-  const patients = [
-    { name:'Amara Osei', email:'amara@email.com', phone:'+234 801 111 2222', dob:'12 Mar 1985', location:'Egbeda, Lagos', service:'Post-Discharge Recovery', caregiver:'Nurse Blessing Adeyemi', since:'2 Apr 2026', nextVisit:'Tue, 29 Apr 2026', visits:12, status:'Active', notes:'Post-appendectomy recovery. Progress on track.' },
-    { name:'Emeka Nwachukwu', email:'emeka@email.com', phone:'+234 802 222 3333', dob:'4 Jun 1972', location:'Surulere, Lagos', service:'Chronic Care Management', caregiver:'Nurse Kemi Ojo', since:'15 Mar 2026', nextVisit:'Mon, 28 Apr 2026', visits:18, status:'Active', notes:'Type 2 diabetic. HbA1c improving.' },
-    { name:'Grace Okonkwo', email:'grace@email.com', phone:'+234 803 333 4444', dob:'29 Aug 1948', location:'Yaba, Lagos', service:'Elderly Care Support', caregiver:'Nurse Blessing Adeyemi', since:'1 Feb 2026', nextVisit:'Mon, 28 Apr 2026', visits:34, status:'Active', notes:'Daily visits. Mobility support ongoing.' },
-    { name:'Fatima Kabir', email:'fatima@email.com', phone:'+234 804 444 5555', dob:'11 Jan 1998', location:'Ikeja, Lagos', service:'Postnatal Mother & Baby', caregiver:'Nurse Amina Eze', since:'25 Apr 2026', nextVisit:'Wed, 30 Apr 2026', visits:2, status:'New', notes:'First-time mother. 2-week starter plan.' },
-    { name:'Chukwuemeka Uche', email:'chukwu@email.com', phone:'+234 805 555 6666', dob:'7 May 1963', location:'Gbagada, Lagos', service:'Chronic Care Management', caregiver:'Unassigned', since:'10 Jan 2026', nextVisit:'None', visits:8, status:'On Hold', notes:'Patient travelling. Resumes May 5.' },
-    { name:'Ngozi Anyanwu', email:'ngozi@email.com', phone:'+234 806 666 7777', dob:'3 Oct 1980', location:'Magodo, Lagos', service:'Post-Discharge Recovery', caregiver:'Nurse Blessing Adeyemi', since:'1 Dec 2025', nextVisit:'Completed', visits:24, status:'Completed', notes:'Full recovery achieved. Discharged Apr 20.' },
-  ];
+  let patientsCache = [];
 
-  function openPatient(i) {
-    const p = patients[i];
-    document.getElementById('modalPatientName').textContent = p.name;
-    document.getElementById('modalPatientBody').innerHTML = `
-      <div class="modal-section"><h4>Personal</h4>
-        <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${p.name}</span></div>
-        <div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">${p.dob}</span></div>
-        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${p.phone}</span></div>
-        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${p.email}</span></div>
-        <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${p.location}</span></div>
-      </div>
-      <div class="modal-section"><h4>Care Details</h4>
-        <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${p.service}</span></div>
-        <div class="detail-row"><span class="detail-label">Caregiver</span><span class="detail-value">${p.caregiver}</span></div>
-        <div class="detail-row"><span class="detail-label">Patient Since</span><span class="detail-value">${p.since}</span></div>
-        <div class="detail-row"><span class="detail-label">Next Visit</span><span class="detail-value">${p.nextVisit}</span></div>
-        <div class="detail-row"><span class="detail-label">Total Visits</span><span class="detail-value">${p.visits}</span></div>
-        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${p.status}</span></div>
-        <div class="detail-row"><span class="detail-label">Notes</span><span class="detail-value">${p.notes}</span></div>
-      </div>
-    `;
-    document.getElementById('patientModal').classList.add('open');
+  async function loadPatients() {
+  const grid = document.getElementById("patientsGrid");
+
+  grid.innerHTML = `<p>Loading patients...</p>`;
+
+  try {
+    const user = JSON.parse(localStorage.getItem("dh_user"));
+
+    if (!user || !user.token) {
+      window.location.href = "../../login.html";
+      return;
+    }
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=ASSIGNED",
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`
+        }
+      }
+    );
+
+    if (!res.ok) {
+      grid.innerHTML = `<p>Error loading patients</p>`;
+      return;
+    }
+
+    const patients = await res.json();
+    patientsCache = patients || [];
+
+    if (!patients.length) {
+      grid.innerHTML = `<p>No patients found</p>`;
+      return;
+    }
+
+    grid.innerHTML = "";
+
+    patients.forEach(patient => {
+
+      const initials = getInitials(patient.fullName);
+
+      const card = document.createElement("div");
+      card.className = "patient-card";
+
+      card.innerHTML = `
+        <div class="pc-top">
+
+          <div class="pc-avatar">
+            ${initials}
+          </div>
+
+          <div class="pc-info">
+            <h3>${patient.fullName}</h3>
+            <p>
+              Patient since ${formatMonth(patient.createdAt)}
+            </p>
+          </div>
+
+          <div class = "pc-status"> <span class="badge badge-active ${getStatusClass(patient.status)}">
+            ● ${patient.status || "Active"}
+          </span></div>
+        </div>
+
+        <div class="pc-details">
+          <div class="pc-detail"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${patient.serviceNeeded || "N/A"}</div>
+          <div class="pc-detail"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${patient.locationArea || "N/A"}</div>
+          <div class="pc-detail"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ${patient.assignedProviderName || "Unassigned"}</div>
+          <div class="pc-detail"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${patient.nextVisit || "No visit scheduled"}</div>
+        </div>
+
+        <div class="pc-footer">
+          <button class="pc-btn pc-btn-view" onclick="viewPatient('${patient.id}')">
+            View Profile
+          </button>
+
+          <button class="pc-btn pc-btn-contact">
+            Contact
+          </button>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    grid.innerHTML = `<p>Network error</p>`;
   }
+}
+
+/* =========================
+   HELPERS
+========================= */
+
+function getInitials(name = "") {
+  return name
+    .split(" ")
+    .map(n => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+}
+
+function formatMonth(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function getStatusClass(status = "") {
+
+  switch (status.toLowerCase()) {
+
+    case "active":
+      return "status-active";
+
+    case "new":
+      return "status-new";
+
+    case "completed":
+      return "status-completed";
+
+    case "on hold":
+      return "status-hold";
+
+    default:
+      return "";
+  }
+}
+
+  function viewPatient(id) {
+
+  // Find patient from API cache
+  const p = patientsCache.find(
+    r => r.id == id
+  );
+
+  if (!p) {
+    alert("Patient not found");
+    return;
+  }
+
+  document.getElementById("modalPatientName").textContent =
+    p.fullName || "Patient";
+
+  document.getElementById("modalPatientBody").innerHTML = `
+
+    <div class="modal-section">
+      <h4>Personal</h4>
+
+      <div class="detail-row">
+        <span class="detail-label">Full Name</span>
+        <span class="detail-value">
+          ${p.fullName || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Date of Birth</span>
+        <span class="detail-value">
+          ${p.dateOfBirth || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Phone</span>
+        <span class="detail-value">
+          ${p.phoneNumber || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">
+          ${p.email || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Location</span>
+        <span class="detail-value">
+          ${p.locationArea || "-"}
+        </span>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h4>Care Details</h4>
+
+      <div class="detail-row">
+        <span class="detail-label">Service</span>
+        <span class="detail-value">
+          ${p.serviceNeeded || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Caregiver</span>
+        <span class="detail-value">
+          ${p.assignedProviderName || "Unassigned"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Patient Since</span>
+        <span class="detail-value">
+          ${p.submittedAt  || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Next Visit</span>
+        <span class="detail-value">
+          ${p.nextVisit || "Not scheduled"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Total Visits</span>
+        <span class="detail-value">
+          ${p.totalVisits || 0}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Status</span>
+        <span class="detail-value">
+          ${p.status || "-"}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Notes</span>
+        <span class="detail-value">
+          ${p.notes || "No notes"}
+        </span>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("patientModal")
+    .classList
+    .add("open");
+}
 
   function filterCards(val) {
     val = val.toLowerCase();
@@ -50,6 +271,14 @@ const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
 
   document.getElementById('patientModal').addEventListener('click', e => {
     if (e.target === document.getElementById('patientModal')) document.getElementById('patientModal').classList.remove('open');
+  });
+
+    /* =========================
+    INIT
+  ========================= */
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadPatients();
   });
 
   function logout() {
