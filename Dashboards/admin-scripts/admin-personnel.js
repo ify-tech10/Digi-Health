@@ -61,10 +61,10 @@
           <div class="pc-stat"><div class="ps-val">8</div><div class="ps-lbl">Patients</div></div>
           <div class="pc-stat"><div class="ps-val">47</div><div class="ps-lbl">Visits</div></div>
         </div>
-        <div class="workload-bar-wrap">
+       <!-- <div class="workload-bar-wrap">
           <div class="workload-bar"><div class="workload-fill high" style="width:80%;"></div></div>
           <div class="workload-label">8/10 capacity</div>
-        </div>
+        </div>-->
         <div class="pc-tags" style="margin-top:10px;">
           <span class="pc-tag">${personnel.areasOfSpecialisation}</span>
         </div>
@@ -130,7 +130,7 @@ function getStatusClass(status = "") {
     if (!p) {
     alert("Personnel not found");
     return;
-  }
+    }
     
     document.getElementById('modalPersonnelBody').innerHTML = `
       <div class="modal-section"><h4>Personal & Contact</h4>
@@ -139,7 +139,7 @@ function getStatusClass(status = "") {
         <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${p.phoneNumber}</span></div>
         <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${p.email}</span></div>
         <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${p.locationArea}</span></div>
-        <div class="detail-row"><span class="detail-label">Joined</span><span class="detail-value">${p.joined}</span></div>
+        <div class="detail-row"><span class="detail-label">Joined</span><span class="detail-value">${p.reviewedAt}</span></div>
         <div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">${p.dateOfBirth}</span></div>
       </div>
       <div class="modal-section"><h4>Professional</h4>

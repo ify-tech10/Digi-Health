@@ -43,7 +43,7 @@
     .badge-approved { background: #f0fdf4; color: var(--green-dark); } .badge-approved::before { background: var(--green); }
     .badge-rejected { background: #fef2f2; color: #dc2626; } .badge-rejected::before { background: #ef4444; }
     .badge-screening { background: #faf5ff; color: #9333ea; } .badge-screening::before { background: #9333ea; }
-    .badge-new { background: #fff7ed; color: #c2410c; } .badge-new::before { background: #f97316; }
+    .badge-pending { background: #fff7ed; color: #c2410c; } .badge-pending::before { background: #f97316; }
 
     /* STATS */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
