@@ -323,7 +323,7 @@
           <select id="f_result"><option>Online Portal</option><option>WhatsApp / Email</option><option>Physical Pickup</option><option>All Methods</option></select>
         </div>
         <div class="form-group full">
-          <label style="margin-bottom:8px;">Services & Capabilities</label>
+          <label style="margin-bottom:8px;" >Services & Capabilities</label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <label class="check-row"><input type="checkbox" name="svc" id="s_home" /> Home Sample Pickup</label>
             <label class="check-row"><input type="checkbox" name="svc" id="s_fast" /> Same-Day Results</label>
@@ -370,8 +370,8 @@
      API CONFIG — swap API_BASE and set USE_API = true
      when your Render Spring Boot backend is ready
   ═══════════════════════════════════════════════════ */
-  const API_BASE = 'https://your-app.onrender.com/api'; // 🔧 Change to Render URL
-  const USE_API  = false; // 🔧 Set to true to connect to Render backend
+  const API_BASE = 'https://digihealth-6uy7.onrender.com/api'; // 🔧 Change to Render URL
+  const USE_API  = true; // 🔧 Set to true to connect to Render backend
  
   async function apiFetch(path, options = {}) {
     const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
@@ -417,7 +417,7 @@
     if (USE_API) {
       try {
         updateApiStatus('connecting');
-        items = await apiFetch('/laboratories');
+        items = await apiFetch('/admin/laboratories');
         updateApiStatus('live');
       } catch (err) {
         console.warn('API unavailable, using local data.', err);
@@ -437,16 +437,21 @@
   function updateApiStatus(state) {
     const badge = document.getElementById('apiStatusBadge');
     const label = document.getElementById('apiEndpointLabel');
-    const states = {
-      mock:        { cls:'mock',    dot:'Mock Data',           msg: 'Endpoint: GET /api/laboratories — set USE_API = true to connect' },
-      live:        { cls:'live',    dot:'Live — Render',       msg: 'Endpoint: GET ' + API_BASE + '/laboratories — connected' },
-      offline:     { cls:'offline', dot:'API Offline — Local', msg: 'Endpoint: GET ' + API_BASE + '/laboratories — unreachable' },
-      connecting:  { cls:'mock',    dot:'Connecting…',         msg: 'Endpoint: GET ' + API_BASE + '/laboratories — connecting' },
-    };
-    const s = states[state] || states.mock;
-    badge.className = 'api-status ' + s.cls;
-    badge.innerHTML = `<div class="api-dot"></div> ${s.dot}`;
-    label.textContent = s.msg;
+    if (state === 'live') {
+      badge.className = 'api-banner-status live';
+      badge.innerHTML = '<div class="api-dot"></div> Live — Render';
+      label.textContent = 'Endpoint: GET ' + API_BASE + '/admin/laboratories — connected';
+    } else if (state === 'error') {
+      badge.className = 'api-banner-status mock';
+      badge.innerHTML = '<div class="api-dot"></div> API Offline — Local';
+      label.textContent = 'Endpoint: GET ' + API_BASE + '/admin/laboratories — unreachable';
+    } else if (state === 'loading') {
+      badge.innerHTML = '<div class="api-dot"></div> Connecting…';
+    } else {
+      badge.className = 'api-banner-status mock';
+      badge.innerHTML = '<div class="api-dot"></div> Mock Data';
+      label.textContent = 'Endpoint: GET ' + API_BASE + '/admin/laboratories — set USE_API = true to connect';
+    }
   }
  
   function showGrid() {
@@ -469,51 +474,125 @@
     return ms && mst && ma && mv;
   });
  
-  function render() {
-    const filtered = getFiltered();
-    document.getElementById('statTotal').textContent = items.length;
-    document.getElementById('statActive').textContent = items.filter(i => i.status === 'active').length;
-    document.getElementById('statHome').textContent = items.filter(i => i.services.includes('Home Sample Pickup')).length;
-    document.getElementById('statFast').textContent = items.filter(i => i.services.includes('Same-Day Results')).length;
- 
-    const grid = document.getElementById('infraGrid');
-    if (!filtered.length) {
-      grid.innerHTML = `<div class="empty-state"><svg width="52" height="52" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h20l-5-5V3"/></svg><h4>No laboratories found</h4><p>Try adjusting your filters or add a new laboratory.</p></div>`;
-      return;
-    }
- 
-    grid.innerHTML = filtered.map(item => {
-      const svcs = item.services.slice(0, 3).map(s => {
-        const cls = s === 'Home Sample Pickup' ? 'ic-tag-home' : s === 'Same-Day Results' ? 'ic-tag-fast' : '';
-        return `<span class="ic-tag ${cls}">${s}</span>`;
-      }).join('') + (item.services.length > 3 ? `<span class="ic-tag">+${item.services.length - 3}</span>` : '');
- 
-      return `
+ function render() {
+  const filtered = getFiltered();
+
+  // 🔐 Normalize once (VERY IMPORTANT)
+  items = items.map(i => ({
+    ...i,
+    services: Array.isArray(i.services) ? i.services : []
+  }));
+
+  document.getElementById('statTotal').textContent = items.length;
+  document.getElementById('statActive').textContent =
+    items.filter(i => i.status === 'active').length;
+
+  document.getElementById('statHome').textContent =
+    items.filter(i => (i.services || []).includes('Home Sample Pickup')).length;
+
+  document.getElementById('statFast').textContent =
+    items.filter(i => (i.services || []).includes('Same-Day Results')).length;
+
+  const grid = document.getElementById('infraGrid');
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <svg width="52" height="52" viewBox="0 0 24 24">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h20l-5-5V3"/>
+      </svg>
+      <h4>No laboratories found</h4>
+      <p>Try adjusting your filters or add a new laboratory.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+
+    // 🔐 SAFE fallback
+    const services = Array.isArray(item.services) ? item.services : [];
+
+    const svcs = services.slice(0, 3).map(s => {
+      const cls =
+        s === 'Home Sample Pickup' ? 'ic-tag-home' :
+        s === 'Same-Day Results' ? 'ic-tag-fast' : '';
+
+      return `<span class="ic-tag ${cls}">${s}</span>`;
+    }).join('') + (services.length > 3
+      ? `<span class="ic-tag">+${services.length - 3}</span>`
+      : '');
+
+    return `
       <div class="infra-card">
         <div class="card-accent"></div>
+
         <div class="ic-body">
+
           <div class="ic-top">
-            <div class="ic-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h20l-5-5V3"/></svg></div>
-            <div class="ic-info">
-              <h3>${item.name}</h3>
-              <div class="ic-type">${item.chain || 'Independent'} · ${item.accred || 'MLSCN'}</div>
+            <div class="ic-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11l-5 5h20l-5-5V3"/>
+              </svg>
             </div>
-            <div class="ic-status"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></div>
+
+            <div class="ic-info">
+              <h3>${item.laboratoryName}</h3>
+              <div class="ic-type">
+                ${item.typeChain || 'Independent'} · ${item.accreditationBody || 'MLSCN'}
+              </div>
+            </div>
+
+            <div class="ic-status">
+              <span class="badge badge-${item.status.toLowerCase()}">
+                ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+              </span>
+            </div>
           </div>
+
           <div class="ic-details">
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${item.area}, Lagos</div>
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>${item.phone}</div>
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${item.hours} · Results: ${item.tat}</div>
+            <div class="ic-detail">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              ${item.areaLga}
+            </div>
+
+            <div class="ic-detail">
+              <svg viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12"/>
+              </svg>
+              ${item.phoneNumber}
+            </div>
+
+            <div class="ic-detail">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              ${item.openingHours} · Results: ${item.turnaroundTime || '—'}
+            </div>
           </div>
-          ${svcs ? `<div class="ic-tags">${svcs}</div>` : ''}
+
+          
+            ${(item.servicesAndCapabilities || []).map(s =>
+              `<span class="ic-tag">${s}</span>`
+            ).join('')}
+        
+
         </div>
+
         <div class="ic-footer">
-          <button class="ic-btn ic-btn-view" onclick="openView(${item.id})">View Details</button>
-          <button class="ic-btn ic-btn-delete" onclick="openDelete(${item.id})">Delete</button>
+          <button class="ic-btn ic-btn-view" onclick="openView(${item.id})">
+            View Details
+          </button>
+          <button class="ic-btn ic-btn-delete" onclick="openDelete(${item.id})">
+            Delete
+          </button>
         </div>
-      </div>`;
-    }).join('');
-  }
+      </div>
+    `;
+  }).join('');
+}
  
   function filterCards(val) { filterSearch = val.toLowerCase(); render(); }
   function filterByStatus(val) { filterStatus = val; render(); }
@@ -522,35 +601,83 @@
  
   /* ═══ VIEW ═══ */
   function openView(id) {
-    const item = items.find(i => i.id === id);
-    document.getElementById('viewModalTitle').textContent = item.name;
-    document.getElementById('viewModalBody').innerHTML = `
-      <div class="modal-section"><h4>Details</h4>
-        <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${item.name}</span></div>
-        <div class="detail-row"><span class="detail-label">Chain / Brand</span><span class="detail-value">${item.chain || 'Independent'}</span></div>
-        <div class="detail-row"><span class="detail-label">Accreditation</span><span class="detail-value">${item.accred || '—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></span></div>
-        <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${item.address}</span></div>
-        <div class="detail-row"><span class="detail-label">Area</span><span class="detail-value">${item.area}, Lagos</span></div>
-        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${item.phone}</span></div>
-        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${item.email || '—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Lab Manager</span><span class="detail-value">${item.contact || '—'}</span></div>
-        <div class="detail-row"><span class="detail-label">Opening Hours</span><span class="detail-value">${item.hours}</span></div>
-        <div class="detail-row"><span class="detail-label">Turnaround Time</span><span class="detail-value">${item.tat}</span></div>
-        <div class="detail-row"><span class="detail-label">Result Delivery</span><span class="detail-value">${item.result}</span></div>
-        <div class="detail-row"><span class="detail-label">Added</span><span class="detail-value">${item.added}</span></div>
-      </div>
-      <div class="modal-section"><h4>Services & Capabilities</h4>
-        <p style="font-size:13px;color:#5a6690;line-height:1.8;">${item.services.length ? item.services.join(' · ') : 'None listed'}</p>
-      </div>
-      <div class="modal-section"><h4>Key Tests Offered</h4>
-        <p style="font-size:13px;color:#5a6690;line-height:1.8;">${item.tests.length ? item.tests.join(', ') : 'None listed'}</p>
-      </div>
-      ${item.notes ? `<div class="modal-section"><h4>Notes</h4><p style="font-size:13px;color:#5a6690;line-height:1.65;">${item.notes}</p></div>` : ''}
-    `;
-    document.getElementById('viewDeleteBtn').onclick = () => { closeModal('viewModal'); openDelete(id); };
-    document.getElementById('viewModal').classList.add('open');
+
+  const item = items.find(i => String(i.id) === String(id));
+
+  if (!item) {
+    showToast("Item not found", false);
+    return;
   }
+
+  const services = Array.isArray(item.servicesAndCapabilities) ? item.servicesAndCapabilities : [];
+  const tests = Array.isArray(item.testsOffered) ? item.testsOffered : [];
+  console.log(services, tests);
+
+  document.getElementById('viewModalTitle').textContent = item.laboratoryName;
+
+  document.getElementById('viewModalBody').innerHTML = `
+    <div class="modal-section"><h4>Details</h4>
+
+      <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${item.laboratoryName}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Chain / Brand</span><span class="detail-value">${item.typeChain || 'Independent'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Accreditation</span><span class="detail-value">${item.accreditationBody || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Status</span>
+        <span class="detail-value">
+          <span class="badge badge-${item.status.toLowerCase()}">
+            ${item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : '—'}
+          </span>
+        </span>
+      </div>
+
+      <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${item.areaLga || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Area</span><span class="detail-value">${item.address || '—'}, Lagos</span></div>
+
+      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${item.phoneNumber || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${item.email || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Lab Manager</span><span class="detail-value">${item.contactLabManager || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Opening Hours</span><span class="detail-value">${item.openingHours || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Turnaround Time</span><span class="detail-value">${item.turnaroundTime || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Result Delivery</span><span class="detail-value">${item.resultDelivery || '—'}</span></div>
+
+      <div class="detail-row"><span class="detail-label">Added</span><span class="detail-value">${item.added || '—'}</span></div>
+    </div>
+
+    <div class="modal-section"><h4>Services & Capabilities</h4>
+      <p style="font-size:13px;color:#5a6690;line-height:1.8;">
+        ${services.length ? services.join(' · ') : 'None listed'}
+      </p>
+    </div>
+
+    <div class="modal-section"><h4>Key Tests Offered</h4>
+      <p style="font-size:13px;color:#5a6690;line-height:1.8;">
+        ${tests.length ? tests.join(', ') : 'None listed'}
+      </p>
+    </div>
+
+    ${item.notes
+      ? `<div class="modal-section"><h4>Notes</h4>
+           <p style="font-size:13px;color:#5a6690;line-height:1.65;">${item.notes}</p>
+         </div>`
+      : ''
+    }
+  `;
+
+  document.getElementById('viewDeleteBtn').onclick = () => {
+    closeModal('viewModal');
+    openDelete(id);
+  };
+
+  document.getElementById('viewModal').classList.add('open');
+}
  
   /* ═══ ADD ═══ */
   function openAdd() {
@@ -562,60 +689,179 @@
   }
  
   async function addItem() {
-    const name = document.getElementById('f_name').value.trim();
-    const address = document.getElementById('f_address').value.trim();
-    const area = document.getElementById('f_area').value.trim();
-    const phone = document.getElementById('f_phone').value.trim();
-    if (!name || !address || !area || !phone) { showToast('Please fill in all required fields.', false); return; }
- 
-    const svcMap = { s_home:'Home Sample Pickup', s_fast:'Same-Day Results', s_digital:'Digital Reports', s_covid:'COVID Testing', s_genetic:'Genetic Testing', s_micro:'Microbiology', s_histo:'Histopathology', s_hormones:'Hormone Panels', s_imaging:'Imaging (X-ray/Scan)', s_corporate:'Corporate Packages' };
-    const services = Object.entries(svcMap).filter(([id]) => document.getElementById(id).checked).map(([,v]) => v);
- 
-    const payload = {
-      name, address, area, phone, services,
-      chain: document.getElementById('f_chain').value.trim() || 'Independent',
-      accred: document.getElementById('f_accred').value.trim() || 'MLSCN',
-      status: document.getElementById('f_status').value,
-      email: document.getElementById('f_email').value.trim() || '—',
-      contact: document.getElementById('f_contact').value.trim() || '—',
-      hours: document.getElementById('f_hours').value.trim() || '—',
-      tat: document.getElementById('f_tat').value.trim() || '24hrs',
-      result: document.getElementById('f_result').value,
-      tests: document.getElementById('f_tests').value.split(',').map(s => s.trim()).filter(Boolean),
-      notes: document.getElementById('f_notes').value.trim(),
-    };
- 
-    const btn = document.getElementById('addSubmitBtn');
-    btn.textContent = 'Saving…'; btn.disabled = true;
- 
+
+  // Clear previous errors
+  document.querySelectorAll('.error-text').forEach(el => el.remove());
+  document.querySelectorAll('.input-error').forEach(el => {
+    el.classList.remove('input-error');
+  });
+
+  const laboratoryName = document.getElementById('f_name').value.trim();
+  const address = document.getElementById('f_address').value.trim();
+  const areaLga = document.getElementById('f_area').value.trim();
+  const phoneNumber = document.getElementById('f_phone').value.trim();
+
+  if (!laboratoryName || !address || !areaLga || !phoneNumber) {
+    showToast('Please fill in all required fields.', false);
+    return;
+  }
+
+  const svcMap = {
+    s_home: 'Home Sample Pickup',
+    s_fast: 'Same-Day Results',
+    s_digital: 'Digital Reports',
+    s_covid: 'COVID Testing',
+    s_genetic: 'Genetic Testing',
+    s_micro: 'Microbiology',
+    s_histo: 'Histopathology',
+    s_hormones: 'Hormone Panels',
+    s_imaging: 'Imaging (X-ray/Scan)',
+    s_corporate: 'Corporate Packages'
+  };
+
+  const services = Object.entries(svcMap)
+    .filter(([id]) => document.getElementById(id)?.checked)
+    .map(([, value]) => value);
+
+  const payload = {
+    laboratoryName,
+    address,
+    areaLga,
+    phoneNumber,
+
+    servicesAndCapabilities: services,
+
+    typeChain: document.getElementById('f_chain').value.trim() || 'Independent',
+    accreditationBody: document.getElementById('f_accred').value.trim() || 'MLSCN',
+    status: document.getElementById('f_status').value,
+
+    email: document.getElementById('f_email').value.trim() || '',
+    contactLabManager: document.getElementById('f_contact').value.trim() || '',
+    openingHours: document.getElementById('f_hours').value.trim() || '',
+    turnaroundTime: document.getElementById('f_tat').value.trim() || '24hrs',
+    resultDelivery: document.getElementById('f_result').value || '',
+
+    testsOffered: document.getElementById('f_tests').value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean),
+
+    notes: document.getElementById('f_notes').value.trim(),
+  };
+
+  const btn = document.getElementById('addSubmitBtn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+
     if (USE_API) {
-      try {
-        const saved = await apiFetch('/laboratories', { method: 'POST', body: JSON.stringify(payload) });
-        items.unshift(saved);
-      } catch {
-        payload.id = Date.now();
-        payload.added = new Date().toLocaleDateString('en-GB', { month:'short', year:'numeric' });
-        items.unshift(payload);
-        showToast('Saved locally — API unavailable.', false);
+
+      const response = await fetch(API_BASE + '/admin/laboratories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user.token ? { Authorization: `Bearer ${user.token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+  console.log("Validation Error Response:", data);
+
+  // Handle Spring validation errors
+  if (data.validationErrors) {
+
+    const inputMap = {
+      laboratoryName: 'f_name',
+      address: 'f_address',
+      areaLga: 'f_area',
+      phoneNumber: 'f_phone',
+      email: 'f_email',
+      contactLabManager: 'f_contact',
+      openingHours: 'f_hours',
+      turnaroundTime: 'f_tat'
+    };
+
+    Object.entries(data.validationErrors).forEach(([field, message]) => {
+
+      // ✅ ALERT THE ERROR
+      alert(message);
+
+      const fieldId = inputMap[field];
+
+      if (fieldId) {
+
+        const el = document.getElementById(fieldId);
+
+        if (el) {
+
+          // Highlight field
+          el.classList.add('input-error');
+
+          // Remove old error if exists
+          const oldErr = el.parentNode.querySelector('.error-text');
+          if (oldErr) oldErr.remove();
+
+          // Create error text
+          const err = document.createElement('div');
+          err.className = 'error-text';
+          err.textContent = message;
+
+          el.parentNode.appendChild(err);
+        }
       }
+    });
+
+  } else {
+
+    // Generic backend error
+    alert(data.message || `HTTP ${response.status}`);
+  }
+
+  return;
+}
+
+      // SUCCESS
+      items.unshift(data);
+
     } else {
+
       payload.id = Date.now();
-      payload.added = new Date().toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+      payload.added = new Date().toLocaleDateString('en-GB', {
+        month: 'short',
+        year: 'numeric'
+      });
+
       items.unshift(payload);
     }
- 
-    btn.textContent = 'Add Laboratory'; btn.disabled = false;
+
     closeModal('addModal');
     populateAreaFilter();
     render();
-    showToast('✅ ' + name + ' added!');
+
+    showToast(`✅ ${laboratoryName} added successfully!`);
+
+  } catch (err) {
+
+    console.error(err);
+    showToast('Network error. Please try again.', false);
+
+  } finally {
+
+    btn.textContent = 'Add Laboratory';
+    btn.disabled = false;
   }
+}
  
   /* ═══ DELETE ═══ */
   function openDelete(id) {
     deleteId = id;
     const item = items.find(i => i.id === id);
-    document.getElementById('deleteItemName').textContent = item.name;
+    document.getElementById('deleteItemName').textContent = item.laboratoryName;
     document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
     document.getElementById('deleteModal').classList.add('open');
   }
@@ -623,14 +869,14 @@
   async function confirmDelete() {
     const item = items.find(i => i.id === deleteId);
     if (USE_API) {
-      try { await apiFetch(`/laboratories/${deleteId}`, { method: 'DELETE' }); }
+      try { await apiFetch(`api/admin/laboratories/${deleteId}`, { method: 'DELETE' }); }
       catch { /* local delete still happens */ }
     }
     items = items.filter(i => i.id !== deleteId);
     closeModal('deleteModal');
     populateAreaFilter();
     render();
-    showToast(item.name + ' deleted.');
+    showToast(item.laboratoryName + ' deleted.');
     deleteId = null;
   }
  

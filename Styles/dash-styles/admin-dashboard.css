@@ -237,3 +237,169 @@
   min-height: 80px;
   resize: vertical;
 }
+
+                /* =========================
+        PAGINATION CONTAINER
+      ========================= */
+
+      .table-pagination{
+        display:flex;
+        align-items:center;
+        justify-content:flex-end;
+        gap:10px;
+
+        width:fit-content;
+
+        margin-left:auto;
+        margin-top:18px;
+
+        padding:8px 12px;
+
+        background:#f8fafc;
+
+        border:1px solid #e2e8f0;
+
+        border-radius:14px;
+      }
+
+      /* =========================
+        PAGINATION BUTTONS
+      ========================= */
+
+      .table-pagination button{
+        border:none;
+        outline:none;
+
+        background:#e0e7ff;
+
+        color:#1e3a8a;
+
+        padding:8px 14px;
+
+        border-radius:10px;
+
+        cursor:pointer;
+
+        font-size:13px;
+
+        font-weight:600;
+
+        transition:all .2s ease;
+      }
+
+      .table-pagination button:hover{
+        background:#c7d2fe;
+      }
+
+      .table-pagination button:disabled{
+        opacity:.45;
+        cursor:not-allowed;
+      }
+
+      /* =========================
+        PAGE LABEL
+      ========================= */
+
+      .table-pagination span{
+        font-size:13px;
+        font-weight:600;
+        color:#475569;
+
+        white-space:nowrap;
+      }
+
+      /* =========================
+        MOBILE
+      ========================= */
+
+      @media (max-width:768px){
+
+        .table-pagination{
+          width:100%;
+          justify-content:center;
+        }
+
+      }
+
+                   /* =========================
+        PAGINATION CONTAINER
+      ========================= */
+
+      .table-pagination2{
+        display:flex;
+        align-items:center;
+        justify-content:flex-end;
+        gap:10px;
+
+        width:fit-content;
+
+        margin-left:auto;
+        margin-top:18px;
+
+        padding:8px 12px;
+
+        background:#f8fafc;
+
+        border:1px solid #e2e8f0;
+
+        border-radius:14px;
+      }
+
+      /* =========================
+        PAGINATION BUTTONS
+      ========================= */
+
+      .table-pagination2 button{
+        border:none;
+        outline:none;
+
+        background:#e0e7ff;
+
+        color:#1e3a8a;
+
+        padding:8px 14px;
+
+        border-radius:10px;
+
+        cursor:pointer;
+
+        font-size:13px;
+
+        font-weight:600;
+
+        transition:all .2s ease;
+      }
+
+      .table-pagination2 button:hover{
+        background:#c7d2fe;
+      }
+
+      .table-pagination2 button:disabled{
+        opacity:.45;
+        cursor:not-allowed;
+      }
+
+      /* =========================
+        PAGE LABEL
+      ========================= */
+
+      .table-pagination2 span{
+        font-size:13px;
+        font-weight:600;
+        color:#475569;
+
+        white-space:nowrap;
+      }
+
+      /* =========================
+        MOBILE
+      ========================= */
+
+      @media (max-width:768px){
+
+        .table-pagination2{
+          width:100%;
+          justify-content:center;
+        }
+
+      }

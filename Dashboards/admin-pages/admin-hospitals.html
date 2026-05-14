@@ -106,7 +106,7 @@
         <div class="form-group"><label>Contact Person</label><input type="text" id="f_contact" placeholder="Name of liaison" /></div>
         <div class="form-group"><label>Bed Capacity</label><input type="number" id="f_beds" placeholder="e.g. 200" /></div>
         <div class="form-group"><label>Emergency Unit</label>
-          <select id="f_emergency"><option value="Yes">Yes — 24/7</option><option value="No">No</option></select>
+          <select id="f_emergency"><option value="YES_24_7">YES_24_7</option><option value="No">No</option></select>
         </div>
         <div class="form-group full"><label>Specialisations / Services</label><input type="text" id="f_specs" placeholder="e.g. Cardiology, Maternity, Orthopaedics (comma separated)" /></div>
         <div class="form-group full"><label>Notes</label><textarea id="f_notes" placeholder="Any additional details about this hospital..."></textarea></div>
@@ -114,7 +114,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-modal-close" onclick="closeModal('addModal')">Cancel</button>
-      <button class="btn-submit" onclick="addItem()">Add Hospital</button>
+      <button class="btn-submit" id="addSubmitBtn" onclick="addItem()">Add Hospital</button>
     </div>
   </div>
 </div>
@@ -138,103 +138,319 @@
  
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'ADMIN') window.location.href = '../../../login.html';
-  function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../../login.html'; }
- 
-  let items = [
-    { id:1, name:'Lagos Island General Hospital', type:'Government', status:'active', address:'1 Broad Street, Lagos Island, Lagos', area:'Lagos Island', phone:'+234 1 263 1051', email:'info@ligh.gov.ng', contact:'Dr. Amara Osei', beds:350, emergency:'Yes', specs:['General Medicine','Surgery','Maternity','Paediatrics'], notes:'Primary referral hospital for post-discharge patients from Lagos Island. Strong surgical team.', added:'Jan 2026' },
-    { id:2, name:'Reddington Hospital', type:'Private', status:'active', address:'12 Idowu Martins Street, Victoria Island, Lagos', area:'Victoria Island', phone:'+234 1 271 0000', email:'info@reddingtonhospital.com', contact:'Admin Team', beds:120, emergency:'Yes', specs:['Cardiology','Oncology','ICU','Maternity'], notes:'Premium private hospital. Key partner for cardiac referrals.', added:'Feb 2026' },
-    { id:3, name:'Lagos University Teaching Hospital (LUTH)', type:'Teaching', status:'active', address:'PMB 12003, Idi-Araba, Surulere, Lagos', area:'Surulere', phone:'+234 1 774 5051', email:'cmo@luth.gov.ng', contact:'Prof. Adewale Oke', beds:760, emergency:'Yes', specs:['All Specialties','Research','Oncology','Transplant'], notes:'Largest teaching hospital in Lagos. Handles complex referrals.', added:'Jan 2026' },
-    { id:4, name:'St. Nicholas Hospital', type:'Private', status:'active', address:'57 Campbell Street, Lagos Island, Lagos', area:'Lagos Island', phone:'+234 1 263 4455', email:'info@stnicholas.com.ng', contact:'Dr. Ngozi Obiechina', beds:80, emergency:'Yes', specs:['General Medicine','Surgery','Maternity','Paediatrics'], notes:'Long-standing private hospital with good post-discharge support.', added:'Mar 2026' },
-    { id:5, name:'Gbagada General Hospital', type:'Government', status:'active', address:'Hospital Road, Gbagada, Lagos', area:'Gbagada', phone:'+234 1 774 0046', email:'gbagadahosp@lagosstate.gov.ng', contact:'Admin Office', beds:200, emergency:'Yes', specs:['General Medicine','Maternity','Paediatrics'], notes:'Key government partner for Gbagada and Bariga coverage zone.', added:'Jan 2026' },
-    { id:6, name:'Eko Hospital', type:'Private', status:'active', address:'31 Mobolaji Bank Anthony Way, Ikeja, Lagos', area:'Ikeja', phone:'+234 1 793 3890', email:'info@ekohospitals.com', contact:'Patient Services', beds:150, emergency:'Yes', specs:['Cardiology','Orthopaedics','ICU','Radiology'], notes:'Top private referral for orthopaedic and cardiac cases in Ikeja zone.', added:'Feb 2026' },
-    { id:7, name:'Massey Street Children Hospital', type:'Government', status:'active', address:'1 Massey Street, Lagos Island, Lagos', area:'Lagos Island', phone:'+234 1 263 2844', email:'info@masseyhospital.gov.ng', contact:'Chief Medical Officer', beds:100, emergency:'Yes', specs:['Paediatrics','Neonatology','Paediatric Surgery'], notes:'Specialist children hospital. Key partner for paediatric referrals.', added:'Mar 2026' },
-    { id:8, name:'Island Maternity Hospital', type:'Government', status:'active', address:'3 Harvey Road, Lagos Island, Lagos', area:'Lagos Island', phone:'+234 1 263 7831', email:'info@islandmaternity.gov.ng', contact:'Admin', beds:60, emergency:'No', specs:['Maternity','Obstetrics','Gynaecology'], notes:'Primary referral for postnatal complications and maternity emergencies.', added:'Apr 2026' },
-    { id:9, name:'Ikorodu General Hospital', type:'Government', status:'inactive', address:'Hospital Road, Ikorodu, Lagos', area:'Ikorodu', phone:'+234 802 222 5555', email:'ikorodu@lagosstate.gov.ng', contact:'Admin', beds:180, emergency:'Yes', specs:['General Medicine','Surgery'], notes:'Currently inactive pending infrastructure review.', added:'Jan 2026' },
-  ];
- 
+  
+
+  if (!user.loggedIn || user.role !== 'ADMIN') {
+    window.location.href = '../../../login.html';
+  }
+
+  function logout() {
+    localStorage.removeItem('dh_user');
+    window.location.href = '../../../login.html';
+  }
+
+  // Backend API URL
+  const API_BASE_URL = 'https://digihealth-6uy7.onrender.com/api';
+
+  let items = [];
   let deleteId = null;
+
   let filterSearch = '';
   let filterStatus = '';
   let filterType = '';
- 
+
+  // FETCH HOSPITALS FROM BACKEND
+  async function fetchHospitals() {
+    try {
+      const grid = document.getElementById('infraGrid');
+
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h4>Loading hospitals...</h4>
+        </div>
+      `;
+
+      const response = await fetch(`${API_BASE_URL}/admin/hospitals`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // optional auth token
+          'Authorization': 'Bearer ' + user.token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch hospitals');
+      }
+
+      const data = await response.json();
+
+      // If backend returns:
+      // { hospitals: [...] }
+      items = data.hospitals || data;
+
+      render();
+
+    } catch (error) {
+      console.error(error);
+
+      document.getElementById('infraGrid').innerHTML = `
+        <div class="empty-state">
+          <h4>Failed to load hospitals</h4>
+          <p>${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
   const getFiltered = () => items.filter(item => {
-    const matchSearch = !filterSearch || item.name.toLowerCase().includes(filterSearch) || item.area.toLowerCase().includes(filterSearch) || item.type.toLowerCase().includes(filterSearch);
-    const matchStatus = !filterStatus || item.status === filterStatus;
-    const matchType = !filterType || item.type === filterType;
+    const matchSearch =
+      !filterSearch ||
+      item.name?.toLowerCase().includes(filterSearch) ||
+      item.area?.toLowerCase().includes(filterSearch) ||
+      item.type?.toLowerCase().includes(filterSearch);
+
+    const matchStatus =
+      !filterStatus || item.status === filterStatus;
+
+    const matchType =
+      !filterType || item.type === filterType;
+
     return matchSearch && matchStatus && matchType;
   });
- 
+
   function render() {
     const filtered = getFiltered();
     const grid = document.getElementById('infraGrid');
- 
-    // Update stats
+
+    // Stats
     document.getElementById('statTotal').textContent = items.length;
-    document.getElementById('statActive').textContent = items.filter(i => i.status === 'active').length;
-    document.getElementById('statReferrals').textContent = items.filter(i => i.type === 'Private').length;
+
+    document.getElementById('statActive').textContent =
+      items.filter(i => i.status === 'active').length;
+
+    document.getElementById('statReferrals').textContent =
+      items.filter(i => i.type === 'Private').length;
+
     const areas = [...new Set(items.map(i => i.area))].length;
+
     document.getElementById('statAreas').textContent = areas;
- 
+
     if (!filtered.length) {
-      grid.innerHTML = `<div class="empty-state"><svg width="52" height="52" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><h4>No hospitals found</h4><p>Try adjusting your search or filters, or add a new hospital.</p></div>`;
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h4>No hospitals found</h4>
+          <p>Try adjusting your search or filters.</p>
+        </div>
+      `;
       return;
     }
- 
+
     grid.innerHTML = filtered.map(item => `
       <div class="infra-card">
         <div class="card-accent"></div>
+
         <div class="ic-body">
+
           <div class="ic-top">
-            <div class="ic-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-            <div class="ic-info">
-              <h3>${item.name}</h3>
-              <div class="ic-type">${item.type} Hospital</div>
+            <div class="ic-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
             </div>
-            <div class="ic-status"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase()+item.status.slice(1)}</span></div>
+
+            <div class="ic-info">
+              <h3>${item.hospitalName || 'N/A'}</h3>
+              <div class="ic-type">
+                ${item.type || 'Hospital'}
+              </div>
+            </div>
+
+            <div class="ic-status">
+              <span class="badge badge-active">
+                ${item.status.charAt(0).toUpperCase()+item.status.slice(1)|| 'Unknown'}
+              </span>
+            </div>
           </div>
+
           <div class="ic-details">
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${item.area}, Lagos</div>
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>${item.phone}</div>
-            <div class="ic-detail"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${item.beds} beds · Emergency: ${item.emergency}</div>
+
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${item.address || 'N/A'}
+            </div>
+
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+              ${item.phoneNumber || 'No phone'}
+            </div>
+
+            <div class="ic-detail"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              ${item.bedCapacity || 0} beds · Emergency:
+              ${item.emergencyUnit || 'No'}
+            </div>
+
           </div>
-          <div class="ic-tags">${item.specs.slice(0,3).map(s => `<span class="ic-tag">${s}</span>`).join('')}${item.specs.length > 3 ? `<span class="ic-tag">+${item.specs.length-3}</span>` : ''}</div>
+
+          <div class="ic-tags">
+            ${(item.specialisations || [])
+              .slice(0,3)
+              .map(s => `<span class="ic-tag">${s}</span>`)
+              .join('')}
+          </div>
+
         </div>
+
         <div class="ic-footer">
-          <button class="ic-btn ic-btn-view" onclick="openView(${item.id})">View Details</button>
-          <button class="ic-btn ic-btn-delete" onclick="openDelete(${item.id})">Delete</button>
+          <button
+            class="ic-btn ic-btn-view"
+            onclick="openView('${item.id}')"
+          >
+            View Details
+          </button>
+
+          <button
+            class="ic-btn ic-btn-delete"
+            onclick="openDelete('${item.id}')"
+          >
+            Delete
+          </button>
         </div>
       </div>
     `).join('');
   }
- 
-  function filterCards(val) { filterSearch = val.toLowerCase(); render(); }
-  function filterByStatus(val) { filterStatus = val; render(); }
-  function filterByType(val) { filterType = val; render(); }
- 
-  function openView(id) {
-    const item = items.find(i => i.id === id);
-    document.getElementById('viewModalTitle').textContent = item.name;
-    document.getElementById('viewModalBody').innerHTML = `
-      <div class="modal-section"><h4>Details</h4>
-        <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${item.name}</span></div>
-        <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${item.type}</span></div>
-        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-${item.status}">${item.status.charAt(0).toUpperCase()+item.status.slice(1)}</span></span></div>
-        <div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${item.address}</span></div>
-        <div class="detail-row"><span class="detail-label">Area</span><span class="detail-value">${item.area}, Lagos</span></div>
-        <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${item.phone}</span></div>
-        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${item.email}</span></div>
-        <div class="detail-row"><span class="detail-label">Contact Person</span><span class="detail-value">${item.contact}</span></div>
-        <div class="detail-row"><span class="detail-label">Bed Capacity</span><span class="detail-value">${item.beds}</span></div>
-        <div class="detail-row"><span class="detail-label">Emergency Unit</span><span class="detail-value">${item.emergency}</span></div>
-        <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${item.specs.join(', ')}</span></div>
-        <div class="detail-row"><span class="detail-label">Added</span><span class="detail-value">${item.added}</span></div>
-      </div>
-      ${item.notes ? `<div class="modal-section"><h4>Notes</h4><p style="font-size:13px;color:#5a6690;line-height:1.65;">${item.notes}</p></div>` : ''}
-    `;
-    document.getElementById('viewModalDeleteBtn').onclick = () => { closeModal('viewModal'); openDelete(id); };
-    document.getElementById('viewModal').classList.add('open');
+
+  function filterCards(val) {
+    filterSearch = val.toLowerCase();
+    render();
   }
+
+  function filterByStatus(val) {
+    filterStatus = val;
+    render();
+  }
+
+  function filterByType(val) {
+    filterType = val;
+    render();
+  }
+
+  function openView(id) {
+
+  const item = items.find(i => i.id == id);
+
+  console.log('FOUND ITEM:', item);
+
+  if (!item) {
+    showToast('Hospital not found');
+    return;
+  }
+
+  document.getElementById('viewModalTitle').textContent =
+    item.hospitalName;
+
+  document.getElementById('viewModalBody').innerHTML = `
+
+    <div class="modal-section">
+
+      <h4>Hospital Details</h4>
+
+      <div class="detail-row">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">
+          ${item.hospitalName || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Type</span>
+        <span class="detail-value">
+          ${item.type || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Status</span>
+        <span class="detail-value">
+          <span class="badge badge-active">
+            ${item.status || 'N/A'}
+          </span>
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Address</span>
+        <span class="detail-value">
+          ${item.address || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Area</span>
+        <span class="detail-value">
+          ${item.areaLga || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Phone</span>
+        <span class="detail-value">
+          ${item.phoneNumber || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">
+          ${item.email || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Contact Person</span>
+        <span class="detail-value">
+          ${item.contactPerson || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Bed Capacity</span>
+        <span class="detail-value">
+          ${item.bedCapacity || 0}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Emergency Unit</span>
+        <span class="detail-value">
+          ${item.emergencyUnit || 'N/A'}
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Specialisations</span>
+        <span class="detail-value">
+          ${
+            Array.isArray(item.specialisations)
+              ? item.specialisations.join(', ')
+              : 'N/A'
+          }
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Notes</span>
+        <span class="detail-value">
+          ${item.notes || 'N/A'}
+        </span>
+      </div>
+
+    </div>
+
+  `;
+
+  document.getElementById('viewModal')
+    .classList.add('open');
+}
  
   function openAdd() {
     ['f_name','f_address','f_area','f_phone','f_email','f_contact','f_notes','f_specs'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
@@ -243,53 +459,225 @@
     document.getElementById('addModal').classList.add('open');
   }
  
-  function addItem() {
-    const name = document.getElementById('f_name').value.trim();
-    const type = document.getElementById('f_type').value;
-    const address = document.getElementById('f_address').value.trim();
-    const area = document.getElementById('f_area').value.trim();
-    const phone = document.getElementById('f_phone').value.trim();
-    if (!name || !type || !address || !area || !phone) { showToast('Please fill in all required fields.'); return; }
-    const newItem = {
-      id: Date.now(), name, type,
-      status: document.getElementById('f_status').value,
-      address, area, phone,
-      email: document.getElementById('f_email').value.trim() || '—',
-      contact: document.getElementById('f_contact').value.trim() || '—',
-      beds: parseInt(document.getElementById('f_beds').value) || 0,
-      emergency: document.getElementById('f_emergency').value,
-      specs: document.getElementById('f_specs').value.split(',').map(s=>s.trim()).filter(Boolean),
-      notes: document.getElementById('f_notes').value.trim(),
-      added: new Date().toLocaleDateString('en-GB', { month:'short', year:'numeric' })
-    };
-    items.unshift(newItem);
+  async function addItem() {
+
+  // Clear previous errors
+  document.querySelectorAll('.error-text').forEach(el => el.remove());
+  document.querySelectorAll('.input-error').forEach(el => {
+    el.classList.remove('input-error');
+  });
+
+  const hospitalName = document.getElementById('f_name').value.trim();
+  const type = document.getElementById('f_type').value;
+  const address = document.getElementById('f_address').value.trim();
+  const areaLga = document.getElementById('f_area').value.trim();
+  const phoneNumber = document.getElementById('f_phone').value.trim();
+
+  const email = document.getElementById('f_email').value.trim();
+  const contactPerson = document.getElementById('f_contact').value.trim();
+  const bedCapacity = document.getElementById('f_beds').value;
+  const emergency = document.getElementById('f_emergency').value;
+  const specs = document.getElementById('f_specs').value.trim();
+  const notes = document.getElementById('f_notes').value.trim();
+
+  // frontend validation
+  if (!hospitalName || !type || !address || !areaLga || !phoneNumber) {
+    showToast('Please fill in all required fields.');
+    return;
+  }
+
+  const payload = {
+    id: Date.now(),
+    hospitalName,
+    type,
+    status: document.getElementById('f_status').value,
+
+    address,
+    areaLga,
+    phoneNumber,
+
+    email: email || '—',
+    contactPerson: contactPerson || '—',
+    bedCapacity: parseInt(bedCapacity) || 0,
+    emergencyUnit: emergency,
+
+    specialisations: specs
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean),
+
+    notes,
+
+    added: new Date().toLocaleDateString('en-GB', {
+      month: 'short',
+      year: 'numeric'
+    })
+  };
+
+  const btn = document.getElementById('addSubmitBtn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+
+    if (API_BASE_URL) {
+
+      const response = await fetch(`${API_BASE_URL}/admin/hospitals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user.token ? { Authorization: 'Bearer ' + user.token } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.warn('Non-JSON response from backend');
+      }
+
+      if (!response.ok) {
+
+        console.log('Validation error:', data);
+
+        if (data.validationErrors) {
+
+          const inputMap = {
+            hospitalName: 'f_name',
+            type: 'f_type',
+            address: 'f_address',
+            areaLga: 'f_area',
+            phoneNumber: 'f_phone',
+            email: 'f_email',
+            contactPerson: 'f_contact',
+            bedCapacity: 'f_beds',
+            emergencyUnit: 'f_emergency'
+          };
+
+          Object.entries(data.validationErrors).forEach(([field, message]) => {
+
+            // ALERT
+            alert(message);
+
+            const fieldId = inputMap[field];
+
+            if (fieldId) {
+
+              const el = document.getElementById(fieldId);
+
+              if (el) {
+
+                el.classList.add('input-error');
+
+                const oldErr =
+                  el.parentNode.querySelector('.error-text');
+
+                if (oldErr) oldErr.remove();
+
+                const err = document.createElement('div');
+                err.className = 'error-text';
+                err.textContent = message;
+
+                el.parentNode.appendChild(err);
+              }
+            }
+          });
+
+        } else {
+          alert(data.message || `Request failed (${response.status})`);
+        }
+
+        showToast('Please fix validation errors.');
+        return;
+      }
+
+      // SUCCESS from backend
+      items.unshift(data);
+
+    } else {
+
+      // fallback local
+      items.unshift(payload);
+    }
+
     closeModal('addModal');
     render();
-    showToast('✅ ' + name + ' added successfully!');
+
+    showToast(`✅ ${hospitalName} added successfully!`);
+
+  } catch (err) {
+
+    console.error(err);
+    alert(err.message);
+    showToast('Network error occurred.');
+  } finally {
+
+    btn.textContent = 'Add Hospital';
+    btn.disabled = false;
   }
+}
  
+
   function openDelete(id) {
     deleteId = id;
-    const item = items.find(i => i.id === id);
-    document.getElementById('deleteItemName').textContent = item.name;
+
+    const item = items.find(i => i.id == id);
+
+    document.getElementById('deleteItemName').textContent =
+      item?.name || 'this hospital';
+
     document.getElementById('deleteModal').classList.add('open');
   }
- 
-  function confirmDelete() {
-    const item = items.find(i => i.id === deleteId);
-    items = items.filter(i => i.id !== deleteId);
-    closeModal('deleteModal');
-    render();
-    showToast(item.name + ' deleted.');
-    deleteId = null;
+
+  async function confirmDelete() {
+    try {
+      await fetch(`${API_BASE_URL}/hospitals/${deleteId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer ' + user.token
+        }
+      });
+
+      items = items.filter(i => i.id != deleteId);
+
+      closeModal('deleteModal');
+
+      render();
+
+      showToast('Hospital deleted successfully');
+
+    } catch (error) {
+      console.error(error);
+      showToast('Delete failed');
+    }
   }
- 
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
- 
-  function showToast(msg) { const t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
- 
-  render();
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) m.classList.remove('open');
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+
+    t.textContent = msg;
+
+    t.classList.add('show');
+
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // INITIAL FETCH
+  fetchHospitals();
 </script>
 </body>
 </html>
