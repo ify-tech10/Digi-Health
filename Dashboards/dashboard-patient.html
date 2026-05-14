@@ -231,7 +231,7 @@
 <script>
   // Auth guard
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'patient') {
+  if (!user.loggedIn || user.role !== 'PATIENT') {
     window.location.href = 'login.html';
   }
 

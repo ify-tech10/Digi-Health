@@ -220,7 +220,7 @@ function getAuth() {
       return null;
     }
 
-    if (user.role !== "admin") {
+    if (user.role !== "ADMIN") {
       localStorage.removeItem("dh_user");
       window.location.href = "../../login.html";
       return null;

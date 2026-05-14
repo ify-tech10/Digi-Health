@@ -168,7 +168,7 @@
 
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
+  if (!user.loggedIn || user.role !== 'ADMIN') window.location.href = 'login.html';
   function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
 
   
@@ -413,36 +413,46 @@ function getStatusClass(status = "") {
       return;
     }
 
+    // Prevent duplicate approval
+    const personnel = personnelCache.find(p => p.id == id);
+
+    if (
+      personnel &&
+      personnel.applicationStatus?.toUpperCase() === "APPROVED"
+    ) {
+      showBanner(
+        "approved",
+        `${personnel.fullName} is already approved.`
+      );
+      return;
+    }
+
     // API request
     const res = await fetch(
       `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
       {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`
-        },
-        body: JSON.stringify({
-          applicationStatus: "APPROVED"
-        })
+        }
       }
     );
 
+    const data = await res.json();
+
     if (!res.ok) {
-      throw new Error("Failed to approve application");
+      throw new Error(data.message || "Approval failed");
     }
 
-    // Update cache
-    const personnel = personnelCache.find(p => p.id == id);
-
+    // Update local cache
     if (personnel) {
       personnel.applicationStatus = "APPROVED";
     }
 
-    // Success banner
+    // Success message
     showBanner(
       "approved",
-      `${personnel?.fullName || "Applicant"} has been approved and will receive an onboarding email.`
+      `${personnel?.fullName || "Applicant"} approved successfully.`
     );
 
     // Update UI
@@ -456,23 +466,22 @@ function getStatusClass(status = "") {
       badge.className = "badge badge-approved";
       badge.textContent = "APPROVED";
 
-      btn.remove();
-
+      // Remove buttons
       card
-        .querySelectorAll(".act-btn.act-reject")
+        .querySelectorAll(".act-btn.act-approve, .act-btn.act-reject")
         .forEach(b => b.remove());
     }
 
-    updateBadge();
+      updateBadge();
 
-  } catch (err) {
-    console.error(err);
+    } catch (err) {
+      console.error(err);
 
-    showBanner(
-      "rejected",
-      "Failed to approve application."
-    );
-  }
+      showBanner(
+        "rejected",
+        err.message || "Failed to approve application"
+      );
+    }
 }
 
   function rejectApp(i, btn) {

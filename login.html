@@ -6,7 +6,6 @@
   <title>DiGi Health — Login</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="Styles/login.css">
-  <script src="config.js" defer></script>
 </head>
 <body>
 
@@ -62,35 +61,9 @@
 <div class="right-panel">
   <div class="login-box">
     <h2>Welcome back</h2>
-    <p class="subtitle">Select your role and sign in to continue.</p>
+    <p class="subtitle">Login to your account</p>
 
-    <!-- Role selector -->
-    <div class="role-selector">
-      <div class="role-btn selected" id="role-patient" onclick="selectRole('patient')">
-        <div class="role-icon">
-          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </div>
-        <span>Patient</span>
-      </div>
-      <div class="role-btn" id="role-service-provider" onclick="selectRole('service-provider')">
-        <div class="role-icon">
-          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <span>service provider</span>
-      </div>
-      <div class="role-btn" id="role-admin" onclick="selectRole('admin')">
-        <div class="role-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </div>
-        <span>Admin</span>
-      </div>
-       <div class="role-btn" id="role-hmo" onclick="selectRole('hmo')">
-        <div class="role-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        </div>
-        <span>HMO Admin</span>
-      </div>
-    </div>
+   
 
     <!-- Error -->
     <div class="error-msg" id="errorMsg">
@@ -135,120 +108,332 @@
 </div>
 
 <script>
-  let selectedRole = 'patient';
-
-  const demoAccounts = {
-    'patient@demo.com':   { password: 'demo123', role: 'patient',   redirect: 'Dashboards/dashboard-patient.html' },
-    'service-provider@demo.com': { password: 'demo123', role: 'service-provider', redirect: 'Dashboards/dashboard-caregiver.html' },
-    'admin@demo.com':     { password: 'demo123', role: 'admin',     redirect: 'Dashboards/dashboard-admin.html' },
-    'hmo@demo.com':       { password: 'demo123', role: 'hmo',       redirect: 'Dashboards/dashboard-hmo-admin.html' },
+  /* ── CONFIG ─────────────────────────────────────────────── */
+  const API_BASE = 'https://digihealth-6uy7.onrender.com/api'; // 🔧 Your Render URL
+ 
+  /* ── ROLE → REDIRECT MAP ─────────────────────────────────
+     Backend returns user.role as a string.
+     Add or change these paths to match your file structure.
+  ─────────────────────────────────────────────────────────── */
+  const ROLE_REDIRECTS = {
+    ADMIN:     'Dashboards/dashboard-admin.html',
+    "SERVICE_PROVIDER": 'Dashboards/dashboard-caregiver.html',
+    "PATIENT":   'Dashboards/dashboard-patient.html',
+    "HMO":       'Dashboards/dashboard-hmo-admin.html',
   };
-
-  function selectRole(role) {
-    selectedRole = role;
-    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('role-' + role).classList.add('selected');
-    hideError();
-  }
-
-  function fillDemo(email, password, role) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = password;
-    selectRole(role);
-    hideError();
-  }
-
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    document.getElementById('errorText').textContent = msg;
-    el.classList.add('show');
-  }
-
-  function hideError() {
-    document.getElementById('errorMsg').classList.remove('show');
-  }
-
-async function handleLogin() {
-  const email    = document.getElementById('email').value.trim().toLowerCase();
-  const password = document.getElementById('password').value;
-  const btn      = document.getElementById('loginBtn');
-
-  hideError();
-
-  if (!email || !password) {
-    showError('Please enter your email and password.');
-    return;
-  }
-
-  btn.textContent = 'Signing in...';
-  btn.disabled = true;
-
-  try {
-    let endpoint = "";
-
-    // 🔥 Choose API based on role
-    if (selectedRole === "admin") {
-      endpoint = "https://digihealth-6uy7.onrender.com/api/super-admin/login/admin";
-    } 
-    else if (selectedRole === "hmo") {
-      endpoint = "https://digihealth-6uy7.onrender.com/api/hmo/login";
-    } 
-    else if (selectedRole === "patient") {
-      endpoint = "https://digihealth-6uy7.onrender.com/api/auth/patient/login";
-    } 
-    else if (selectedRole === "service-provider") {
-      endpoint = "https://digihealth-6uy7.onrender.com/api/auth/provider/login";
-    }
-
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-
-
-    console.log(response.status);
-    console.log(data);
-
-    // ❌ Handle errors
-    if (!response.ok) {
-      showError(data.message || "Login failed");
-      btn.textContent = "Sign In";
-      btn.disabled = false;
+ 
+  /* ================================================================
+     CORE LOGIN FUNCTION
+     Called by the Sign In button's onclick or form submit event
+  ================================================================ */
+  async function handleLogin(e) {
+    if (e) e.preventDefault();
+ 
+    const email    = document.getElementById('email')?.value.trim();
+    const password = document.getElementById('password')?.value;
+    const remember = document.getElementById('rememberMe')?.checked ?? false;
+ 
+    /* ── Client-side validation ── */
+    if (!email || !password) {
+      showError('Please enter your email and password.');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError('Please enter a valid email address.');
+      return;
+    }
+ 
+    setLoading(true);
+    clearError();
+ 
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password }),
+      });
+ 
+      let data = {};
+      try { data = await res.json(); } catch (_) { /* empty body */ }
+ 
+      /* ── Handle error responses ── */
+      if (!res.ok) {
+        switch (res.status) {
+          case 401:
+            showError(data.message || 'Invalid email or password. Please try again.');
+            break;
+          case 403:
+            showError('Your account has been suspended. Contact support.');
+            break;
+          case 404:
+            showError('No account found with this email address.');
+            break;
+          case 429:
+            showError('Too many login attempts. Please wait a few minutes and try again.');
+            break;
+          case 500:
+          case 503:
+            showError('Server error. Please try again shortly.');
+            break;
+          default:
+            showError(data.message || `Login failed (${res.status}). Please try again.`);
+        }
+        return;
+      }
+ 
+      /* ── Success — validate the response shape ── */
+      if (!data.accessToken) {
+      showError('Login failed. No access token received.');
+      console.error('Missing access token:', data);
+      return;
+      }
+ 
+      /* ── Persist session ── */
+      const session = {
+        loggedIn: true,
+        token: data.accessToken,
+        refreshToken: data.refreshToken,
 
-    console.log("Login successful:", data);
-    
-    // ✅ Save session
-    localStorage.setItem("dh_user", JSON.stringify({
-      email: email,
-      role: selectedRole,
-      token: data.accessToken || data.token || data.jwt || null,
-      loggedIn: true
-    }));
-
-    // ✅ Redirect per role
-    const routes = {
-      admin: "Dashboards/dashboard-admin.html",
-      hmo: "Dashboards/dashboard-hmo-admin.html",
-      patient: "Dashboards/dashboard-patient.html",
-      "service-provider": "Dashboards/dashboard-caregiver.html"
-    };
-
-    window.location.href = routes[selectedRole];
-
-  } catch (error) {
-    showError("Network error. Please try again.");
-    btn.textContent = "Sign In";
-    btn.disabled = false;
+        role: data.role,
+        name: data.name || email,
+        email: data.email || email,
+        id: data.id
+      };
+ 
+      // Remember me — use localStorage (persists) or sessionStorage (tab only)
+      const store = remember ? localStorage : sessionStorage;
+      store.setItem('dh_user', JSON.stringify(session));
+ 
+      // Always keep a copy in localStorage for pages that read it
+      localStorage.setItem('dh_user', JSON.stringify(session));
+ 
+      /* ── Redirect based on role ── */
+      const role     = (data.role || '');
+      const redirect = ROLE_REDIRECTS[role];
+ 
+      if (!redirect) {
+        showError(`Unknown role "${role}". Contact your administrator.`);
+        console.error('No redirect configured for role:', role);
+        return;
+      }
+ 
+      window.location.href = redirect;
+ 
+    } catch (err) {
+      // Network failure — Render free tier cold start can cause this
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        showError('Cannot connect to server. Check your internet connection or try again in a moment.');
+      } else {
+        showError('An unexpected error occurred. Please try again.');
+      }
+      console.error('Login error:', err);
+ 
+    } finally {
+      setLoading(false);
+    }
   }
-}
-  
+ 
+  /* ================================================================
+     FORGOT PASSWORD
+  ================================================================ */
+  async function handleForgotPassword(e) {
+    if (e) e.preventDefault();
+ 
+    const email = document.getElementById('email')?.value.trim();
+    if (!email) {
+      showError('Enter your email address first, then click Forgot password.');
+      return;
+    }
+ 
+    try {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email }),
+      });
+ 
+      // Always show the same message — don't leak whether email exists
+      showSuccess('If that email is registered, a reset link has been sent.');
+ 
+    } catch (_) {
+      showSuccess('If that email is registered, a reset link has been sent.');
+    }
+  }
+ 
+  /* ================================================================
+     UI HELPERS
+  ================================================================ */
+  function setLoading(isLoading) {
+    const btn = document.getElementById('loginBtn');
+    if (!btn) return;
+    btn.disabled = isLoading;
+    btn.textContent = isLoading ? 'Signing in…' : 'Sign In';
+  }
+ 
+  function showError(msg) {
+    // Try to find or create an error element
+    let el = document.getElementById('errorMsg');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'errorMsg';
+      el.style.cssText = [
+        'background:#fef2f2',
+        'border:1px solid #fecaca',
+        'color:#dc2626',
+        'border-radius:8px',
+        'padding:11px 14px',
+        'font-size:13.5px',
+        'font-weight:500',
+        'margin-top:12px',
+        'line-height:1.5',
+      ].join(';');
+ 
+      // Insert before the Sign In button if possible
+      const btn = document.getElementById('loginBtn');
+      if (btn?.parentNode) {
+        btn.parentNode.insertBefore(el, btn);
+      } else {
+        document.body.appendChild(el);
+      }
+    }
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+ 
+  function clearError() {
+    const el = document.getElementById('errorMsg');
+    if (el) el.style.display = 'none';
+  }
+ 
+  function showSuccess(msg) {
+    const el = document.getElementById('errorMsg');
+    if (!el) { alert(msg); return; }
+    el.style.background = '#f0fdf4';
+    el.style.border = '1px solid #bbf7d0';
+    el.style.color = '#16a34a';
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+ 
+  /* ================================================================
+     DEMO ACCOUNTS — renders clickable pills under "Demo accounts"
+     Remove this entire block in production
+  ================================================================ */
+  function renderDemoAccounts() {
+    const container = document.getElementById('demoAccounts');
+    if (!container) return;
+ 
+    container.innerHTML = '';
+ 
+    DEMO_ACCOUNTS.forEach(acc => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = acc.label;
+      btn.style.cssText = [
+        'background:#f0f2fb',
+        'border:1.5px solid #dde0ee',
+        'color:#1a2550',
+        'border-radius:6px',
+        'padding:5px 12px',
+        'font-size:12px',
+        'font-weight:600',
+        'cursor:pointer',
+        'font-family:inherit',
+        'transition:all .15s',
+        'margin:3px',
+      ].join(';');
+      btn.onmouseover = () => { btn.style.background = '#e0e4f4'; };
+      btn.onmouseout  = () => { btn.style.background = '#f0f2fb'; };
+      btn.onclick = () => {
+        const emailInput = document.getElementById('email');
+        const pwdInput   = document.getElementById('password');
+        if (emailInput) emailInput.value = acc.email;
+        if (pwdInput)   pwdInput.value   = acc.password;
+        clearError();
+      };
+      container.appendChild(btn);
+    });
+  }
+ 
+  /* ================================================================
+     GUARD — if already logged in, skip login page
+  ================================================================ */
+  function checkAlreadyLoggedIn() {
+    try {
+      const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+      if (u.loggedIn && u.token && u.role) {
+        const redirect = ROLE_REDIRECTS[(u.role || '').toUpperCase()];
+        if (redirect) window.location.href = redirect;
+      }
+    } catch (_) {
+      localStorage.removeItem('dh_user');
+    }
+  }
+ 
+  /* ================================================================
+     INIT — wire up events when DOM is ready
+  ================================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+ 
+    // Skip login if already authenticated
+    checkAlreadyLoggedIn();
+ 
+    // Render demo pills
+    renderDemoAccounts();
+ 
+    // Wire up Sign In button
+    const btn = document.getElementById('loginBtn');
+    if (btn) btn.addEventListener('click', handleLogin);
+ 
+    // Wire up Enter key on inputs
+    ['email', 'password'].forEach(id => {
+      document.getElementById(id)?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin(e);
+      });
+    });
+ 
+    // Wire up Forgot password link
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    if (forgotLink) forgotLink.addEventListener('click', handleForgotPassword);
+ 
+    // Clear errors when user starts typing
+    ['email', 'password'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', clearError);
+    });
+ 
+  });
+ 
+  /* ================================================================
+     SPRING BOOT BACKEND CONTRACT
+     ================================================================
+ 
+     POST /api/auth/login
+     Request body:
+       { "email": "...", "password": "..." }
+ 
+     Success response (200):
+       {
+         "token": "eyJhbGc...",
+         "user": {
+           "id":    1,
+           "name":  "Admin User",
+           "email": "admin@digihealth.com",
+           "role":  "ADMIN"    ← must match ROLE_REDIRECTS keys above
+         }
+       }
+ 
+     Error responses:
+       401 { "message": "Invalid email or password." }
+       403 { "message": "Account suspended." }
+       404 { "message": "User not found." }
+       429 { "message": "Too many attempts." }
+ 
+     POST /api/auth/forgot-password
+     Request body:
+       { "email": "..." }
+     Response (200): always same message regardless of whether email exists
+ 
+     ================================================================ */
 </script>
 </body>
 </html>

@@ -6,7 +6,7 @@ function getAuth() {
   try {
     const user = JSON.parse(localStorage.getItem("dh_user"));
 
-    if (!user || !user.token || user.role !== "admin") {
+    if (!user || !user.token || user.role !== "ADMIN") {
       localStorage.removeItem("dh_user");
       window.location.href = "../../login.html";
       return null;

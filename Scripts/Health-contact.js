@@ -16,10 +16,6 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
   const phone = document.getElementById('phone').value.trim();
   const service = document.getElementById('service').value;
 
-  if (!name || !phone || !service || !email) {
-    alert('Please fill in all required fields.');
-    return;
-  }
 
   const payload = {
     fullName: name,
@@ -46,8 +42,30 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
 
     const data = await response.json();
 
+      // ❌ HANDLE BACKEND VALIDATION ERRORS
+      
     if (!response.ok) {
-      alert(data.message || "Submission failed");
+      if (data.errors && typeof data.errors === "object") {
+        // field-level errors
+        Object.entries(data.errors).forEach(([field, message]) => {
+          const map = {
+            fullName: "fullname",
+            email: "email",
+            phoneNumber: "phone",
+            serviceNeeded: "service",
+            locationArea: "location",
+            description: "description",
+            contactTime: "contact-time"
+          };
+
+          const fieldId = map[field];
+          if (fieldId) showFieldError(fieldId, message);
+        });
+
+      } else {
+        alert(data.message || "Submission failed");
+      }
+
       return;
     }
 

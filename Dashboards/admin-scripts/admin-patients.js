@@ -1,5 +1,5 @@
 const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'admin') window.location.href = 'login.html';
+  if (!user.loggedIn || user.role !== 'ADMIN') window.location.href = 'login.html';
   function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
 
   let patientsCache = [];
@@ -12,7 +12,7 @@ const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   try {
     const user = JSON.parse(localStorage.getItem("dh_user"));
 
-    if (!user || !user.token) {
+    if (!user || !user.token || user.role !== "ADMIN") {
       window.location.href = "../../login.html";
       return;
     }
