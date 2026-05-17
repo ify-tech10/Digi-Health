@@ -1,0 +1,2189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DigiHealth | Relationship Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+    :root {
+    --bg: #f5f6fa;
+    --sidebar-bg: #0d1b2a;
+    --sidebar-accent: #1a2e45;
+    --primary: #1e7fd4;
+    --primary-light: #e8f3fc;
+    --success: #22c55e;
+    --success-light: #dcfce7;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fee2e2;
+    --text: #1a202c;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --white: #ffffff;
+    --card: #ffffff;
+    --sidebar-width: 240px;
+    --header-h: 64px;
+  }
+
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 240px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 12px 6px 6px; }
+    .user-avatar { width: 26px; height: 26px; background: #7c3aed; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* Status badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-new { background: #eff6ff; color: #2563eb; } .badge-new::before { background: #3b82f6; }
+    .badge-active { background: #f0fdf4; color: var(--green-dark); } .badge-active::before { background: var(--green); }
+    .badge-pending { background: #fff7ed; color: #c2410c; } .badge-pending::before { background: #f97316; }
+    .badge-done { background: #f0f2fb; color: #5a6690; } .badge-done::before { background: #8898c8; }
+    .badge-urgent { background: #fef2f2; color: #dc2626; } .badge-urgent::before { background: #ef4444; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 18px; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .stat-delta { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+    .delta-up { background: #f0fdf4; color: var(--green-dark); }
+    .delta-down { background: #fef2f2; color: #dc2626; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+    .blue .stat-icon { background: #eff6ff; } .blue .stat-icon svg { stroke: #3b82f6; }
+    .green .stat-icon { background: #f0fdf4; } .green .stat-icon svg { stroke: var(--green-dark); }
+    .purple .stat-icon { background: #faf5ff; } .purple .stat-icon svg { stroke: #9333ea; }
+    .orange .stat-icon { background: #fff7ed; } .orange .stat-icon svg { stroke: #f97316; }
+    .red .stat-icon { background: #fef2f2; } .red .stat-icon svg { stroke: #ef4444; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .card-header a { font-size: 12.5px; color: var(--blue-light); text-decoration: none; font-weight: 500; }
+    .card-body { padding: 0; }
+
+   
+
+
+    
+
+
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .topbar { padding: 12px 16px; }
+      .content { padding: 20px 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3-1 { grid-template-columns: 1fr; }
+    }
+  
+
+  /* =========================
+    MOBILE RESPONSIVE
+  ========================= */
+  @media (max-width: 600px) {
+    .modal-content {
+      width: 95%;
+      padding: 20px;
+    }
+
+    #modalBody h2 {
+      font-size: 18px;
+    }
+  }
+
+  
+
+      /* =========================
+        MOBILE
+      ========================= */
+
+      @media (max-width:768px){
+
+        .table-pagination2{
+          width:100%;
+          justify-content:center;
+        }
+
+      }
+
+      
+  /* ===== SECTIONS ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+ 
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+ 
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+ 
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #1668b0; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--bg); }
+ 
+  /* ===== TWO COL ===== */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+ 
+  /* ===== TABLE CARD ===== */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+ 
+  .card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+ 
+  .card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+ 
+  table { width: 100%; border-collapse: collapse; }
+ 
+  th {
+    text-align: left;
+    padding: 11px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+ 
+  td {
+    padding: 13px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+ 
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+ 
+  .td-name { font-weight: 500; }
+  .td-name small { display: block; color: var(--text-muted); font-weight: 400; font-size: 12px; }
+ 
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+ 
+  .badge-active { background: var(--success-light); color: #15803d; }
+  .badge-pending { background: var(--warning-light); color: #b45309; }
+  .badge-inactive { background: #f3f4f6; color: #6b7280; }
+  .badge-confirmed { background: var(--primary-light); color: #1e40af; }
+ 
+  .act-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    margin-right: 4px;
+  }
+ 
+  .act-btn:hover { background: var(--bg); }
+  .act-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .act-btn.primary:hover { background: #1668b0; }
+ 
+  /* ===== FULL WIDTH TABLE ===== */
+  .full-card { margin-bottom: 28px; }
+ 
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+ 
+  .modal-overlay.show { display: flex; }
+ 
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    width: 480px;
+    max-width: 95vw;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+ 
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+ 
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+ 
+  .modal-close {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+ 
+  .form-group { margin-bottom: 16px; }
+ 
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+ 
+  .form-control {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+ 
+  .form-control:focus { border-color: var(--primary); }
+ 
+  select.form-control { appearance: none; cursor: pointer; }
+ 
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+ 
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: #f3f4f6;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+ 
+  .tab {
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+ 
+  .tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+ 
+  /* ===== SEARCH ===== */
+  .search-bar {
+    position: relative;
+    width: 220px;
+  }
+ 
+  .search-bar input {
+    width: 100%;
+    padding: 8px 12px 8px 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    background: #fff;
+  }
+ 
+  .search-bar svg {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px;
+    color: var(--text-muted);
+  }
+ 
+  /* ===== EMPTY ===== */
+  .empty-state {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+ 
+  .empty-state svg { width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.3; display: block; }
+  .empty-state p { font-size: 14px; }
+
+
+
+    /* HOSPITAL MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 580px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 18px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 9px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 160px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-close { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-delete { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+    /* ADD FORM */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .req { color: #ef4444; }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 1.5px solid #dde0ee; border-radius: 7px; padding: 10px 12px;
+      font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy);
+      outline: none; transition: border-color .18s; background: #fff; appearance: none;
+    }
+    .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,37,80,0.07); }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+    .btn-submit { background: var(--navy); color: #fff; border: none; padding: 11px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-submit:hover { background: var(--blue-light); }
+
+    /* pharmacy checkbox group */
+    .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5a6690; cursor: pointer; }
+    .check-row input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; width: 15px; height: 15px; accent-color: var(--green-dark); cursor: pointer; }
+ 
+    .btn-submit { background: var(--green-dark); color: #fff; border: none; padding: 11px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-submit:hover { background: #15803d; }
+ 
+    /* api error notice */
+    .api-notice { display: flex; align-items: flex-start; gap: 8px; background: #fffbeb; border: 1px solid #fef08a; border-radius: 8px; padding: 11px 14px; margin-bottom: 16px; font-size: 12.5px; color: #854d0e; }
+    .api-notice svg { width: 14px; height: 14px; stroke: #ca8a04; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+ 
+    
+ 
+    
+ 
+    @media (max-width: 1100px) { .infra-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .stats-row { grid-template-columns: 1fr 1fr; } .infra-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+
+
+
+
+</style>
+</head>
+<body>
+ 
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../index.html">
+    <div class="s-logo">DH</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>RM Panel</span></div>
+  </a>
+ 
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+ 
+    <div class="nav-section-label">Facilities</div>
+    <div class="nav-item" onclick="showSection('facilities')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M9 21V7l6-4v18M9 11h6M9 15h6"/></svg>
+      Facilities
+    </div>
+    <div class="nav-item" onclick="showSection('organisations')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+      Organisations
+    </div>
+ 
+    <div class="nav-section-label">HMO</div>
+    <div class="nav-item" onclick="showSection('hmo')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      HMO Status
+    </div>
+  </nav>
+ 
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="sidebarAvatar">RM</div>
+      <div>
+        <div class="user-name" id="sidebarName">Loading...</div>
+        <div class="user-role">Relationship Manager</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+ 
+<!-- ===== MAIN ===== -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>RM Dashboard</h1>
+      <p>Monday, 28 April 2026 · All systems operational</p>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+      <div class="user-chip">
+        <div class="user-avatar">RM</div>
+        <span>Relationship Manager</span>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <section id="section-dashboard">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e8f3fc;">
+            <svg fill="none" stroke="#1e7fd4" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M9 21V7l6-4v18"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Total Facilities</div>
+            <div class="stat-value" id="statFacilities">—</div>
+            <div class="stat-sub">Hospitals & Pharmacies</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dcfce7;">
+            <svg fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Organisations</div>
+            <div class="stat-value" id="statOrgs">—</div>
+            <div class="stat-sub">Onboarded to HMO</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7;">
+            <svg fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">HMO Confirmed</div>
+            <div class="stat-value" id="statHMO">—</div>
+            <div class="stat-sub">Active subscriptions</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fee2e2;">
+            <svg fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <div class="stat-label">Pending Reviews</div>
+            <div class="stat-value" id="statPending">—</div>
+            <div class="stat-sub">Awaiting confirmation</div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Recent Facilities -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Facilities</span>
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="showSection('facilities')">View All</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentFacilitiesBody">
+              <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Organisations</span>
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="showSection('organisations')">View All</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>HMO Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentOrgsBody">
+              <tr><td colspan="2" style="text-align:center;color:#9ca3af;padding:24px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+ 
+    <!-- ===== FACILITIES SECTION ===== -->
+    <section id="section-facilities" style="display:none;">
+      <div class="section-header">
+        <div>
+          <div class="tabs">
+            <button class="tab active" onclick="filterFacilities('ALL', this)">All</button>
+            <button class="tab" onclick="filterFacilities('HOSPITAL', this)">Hospitals</button>
+            <button class="tab" onclick="filterFacilities('PHARMACY', this)">Pharmacies</button>
+            <button class="tab" onclick="filterFacilities('LAB', this)">Lab Centres</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openFacilitySelector()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Onboard Facility
+        </button>
+      </div>
+ 
+      <div class="card full-card">
+        <div class="card-header">
+          <span class="card-title">All Facilities</span>
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search facilities..." oninput="searchFacilities(this.value)" />
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Facility Name</th>
+              <th>Type</th>
+              <th>Location</th>
+              <th>Onboarded</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="facilitiesBody">
+            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+ 
+    <!-- ===== ORGANISATIONS SECTION ===== -->
+    <section id="section-organisations" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Organisations</div>
+        <button class="btn btn-primary" onclick="openOnboardOrgModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Onboard Organisation
+        </button>
+      </div>
+ 
+      <div class="card full-card">
+        <div class="card-header">
+          <span class="card-title">All Organisations</span>
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search organisations..." oninput="searchOrgs(this.value)" />
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Organisation</th>
+              <th>Industry</th>
+              <th>Onboarded</th>
+              <th>HMO Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="orgsBody">
+            <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+ 
+    <!-- ===== HMO SECTION ===== -->
+    <section id="section-hmo" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">HMO Status</div>
+      </div>
+ 
+      <div class="card full-card">
+        <div class="card-header">
+          <span class="card-title">Organisation HMO Details</span>
+          <div class="tabs" style="margin-bottom:0;">
+            <button class="tab active" onclick="filterHMO('ALL', this)">All</button>
+            <button class="tab" onclick="filterHMO('CONFIRMED', this)">Confirmed</button>
+            <button class="tab" onclick="filterHMO('PENDING', this)">Pending</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Organisation</th>
+              <th>Plan</th>
+              <th>Members</th>
+              <th>Expiry</th>
+              <th>HMO Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="hmoBody">
+            <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:32px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+ 
+  </div><!-- /content -->
+</main>
+
+<!-- ===== FACILITY SELECTOR ===== -->
+<div class="modal-overlay" id="facilitySelectorModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Select Facility Type</span>
+      <button class="modal-close" onclick="closeModal('facilitySelectorModal')">×</button>
+    </div>
+
+    <div style="display:grid;gap:14px;">
+
+      <button class="btn btn-outline"
+        style="justify-content:flex-start;padding:16px;"
+        onclick="openHospitalModal()">
+        🏥 Hospital
+      </button>
+
+      <button class="btn btn-outline"
+        style="justify-content:flex-start;padding:16px;"
+        onclick="openPharmacyModal()">
+        💊 Pharmacy
+      </button>
+
+      <button class="btn btn-outline"
+        style="justify-content:flex-start;padding:16px;"
+        onclick="openLabModal()">
+        🧪 Laboratory
+      </button>
+
+    </div>
+  </div>
+</div>
+ 
+<!-- ===== HOSPITAL MODAL ===== -->
+<div class="modal-overlay" id="hospitalModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add New Hospital</h2><button class="modal-close" onclick="closeModal('hospitalModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Hospital Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="e.g. Lagos Island General Hospital" /></div>
+        <div class="form-group"><label>Type <span class="req">*</span></label>
+          <select id="f_type"><option value="" disabled selected>Select type</option><option>Government</option><option>Private</option><option>Teaching</option></select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="f_status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        <div class="form-group full"><label>Address <span class="req">*</span></label><input type="text" id="f_address" placeholder="Full address" /></div>
+        <div class="form-group"><label>Area / LGA <span class="req">*</span></label><input type="text" id="f_area" placeholder="e.g. Lagos Island" /></div>
+        <div class="form-group"><label>Phone <span class="req">*</span></label><input type="tel" id="f_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="f_email" placeholder="hospital@email.com" /></div>
+        <div class="form-group"><label>Contact Person</label><input type="text" id="f_contact" placeholder="Name of liaison" /></div>
+        <div class="form-group"><label>Bed Capacity</label><input type="number" id="f_beds" placeholder="e.g. 200" /></div>
+        <div class="form-group"><label>Emergency Unit</label>
+          <select id="f_emergency"><option value="YES_24_7">YES_24_7</option><option value="No">No</option></select>
+        </div>
+        <div class="form-group full"><label>Specialisations / Services</label><input type="text" id="f_specs" placeholder="e.g. Cardiology, Maternity, Orthopaedics (comma separated)" /></div>
+        <div class="form-group full"><label>Notes</label><textarea id="f_notes" placeholder="Any additional details about this hospital..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-submit" id="addSubmitBtn" onclick="submitHospital()">Add Hospital</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PHARMACY MODAL ===== -->
+<div class="modal-overlay" id="pharmacyModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add New Pharmacy</h2><button class="modal-close" onclick="closeModal('pharmacyModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div id="addApiNotice" class="api-notice" style="display:none;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        API unavailable — saving locally. Data will sync when backend is connected.
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Pharmacy Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="e.g. MedPlus Pharmacy — VI Branch" /></div>
+        <div class="form-group"><label>Chain / Brand</label><input type="text" id="f_chain" placeholder="e.g. MedPlus, HealthPlus, Drugfield" /></div>
+        <div class="form-group"><label>Status</label>
+          <select id="f_status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        <div class="form-group full"><label>Address <span class="req">*</span></label><input type="text" id="f_address" placeholder="Full street address" /></div>
+        <div class="form-group"><label>Area / LGA <span class="req">*</span></label><input type="text" id="f_area" placeholder="e.g. Victoria Island" /></div>
+        <div class="form-group"><label>Phone <span class="req">*</span></label><input type="tel" id="f_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="f_email" placeholder="pharmacy@email.com" /></div>
+        <div class="form-group"><label>Contact Person</label><input type="text" id="f_contact" placeholder="Pharmacist in charge" /></div>
+        <div class="form-group"><label>Opening Hours</label><input type="text" id="f_hours" placeholder="e.g. 8AM – 10PM" /></div>
+        <div class="form-group"><label>NAFDAC Reg. No.<span class="req">*</span></label><input type="text" id="f_nafdac" placeholder="e.g. PCN/0001/2025" required /></div>
+        <div class="form-group full">
+          <label style="margin-bottom:8px;">Services Offered</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <label class="check-row"><input type="checkbox" id="s_24h" name="svc" value="24hr"/> Open 24 Hours</label>
+            <label class="check-row"><input type="checkbox" id="s_delivery" name="svc" value="Home Delivery"/> Home Delivery</label>
+            <label class="check-row"><input type="checkbox" id="s_compound" name="svc" value="Compounding"/> Compounding</label>
+            <label class="check-row"><input type="checkbox" id="s_vaccine" name="svc" value="Vaccinations"/> Vaccinations</label>
+            <label class="check-row"><input type="checkbox" id="s_consult" name="svc" value="Pharmacist Consultation"/> Pharmacist Consultation</label>
+            <label class="check-row"><input type="checkbox" id="s_generic" name="svc" value="Generic Medicines"/> Generic Medicines</label>
+          </div>
+        </div>
+        <div class="form-group full"><label>Notes</label><textarea id="f_notes" placeholder="Any additional details..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-submit" id="addSubmitBtn" onclick="addItem()">Add Pharmacy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LAB MODAL ===== -->
+<div class="modal-overlay" id="labModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add New Laboratory</h2><button class="modal-close" onclick="closeModal('labModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div id="addApiNotice" class="api-notice" style="display:none;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        API unavailable — saving locally. Data will sync when backend is connected.
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Laboratory Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="e.g. Clina-Lancet Laboratories — VI" /></div>
+        <div class="form-group"><label>Type / Chain</label><input type="text" id="f_chain" placeholder="e.g. Clina-Lancet, Synlab, Independent" /></div>
+        <div class="form-group"><label>Accreditation Body</label><input type="text" id="f_accred" placeholder="e.g. MLSCN, ISO 15189, CAP" /></div>
+        <div class="form-group full"><label>Address <span class="req">*</span></label><input type="text" id="f_address" placeholder="Full street address" /></div>
+        <div class="form-group"><label>Area / LGA <span class="req">*</span></label><input type="text" id="f_area" placeholder="e.g. Victoria Island" /></div>
+        <div class="form-group"><label>Phone <span class="req">*</span></label><input type="tel" id="f_phone" placeholder="+234 XXX XXX XXXX" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="f_email" placeholder="lab@email.com" /></div>
+        <div class="form-group"><label>Contact / Lab Manager</label><input type="text" id="f_contact" placeholder="Name of lab manager" /></div>
+        <div class="form-group"><label>Opening Hours</label><input type="text" id="f_hours" placeholder="e.g. Mon–Sat 7AM – 6PM" /></div>
+        <div class="form-group"><label>Turnaround Time</label><input type="text" id="f_tat" placeholder="e.g. Same day / 24hrs / 48hrs" /></div>
+        <div class="form-group"><label>Status</label>
+          <select id="f_status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        <div class="form-group"><label>Result Delivery</label>
+          <select id="f_result"><option>Online Portal</option><option>WhatsApp / Email</option><option>Physical Pickup</option><option>All Methods</option></select>
+        </div>
+        <div class="form-group full">
+          <label style="margin-bottom:8px;" >Services & Capabilities</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <label class="check-row"><input type="checkbox" name="svc" id="s_home" /> Home Sample Pickup</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_fast" /> Same-Day Results</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_digital" /> Digital Reports</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_covid" /> COVID Testing</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_genetic" /> Genetic Testing</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_micro" /> Microbiology</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_histo" /> Histopathology</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_hormones" /> Hormone Panels</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_imaging" /> Imaging (X-ray/Scan)</label>
+            <label class="check-row"><input type="checkbox" name="svc" id="s_corporate" /> Corporate Packages</label>
+          </div>
+        </div>
+        <div class="form-group full"><label>Key Tests Offered</label><input type="text" id="f_tests" placeholder="e.g. Full Blood Count, HbA1c, Liver Panel, Thyroid Panel (comma-separated)" /></div>
+        <div class="form-group full"><label>Notes</label><textarea id="f_notes" placeholder="Any additional details about this laboratory..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-submit" id="addSubmitBtn" onclick="addItem()">Add Laboratory</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ===== ONBOARD ORG MODAL ===== -->
+<div class="modal-overlay" id="onboardOrgModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Onboard Organisation</span>
+      <button class="modal-close" onclick="closeModal('onboardOrgModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Organisation Name</label>
+      <input type="text" class="form-control" id="orgName" placeholder="e.g. Acme Corp Ltd" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Industry</label>
+      <input type="text" class="form-control" id="orgIndustry" placeholder="e.g. Finance, Tech, Education" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Person</label>
+      <input type="text" class="form-control" id="orgContact" placeholder="Full name" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact Email</label>
+      <input type="email" class="form-control" id="orgEmail" placeholder="contact@org.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">HMO Plan</label>
+      <select class="form-control" id="orgPlan">
+        <option value="">Select plan</option>
+        <option value="BASIC">Basic</option>
+        <option value="STANDARD">Standard</option>
+        <option value="PREMIUM">Premium</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Company Size</label>
+      <select class="form-control" id="companySize" required>
+        <option value="SIZE_1_10">1 - 10</option>
+          <option value="SIZE_11_50">11 - 50</option>
+          <option value="SIZE_51_200">51 - 200</option>
+          <option value="SIZE_201_500">201 - 500</option>
+          <option value="SIZE_500_1000">500 - 1000</option>
+          <option value="SIZE_1000_PLUS">1000+</option>
+      </select>
+      </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('onboardOrgModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitOnboardOrg()">Onboard Organisation</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ===== VIEW ORG HMO MODAL ===== -->
+<div class="modal-overlay" id="viewHMOModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">HMO Details</span>
+      <button class="modal-close" onclick="closeModal('viewHMOModal')">×</button>
+    </div>
+    <div id="hmoModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('viewHMOModal')">Close</button>
+      <button class="btn btn-primary" id="confirmHMOBtn">Confirm HMO</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+/* =========================
+   GLOBAL STATE
+========================= */
+
+let facilitiesCache = [];
+let orgsCache = [];
+
+let currentFacilityFilter = "ALL";
+let currentHMOFilter = "ALL";
+
+let selectedOrgId = null;
+
+const API_BASE = "https://digihealth-6uy7.onrender.com/api";
+
+/* =========================
+   AUTH
+========================= */
+
+function getAuth() {
+
+  try {
+
+    const user = JSON.parse(localStorage.getItem("dh_user"));
+
+    if (!user?.token) {
+
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+
+      return null;
+    }
+
+    if (user.role !== "RELATIONSHIP_MANAGER") {
+
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+
+      return null;
+    }
+
+    return user;
+
+  } catch (err) {
+
+    localStorage.removeItem("dh_user");
+    window.location.href = "../../login.html";
+
+    return null;
+  }
+}
+
+function handle401(res) {
+
+  if (res.status === 401) {
+
+    localStorage.removeItem("dh_user");
+    window.location.href = "../../login.html";
+
+    return true;
+  }
+
+  return false;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+function showToast(message, type = "info") {
+
+  const container = document.getElementById("toastContainer");
+
+  if (!container) {
+    alert(message);
+    return;
+  }
+
+  const toast = document.createElement("div");
+
+  toast.className = `toast toast-${type}`;
+
+  toast.innerHTML = `
+    <span>${message}</span>
+    <button class="toast-close">&times;</button>
+  `;
+
+  container.appendChild(toast);
+
+  toast.querySelector(".toast-close").onclick = () => {
+    toast.remove();
+  };
+
+  setTimeout(() => {
+    toast.remove();
+  }, 4000);
+}
+
+/* =========================
+   API REQUEST HELPER
+========================= */
+
+async function apiRequest(endpoint, options = {}) {
+
+  const auth = getAuth();
+
+  if (!auth) return null;
+
+  try {
+
+    const res = await fetch(endpoint, {
+
+      ...options,
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+        "Authorization": `Bearer ${auth.token}`,
+
+        ...(options.headers || {})
+      }
+    });
+
+    if (handle401(res)) return null;
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+
+      throw new Error(data.message || "Request failed");
+    }
+
+    return data;
+
+  } catch (err) {
+
+    console.error(err);
+
+    showToast(err.message || "Network error", "error");
+
+    return null;
+  }
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+function showSection(name, el = null) {
+
+  ["dashboard", "facilities", "organisations", "hmo"]
+    .forEach(section => {
+
+      const target = document.getElementById(`section-${section}`);
+
+      if (target) target.style.display = "none";
+    });
+
+  const activeSection = document.getElementById(`section-${name}`);
+
+  if (activeSection) {
+    activeSection.style.display = "block";
+  }
+
+  document.querySelectorAll(".nav-item")
+    .forEach(item => item.classList.remove("active"));
+
+  if (el) {
+    el.classList.add("active");
+  }
+
+  const titles = {
+
+    dashboard: "Dashboard",
+
+    facilities: "Facilities",
+
+    organisations: "Organisations",
+
+    hmo: "HMO Status"
+  };
+
+  const topbar = document.getElementById("topbarTitle");
+
+  if (topbar) {
+    topbar.textContent = titles[name] || "Dashboard";
+  }
+
+  if (name === "facilities") {
+    loadFacilities();
+  }
+
+  if (name === "organisations") {
+    loadOrganisations();
+  }
+
+  if (name === "hmo") {
+    loadHMO();
+  }
+}
+
+/* =========================
+   LOAD FACILITIES
+========================= */
+
+async function loadFacilities() {
+
+  const tbody = document.getElementById("facilitiesBody");
+
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center;padding:32px;">
+        Loading...
+      </td>
+    </tr>
+  `;
+
+  const data = await apiRequest(`${API_BASE}/rm/facilities`);
+
+  if (!data) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:32px;">
+          Failed to load facilities
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  facilitiesCache = data;
+
+  renderFacilities(data);
+
+  updateDashboardStats();
+}
+
+function renderFacilities(data = []) {
+
+  const tbody = document.getElementById("facilitiesBody");
+
+  if (!tbody) return;
+
+  const filtered =
+    currentFacilityFilter === "ALL"
+      ? data
+      : data.filter(f => f.type === currentFacilityFilter);
+
+  if (!filtered.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:32px;">
+          No facilities found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(f => `
+
+    <tr>
+
+      <td class="td-name">
+        ${f.name || f.hospitalName || f.pharmacyName || f.laboratoryName || "—"}
+        <small>${f.email || ""}</small>
+      </td>
+
+      <td>${f.type || "—"}</td>
+
+      <td>${f.location || f.address || "—"}</td>
+
+      <td>${formatDate(f.createdAt)}</td>
+
+      <td>${getBadge(f.status)}</td>
+
+      <td>
+        <button class="act-btn" onclick="viewFacility('${f.id}')">
+          View
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+}
+
+function filterFacilities(type, el) {
+
+  currentFacilityFilter = type;
+
+  document.querySelectorAll("#section-facilities .tab")
+    .forEach(tab => tab.classList.remove("active"));
+
+  if (el) {
+    el.classList.add("active");
+  }
+
+  renderFacilities(facilitiesCache);
+}
+
+function searchFacilities(query) {
+
+  const q = query.toLowerCase();
+
+  const filtered = facilitiesCache.filter(f =>
+
+    (f.name || f.hospitalName || f.pharmacyName || f.laboratoryName || "")
+      .toLowerCase()
+      .includes(q)
+
+    ||
+
+    (f.location || f.address || "")
+      .toLowerCase()
+      .includes(q)
+  );
+
+  renderFacilities(filtered);
+}
+
+/* =========================
+   LOAD ORGANISATIONS
+========================= */
+
+async function loadOrganisations() {
+
+  const tbody = document.getElementById("orgsBody");
+
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" style="text-align:center;padding:32px;">
+        Loading...
+      </td>
+    </tr>
+  `;
+
+  const data = await apiRequest(`${API_BASE}/rm/organisations`);
+
+  if (!data) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;padding:32px;">
+          Failed to load organisations
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  orgsCache = data;
+
+  renderOrgs(data);
+
+  updateDashboardStats();
+}
+
+function renderOrgs(data = []) {
+
+  const tbody = document.getElementById("orgsBody");
+
+  if (!tbody) return;
+
+  if (!data.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;padding:32px;">
+          No organisations found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = data.map(org => `
+
+    <tr>
+
+      <td class="td-name">
+        ${org.name}
+        <small>${org.contactEmail || ""}</small>
+      </td>
+
+      <td>${org.industry || "—"}</td>
+
+      <td>${formatDate(org.createdAt)}</td>
+
+      <td>${getHMOBadge(org.hmoStatus)}</td>
+
+      <td>
+        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">
+          View HMO
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+}
+
+function searchOrgs(query) {
+
+  const q = query.toLowerCase();
+
+  const filtered = orgsCache.filter(org =>
+    org.name?.toLowerCase().includes(q)
+  );
+
+  renderOrgs(filtered);
+}
+
+/* =========================
+   LOAD HMO
+========================= */
+
+async function loadHMO() {
+
+  const tbody = document.getElementById("hmoBody");
+
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center;padding:32px;">
+        Loading...
+      </td>
+    </tr>
+  `;
+
+  const data = await apiRequest(`${API_BASE}/rm/organisations`);
+
+  if (!data) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:32px;">
+          Failed to load HMO data
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  orgsCache = data;
+
+  renderHMO(data);
+}
+
+function renderHMO(data = []) {
+
+  const tbody = document.getElementById("hmoBody");
+
+  if (!tbody) return;
+
+  const filtered =
+    currentHMOFilter === "ALL"
+      ? data
+      : data.filter(org => org.hmoStatus === currentHMOFilter);
+
+  if (!filtered.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:32px;">
+          No records found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(org => `
+
+    <tr>
+
+      <td class="td-name">
+        ${org.name}
+        <small>${org.contactEmail || ""}</small>
+      </td>
+
+      <td>${org.hmoPlan || "—"}</td>
+
+      <td>${org.memberCount ?? "—"}</td>
+
+      <td>${org.hmoExpiry ? formatDate(org.hmoExpiry) : "—"}</td>
+
+      <td>${getHMOBadge(org.hmoStatus)}</td>
+
+      <td>
+
+        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">
+          View
+        </button>
+
+        ${org.hmoStatus !== "CONFIRMED"
+          ? `
+            <button
+              class="act-btn primary"
+              onclick="confirmHMO('${org.id}')"
+            >
+              Confirm
+            </button>
+          `
+          : ""
+        }
+
+      </td>
+
+    </tr>
+
+  `).join("");
+}
+
+function filterHMO(status, el) {
+
+  currentHMOFilter = status;
+
+  document.querySelectorAll("#section-hmo .tab")
+    .forEach(tab => tab.classList.remove("active"));
+
+  if (el) {
+    el.classList.add("active");
+  }
+
+  renderHMO(orgsCache);
+}
+
+/* =========================
+   DASHBOARD STATS
+========================= */
+
+function updateDashboardStats() {
+
+  const statFacilities =
+    document.getElementById("statFacilities");
+
+  const statOrgs =
+    document.getElementById("statOrgs");
+
+  const statHMO =
+    document.getElementById("statHMO");
+
+  const statPending =
+    document.getElementById("statPending");
+
+  if (statFacilities) {
+    statFacilities.textContent = facilitiesCache.length;
+  }
+
+  if (statOrgs) {
+    statOrgs.textContent = orgsCache.length;
+  }
+
+  if (statHMO) {
+
+    statHMO.textContent =
+      orgsCache.filter(o => o.hmoStatus === "CONFIRMED").length;
+  }
+
+  if (statPending) {
+
+    statPending.textContent =
+      orgsCache.filter(o => o.hmoStatus === "PENDING").length;
+  }
+}
+
+/* =========================
+   VIEW HMO
+========================= */
+
+function viewOrgHMO(id) {
+
+  const org = orgsCache.find(o => o.id == id);
+
+  if (!org) return;
+
+  selectedOrgId = id;
+
+  const body = document.getElementById("hmoModalBody");
+
+  if (!body) return;
+
+  body.innerHTML = `
+
+    <p><strong>Organisation:</strong> ${org.name}</p>
+
+    <p><strong>Contact:</strong> ${org.contactEmail || "—"}</p>
+
+    <p><strong>Plan:</strong> ${org.hmoPlan || "—"}</p>
+
+    <p><strong>Members:</strong> ${org.memberCount ?? "—"}</p>
+
+    <p><strong>Expiry:</strong>
+      ${org.hmoExpiry ? formatDate(org.hmoExpiry) : "—"}
+    </p>
+
+    <p><strong>Status:</strong>
+      ${getHMOBadge(org.hmoStatus)}
+    </p>
+  `;
+
+  const confirmBtn =
+    document.getElementById("confirmHMOBtn");
+
+  if (confirmBtn) {
+
+    if (org.hmoStatus === "CONFIRMED") {
+
+      confirmBtn.style.display = "none";
+
+    } else {
+
+      confirmBtn.style.display = "inline-flex";
+
+      confirmBtn.onclick = () => confirmHMO(id);
+    }
+  }
+
+  openModal("viewHMOModal");
+}
+
+/* =========================
+   CONFIRM HMO
+========================= */
+
+async function confirmHMO(id) {
+
+  const data = await apiRequest(
+
+    `${API_BASE}/rm/organisations/${id}/confirm-hmo`,
+
+    {
+      method: "PUT"
+    }
+  );
+
+  if (!data) return;
+
+  showToast("HMO confirmed successfully", "success");
+
+  closeModal("viewHMOModal");
+
+  loadHMO();
+
+  loadOrganisations();
+}
+
+/* =========================
+   MODALS
+========================= */
+
+function openModal(id) {
+
+  document.getElementById(id)?.classList.add("show");
+}
+
+function closeModal(id) {
+
+  document.getElementById(id)?.classList.remove("show");
+}
+
+function openFacilitySelector() {
+  openModal("facilitySelectorModal");
+}
+
+function openHospitalModal() {
+
+  closeModal("facilitySelectorModal");
+
+  openModal("hospitalModal");
+}
+
+function openPharmacyModal() {
+
+  closeModal("facilitySelectorModal");
+
+  openModal("pharmacyModal");
+}
+
+function openLabModal() {
+
+  closeModal("facilitySelectorModal");
+
+  openModal("labModal");
+}
+
+function openOnboardOrgModal() {
+
+  openModal("onboardOrgModal");
+}
+
+window.addEventListener("click", (e) => {
+
+  [
+    "facilitySelectorModal",
+    "hospitalModal",
+    "pharmacyModal",
+    "labModal",
+    "onboardOrgModal",
+    "viewHMOModal"
+  ].forEach(id => {
+
+    if (e.target.id === id) {
+
+      closeModal(id);
+    }
+  });
+});
+
+/* =========================
+   BUTTON STATE
+========================= */
+
+function setButtonLoading(buttonId, loading, text = "Submit") {
+
+  const btn = document.getElementById(buttonId);
+
+  if (!btn) return;
+
+  btn.disabled = loading;
+
+  btn.textContent = loading ? "Saving..." : text;
+}
+
+/* =========================
+   RESET FORM
+========================= */
+
+function resetFacilityForm(modalId) {
+
+  const modal = document.getElementById(modalId);
+
+  if (!modal) return;
+
+  modal.querySelectorAll("input, textarea, select")
+    .forEach(field => {
+
+      if (field.type === "checkbox") {
+
+        field.checked = false;
+
+      } else {
+
+        field.value = "";
+      }
+    });
+}
+
+/* =========================
+   UNIVERSAL FACILITY SUBMIT
+========================= */
+
+async function submitFacility({
+  endpoint,
+  payload,
+  modalId,
+  successMessage,
+  buttonId
+}) {
+
+  const data = await apiRequest(endpoint, {
+
+    method: "POST",
+
+    body: JSON.stringify(payload)
+  });
+
+  setButtonLoading(buttonId, false);
+
+  if (!data) return;
+
+  showToast(successMessage, "success");
+
+  closeModal(modalId);
+
+  resetFacilityForm(modalId);
+
+  loadFacilities();
+}
+
+/* =========================
+   HOSPITAL SUBMIT
+========================= */
+
+async function submitHospital() {
+
+  const hospitalName =
+    document.getElementById("f_name").value.trim();
+
+  const address =
+    document.getElementById("f_address").value.trim();
+
+  const phoneNumber =
+    document.getElementById("f_phone").value.trim();
+
+  if (!hospitalName || !address || !phoneNumber) {
+
+    showToast("Please fill all required fields", "error");
+
+    return;
+  }
+
+  setButtonLoading("addSubmitBtn", true);
+
+  const payload = {
+
+    hospitalName,
+
+    type:
+      document.getElementById("f_type").value,
+
+    status:
+      document.getElementById("f_status").value,
+
+    address,
+
+    areaLga:
+      document.getElementById("f_area").value.trim(),
+
+    phoneNumber,
+
+    email:
+      document.getElementById("f_email").value.trim(),
+
+    contactPerson:
+      document.getElementById("f_contact").value.trim(),
+
+    bedCapacity:
+      parseInt(document.getElementById("f_beds").value) || 0,
+
+    emergencyUnit:
+      document.getElementById("f_emergency").value,
+
+    specialisations:
+      document.getElementById("f_specs")
+        .value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean),
+
+    notes:
+      document.getElementById("f_notes").value.trim()
+  };
+
+  await submitFacility({
+
+    endpoint: `${API_BASE}/admin/hospitals`,
+
+    payload,
+
+    modalId: "hospitalModal",
+
+    successMessage: "Hospital onboarded successfully",
+
+    buttonId: "addSubmitBtn"
+  });
+}
+
+/* =========================
+   PHARMACY SUBMIT
+========================= */
+
+async function submitPharmacy() {
+
+  const pharmacyName =
+    document.getElementById("f_name").value.trim();
+
+  const address =
+    document.getElementById("f_address").value.trim();
+
+  const phoneNumber =
+    document.getElementById("f_phone").value.trim();
+
+  if (!pharmacyName || !address || !phoneNumber) {
+
+    showToast("Please fill all required fields", "error");
+
+    return;
+  }
+
+  setButtonLoading("addSubmitBtn", true);
+
+  const services = [];
+
+  [
+    ["s_24h", "24hr"],
+    ["s_delivery", "Home Delivery"],
+    ["s_compound", "Compounding"],
+    ["s_vaccine", "Vaccinations"]
+  ].forEach(([id, value]) => {
+
+    if (document.getElementById(id)?.checked) {
+
+      services.push(value);
+    }
+  });
+
+  const payload = {
+
+    pharmacyName,
+
+    address,
+
+    areaLga:
+      document.getElementById("f_area").value.trim(),
+
+    phoneNumber,
+
+    servicesOffered: services,
+
+    chainBrand:
+      document.getElementById("f_chain").value.trim(),
+
+    status:
+      document.getElementById("f_status").value,
+
+    email:
+      document.getElementById("f_email").value.trim(),
+
+    contactPerson:
+      document.getElementById("f_contact").value.trim(),
+
+    openingHours:
+      document.getElementById("f_hours").value.trim(),
+
+    nafdacRegNo:
+      document.getElementById("f_nafdac").value.trim(),
+
+    notes:
+      document.getElementById("f_notes").value.trim()
+  };
+
+  await submitFacility({
+
+    endpoint: `${API_BASE}/admin/pharmacies`,
+
+    payload,
+
+    modalId: "pharmacyModal",
+
+    successMessage: "Pharmacy onboarded successfully",
+
+    buttonId: "addSubmitBtn"
+  });
+}
+
+/* =========================
+   LAB SUBMIT
+========================= */
+
+async function submitLab() {
+
+  const laboratoryName =
+    document.getElementById("f_name").value.trim();
+
+  const address =
+    document.getElementById("f_address").value.trim();
+
+  const phoneNumber =
+    document.getElementById("f_phone").value.trim();
+
+  if (!laboratoryName || !address || !phoneNumber) {
+
+    showToast("Please fill all required fields", "error");
+
+    return;
+  }
+
+  setButtonLoading("addSubmitBtn", true);
+
+  const payload = {
+
+    laboratoryName,
+
+    address,
+
+    areaLga:
+      document.getElementById("f_area").value.trim(),
+
+    phoneNumber,
+
+    typeChain:
+      document.getElementById("f_chain").value.trim(),
+
+    accreditationBody:
+      document.getElementById("f_accred").value.trim(),
+
+    status:
+      document.getElementById("f_status").value,
+
+    email:
+      document.getElementById("f_email").value.trim(),
+
+    contactLabManager:
+      document.getElementById("f_contact").value.trim(),
+
+    openingHours:
+      document.getElementById("f_hours").value.trim(),
+
+    turnaroundTime:
+      document.getElementById("f_tat").value.trim(),
+
+    resultDelivery:
+      document.getElementById("f_result").value,
+
+    testsOffered:
+      document.getElementById("f_tests")
+        .value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean),
+
+    notes:
+      document.getElementById("f_notes").value.trim()
+  };
+
+  await submitFacility({
+
+    endpoint: `${API_BASE}/admin/laboratories`,
+
+    payload,
+
+    modalId: "labModal",
+
+    successMessage: "Laboratory onboarded successfully",
+
+    buttonId: "addSubmitBtn"
+  });
+}
+
+/* =========================
+   ONBOARD ORGANISATION
+========================= */
+
+async function submitOnboardOrg() {
+
+  const name =
+    document.getElementById("orgName").value.trim();
+
+  const industry =
+    document.getElementById("orgIndustry").value.trim();
+
+  const contactPerson =
+    document.getElementById("orgContact").value.trim();
+
+  const contactEmail =
+    document.getElementById("orgEmail").value.trim();
+
+  const hmoPlan =
+    document.getElementById("orgPlan").value;
+
+  const companySize =
+    document.getElementById("companySize").value;
+
+  if (!name || !contactEmail) {
+
+    showToast("Please fill required fields", "error");
+
+    return;
+  }
+
+  const data = await apiRequest(
+
+    `${API_BASE}/rm/organisations`,
+
+    {
+      method: "POST",
+
+      body: JSON.stringify({
+        name,
+        industry,
+        contactPerson,
+        contactEmail,
+        hmoPlan,
+        companySize
+      })
+    }
+  );
+
+  if (!data) return;
+
+  showToast("Organisation onboarded successfully", "success");
+
+  closeModal("onboardOrgModal");
+
+  loadOrganisations();
+}
+
+/* =========================
+   HELPERS
+========================= */
+
+function getBadge(status) {
+
+  switch ((status || "").toUpperCase()) {
+
+    case "ACTIVE":
+
+      return `
+        <span class="badge badge-active">
+          Active
+        </span>
+      `;
+
+    case "INACTIVE":
+
+      return `
+        <span class="badge badge-inactive">
+          Inactive
+        </span>
+      `;
+
+    default:
+
+      return `
+        <span class="badge badge-pending">
+          ${status || "Pending"}
+        </span>
+      `;
+  }
+}
+
+function getHMOBadge(status) {
+
+  switch ((status || "").toUpperCase()) {
+
+    case "CONFIRMED":
+
+      return `
+        <span class="badge badge-confirmed">
+          Confirmed
+        </span>
+      `;
+
+    case "PENDING":
+
+      return `
+        <span class="badge badge-pending">
+          Pending
+        </span>
+      `;
+
+    case "INACTIVE":
+
+      return `
+        <span class="badge badge-inactive">
+          Inactive
+        </span>
+      `;
+
+    default:
+
+      return `
+        <span class="badge badge-inactive">
+          ${status || "—"}
+        </span>
+      `;
+  }
+}
+
+function formatDate(date) {
+
+  if (!date) return "—";
+
+  return new Date(date).toLocaleDateString(undefined, {
+
+    day: "numeric",
+
+    month: "short",
+
+    year: "numeric"
+  });
+}
+
+function logout() {
+
+  localStorage.removeItem("dh_user");
+
+  window.location.href = "../../login.html";
+}
+
+function viewFacility(id) {
+
+  showToast(`Viewing facility ${id}`, "info");
+}
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const auth = getAuth();
+
+  if (!auth) return;
+
+  const avatar =
+    document.getElementById("sidebarAvatar");
+
+  const name =
+    document.getElementById("sidebarName");
+
+  if (avatar) {
+
+    avatar.textContent =
+      (auth.email || "RM")
+      .substring(0, 2)
+      .toUpperCase();
+  }
+
+  if (name) {
+
+    name.textContent =
+      auth.email || "Manager";
+  }
+
+  loadFacilities();
+
+  loadOrganisations();
+});
+</script>
+</body>
+</html>

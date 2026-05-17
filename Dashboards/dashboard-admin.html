@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<aside class="sidebar">
+  <aside class="sidebar">
   <a class="sidebar-brand" href="../index.html">
     <div class="s-logo">DH</div>
     <div class="s-brand-text"><strong>DiGi Health</strong><span>Admin Panel</span></div>
@@ -86,45 +86,107 @@
       </div>
     </div>
 
-    <!-- Care requests table -->
-    <div class="card" style="margin-bottom:24px;">
-      <div class="card-header"><h3>Incoming Care Requests</h3><a href="#">View all</a></div>
-      <div class="card-body">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Service</th>
-              <th>Location</th>
-              <th>Received</th>
-              <th>pref. contact time</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="care-requests-body">
-            <tr>
-              <td colspan="6">loading...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Care requests table --
+
+    <!-- =========================
+CARE REQUESTS TABLE
+========================= -->
+
+<div class="card" style="margin-bottom:24px;">
+  <div class="card-header">
+    <h3>Incoming Care Requests</h3>
+    <a href="#">View all</a>
+  </div>
+
+  <div class="card-body">
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Service</th>
+          <th>Location</th>
+          <th>Received</th>
+          <th>Pref. Contact Time</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody id="care-requests-body">
+        <tr>
+          <td colspan="7">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="table-pagination">
+      <button id="carePrevBtn">Previous</button>
+
+      <span id="carePageInfo">
+        Page 1
+      </span>
+
+      <button id="careNextBtn">Next</button>
     </div>
 
-    <div class="grid-2">
+  </div>
+</div>
+
+<div class="grid-2">
 
       <!-- Service provider applications -->
+      
+      <!-- =========================
+    APPLICATIONS TABLE
+    ========================= -->
+
       <div class="card">
-        <div class="card-header"><h3>Service provider Applications</h3><a href="digi-health-apply.html">View all</a></div>
+
+        <div class="card-header">
+          <h3>Service Provider Applications</h3>
+          <a href="digi-health-apply.html">View all</a>
+        </div>
+
         <div class="card-body">
+
           <table class="data-table">
+
             <thead>
-              <tr><th>Applicant</th><th>Role</th><th>Submitted</th><th>Action</th></tr>
+              <tr>
+                <th>Applicant</th>
+                <th>Role</th>
+                <th>Submitted</th>
+                <th>Action</th>
+              </tr>
             </thead>
-           <tbody id="applications-body">
-             <!-- JS will inject rows here -->
-          </tbody>
+
+            <tbody id="applications-body">
+              <tr>
+                <td colspan="4">Loading...</td>
+              </tr>
+            </tbody>
+
           </table>
+
+          <!-- Pagination -->
+          <div class="table-pagination2">
+
+            <button id="appPrevBtn">
+              Previous
+            </button>
+
+            <span id="appPageInfo">
+              Page 1
+            </span>
+
+            <button id="appNextBtn">
+              Next
+            </button>
+
+          </div>
+
         </div>
       </div>
 
@@ -200,19 +262,43 @@
 
 
 
+
+
+
 <script>
 
+/* =========================
+   GLOBAL STATE
+========================= */
+
 let careRequestsCache = [];
+let applicationsCache = [];
 let providersCache = [];
+
 let currentStatus = "PENDING";
 let selectedRequestId = null;
 
 /* =========================
+   PAGINATION
+========================= */
+
+const CARE_ROWS_PER_PAGE = 5;
+let currentCarePage = 1;
+
+const APP_ROWS_PER_PAGE = 4;
+let currentAppPage = 1;
+
+/* =========================
    AUTH
 ========================= */
+
 function getAuth() {
+
   try {
-    const user = JSON.parse(localStorage.getItem("dh_user"));
+
+    const user = JSON.parse(
+      localStorage.getItem("dh_user")
+    );
 
     if (!user || !user.token) {
       localStorage.removeItem("dh_user");
@@ -226,11 +312,17 @@ function getAuth() {
       return null;
     }
 
-    return { token: user.token, role: user.role };
+    return {
+      token: user.token,
+      role: user.role
+    };
 
   } catch (err) {
+
     localStorage.removeItem("dh_user");
+
     window.location.href = "../../login.html";
+
     return null;
   }
 }
@@ -238,20 +330,33 @@ function getAuth() {
 /* =========================
    LOAD CARE REQUESTS
 ========================= */
+
 async function loadCareRequests() {
-  const tbody = document.getElementById("care-requests-body");
-  tbody.innerHTML = `<tr><td colspan="7">Loading...</td></tr>`;
+
+  const tbody =
+    document.getElementById("care-requests-body");
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7">Loading...</td>
+    </tr>
+  `;
 
   try {
+
     const auth = getAuth();
+
     if (!auth) return;
 
-    const url = currentStatus === "ALL"
+    const url =
+      currentStatus === "ALL"
       ? "https://digihealth-6uy7.onrender.com/api/admin/care-requests"
-      : `https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=PENDING`;
+      : "https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=PENDING";
 
     const res = await fetch(url, {
-      headers: { "Authorization": `Bearer ${auth.token}` }
+      headers: {
+        "Authorization": `Bearer ${auth.token}`
+      }
     });
 
     if (res.status === 401) {
@@ -261,381 +366,516 @@ async function loadCareRequests() {
     }
 
     if (!res.ok) {
-      tbody.innerHTML = `<tr><td colspan="7">Error ${res.status}</td></tr>`;
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7">
+            Error ${res.status}
+          </td>
+        </tr>
+      `;
+
       return;
     }
 
     const data = await res.json();
+
     careRequestsCache = data;
 
-    if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="7">No requests found</td></tr>`;
+    currentCarePage = 1;
+
+    renderCareRequests();
+
+  } catch (err) {
+
+    console.error(err);
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          Network error
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/* =========================
+   RENDER CARE REQUESTS
+========================= */
+
+function renderCareRequests() {
+
+  const tbody =
+    document.getElementById("care-requests-body");
+
+  tbody.innerHTML = "";
+
+  if (!careRequestsCache.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          No requests found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  const start =
+    (currentCarePage - 1) * CARE_ROWS_PER_PAGE;
+
+  const end =
+    start + CARE_ROWS_PER_PAGE;
+
+  const paginated =
+    careRequestsCache.slice(start, end);
+
+  paginated.forEach(req => {
+
+    const tr = document.createElement("tr");
+
+    tr.dataset.id = req.id;
+
+    tr.innerHTML = `
+      <td class="td-name">
+        ${req.fullName}<br/>
+        <small style="color:#888;">
+          ${req.email}
+        </small>
+      </td>
+
+      <td>${req.serviceNeeded}</td>
+
+      <td>${req.locationArea}</td>
+
+      <td>${formatDate(req.submittedAt)}</td>
+
+      <td>
+        ${req.preferredContactTime || "-"}
+      </td>
+
+      <td>
+        ${getStatusBadge(req.status)}
+      </td>
+
+      <td>
+        <div class="td-action">
+          ${renderActions(req.status)}
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  updateCarePaginationControls();
+}
+
+/* =========================
+   CARE PAGINATION UI
+========================= */
+
+function updateCarePaginationControls() {
+
+  const totalPages = Math.ceil(
+    careRequestsCache.length /
+    CARE_ROWS_PER_PAGE
+  );
+
+  document.getElementById("carePageInfo")
+  .textContent =
+    `Page ${currentCarePage} of ${totalPages || 1}`;
+
+  document.getElementById("carePrevBtn")
+  .disabled =
+    currentCarePage === 1;
+
+  document.getElementById("careNextBtn")
+  .disabled =
+    currentCarePage === totalPages ||
+    totalPages === 0;
+}
+
+/* =========================
+   LOAD APPLICATIONS
+========================= */
+
+async function loadApplications() {
+
+  const tbody =
+    document.getElementById("applications-body");
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="4">Loading...</td>
+    </tr>
+  `;
+
+  try {
+
+    const auth = getAuth();
+
+    if (!auth) return;
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/providers?status=PENDING",
+      {
+        headers: {
+          "Authorization": `Bearer ${auth.token}`
+        }
+      }
+    );
+
+    if (res.status === 401) {
+
+      localStorage.removeItem("dh_user");
+
+      window.location.href =
+        "../../login.html";
+
       return;
     }
 
-    tbody.innerHTML = "";
+    if (!res.ok) {
 
-    data.forEach(req => {
-      const tr = document.createElement("tr");
-      tr.dataset.id = req.id;
-
-      tr.innerHTML = `
-        <td class="td-name">
-          ${req.fullName}<br/>
-          <small style="color:#888;">${req.email}</small>
-        </td>
-        <td>${req.serviceNeeded}</td>
-        <td>${req.locationArea}</td>
-        <td>${formatDate(req.submittedAt)}</td>
-        <td>${req.preferredContactTime || "-"}</td>
-        <td>${getStatusBadge(req.status)}</td>
-        <td>
-          <div class="td-action">
-            ${renderActions(req.status)}
-          </div>
-        </td>
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4">
+            Error ${res.status}
+          </td>
+        </tr>
       `;
 
-      tbody.appendChild(tr);
-    });
+      return;
+    }
+
+    const data = await res.json();
+
+    applicationsCache = data;
+
+    currentAppPage = 1;
+
+    renderApplications();
 
   } catch (err) {
+
     console.error(err);
-    tbody.innerHTML = `<tr><td colspan="7">Network error</td></tr>`;
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4">
+          Network error
+        </td>
+      </tr>
+    `;
   }
+}
+
+/* =========================
+   RENDER APPLICATIONS
+========================= */
+
+function renderApplications() {
+
+  const tbody =
+    document.getElementById("applications-body");
+
+  tbody.innerHTML = "";
+
+  if (!applicationsCache.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4">
+          No applications found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  const start =
+    (currentAppPage - 1) * APP_ROWS_PER_PAGE;
+
+  const end =
+    start + APP_ROWS_PER_PAGE;
+
+  const paginated =
+    applicationsCache.slice(start, end);
+
+  paginated.forEach(app => {
+
+    const tr = document.createElement("tr");
+
+    tr.dataset.id = app.id;
+
+    tr.innerHTML = `
+      <td class="td-name">
+        ${app.fullName}<br/>
+
+        <small style="color:#888;">
+          ${app.email}
+        </small>
+      </td>
+
+      <td>
+        ${app.serviceProviderType}
+      </td>
+
+      <td>
+        ${formatDate(app.appliedAt)}
+      </td>
+
+      <td>
+        <div class="td-action">
+
+          <button class="act-btn act-approve">
+            Approve
+          </button>
+
+          <button class="act-btn act-view-app">
+            View
+          </button>
+
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  updateAppPaginationControls();
+}
+
+/* =========================
+   APPLICATION PAGINATION UI
+========================= */
+
+function updateAppPaginationControls() {
+
+  const totalPages = Math.ceil(
+    applicationsCache.length /
+    APP_ROWS_PER_PAGE
+  );
+
+  document.getElementById("appPageInfo")
+  .textContent =
+    `Page ${currentAppPage} of ${totalPages || 1}`;
+
+  document.getElementById("appPrevBtn")
+  .disabled =
+    currentAppPage === 1;
+
+  document.getElementById("appNextBtn")
+  .disabled =
+    currentAppPage === totalPages ||
+    totalPages === 0;
 }
 
 /* =========================
    LOAD PROVIDERS
 ========================= */
+
 async function loadProviders() {
-  const select = document.getElementById("providerSelect");
+
+  const select =
+    document.getElementById("providerSelect");
 
   try {
+
     const auth = getAuth();
+
     if (!auth) return;
 
     const res = await fetch(
       "https://digihealth-6uy7.onrender.com/api/admin/providers",
-      { headers: { "Authorization": `Bearer ${auth.token}` } }
+      {
+        headers: {
+          "Authorization": `Bearer ${auth.token}`
+        }
+      }
     );
 
-    if (res.status === 401) {
-      localStorage.removeItem("dh_user");
-      window.location.href = "../../login.html";
-      return;
-    }
-
-    if (!res.ok) throw new Error("Failed");
+    if (!res.ok)
+      throw new Error("Failed");
 
     const data = await res.json();
+
     providersCache = data;
 
-    select.innerHTML = `<option value="">Select provider</option>`;
+    select.innerHTML = `
+      <option value="">
+        Select provider
+      </option>
+    `;
 
     data.forEach(p => {
-      const option = document.createElement("option");
+
+      const option =
+        document.createElement("option");
+
       option.value = p.id;
-      option.textContent = `${p.fullName} (${p.specialty || "General"})`;
+
+      option.textContent =
+        `${p.fullName} (${p.specialty || "General"})`;
+
       select.appendChild(option);
     });
 
   } catch (err) {
+
     console.error(err);
-    select.innerHTML = `<option>Error loading providers</option>`;
-  }
-}
 
-let applicationsCache = [];
-
-/* =========================
-   LOAD APPLICATIONS
-========================= */
-async function loadApplications() {
-  const tbody = document.getElementById("applications-body");
-  if (!tbody) return;
-
-  tbody.innerHTML = `<tr><td colspan="4">Loading...</td></tr>`;
-
-  try {
-    const auth = getAuth();
-    if (!auth) return;
-
-    const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/providers?status=PENDING",
-      { headers: { "Authorization": `Bearer ${auth.token}` } }
-    );
-
-    if (res.status === 401) {
-      localStorage.removeItem("dh_user");
-      window.location.href = "../../login.html";
-      return;
-    }
-
-    if (!res.ok) {
-      tbody.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
-      return;
-    }
-
-    const data = await res.json();
-    applicationsCache = data;
-
-    if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="4">No applications found</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = "";
-
-    data.forEach(app => {
-      const tr = document.createElement("tr");
-      tr.dataset.id = app.id;
-
-      tr.innerHTML = `
-        <td class="td-name">
-          ${app.fullName}<br/>
-          <small style="color:#888;">${app.email}</small>
-        </td>
-        <td>${app.serviceProviderType}</td>
-        <td>${formatDate(app.appliedAt)}</td>
-        <td>
-          <div class="td-action">
-            <button class="act-btn act-approve">Approve</button>
-            <button class="act-btn act-view-app">View</button>
-          </div>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = `<tr><td colspan="4">Network error</td></tr>`;
+    select.innerHTML = `
+      <option>
+        Error loading providers
+      </option>
+    `;
   }
 }
 
 /* =========================
-   FILTER
+   PAGINATION EVENTS
 ========================= */
-function setFilter(status) {
-  currentStatus = status;
-  loadCareRequests();
-}
 
-/* =========================
-   EVENT DELEGATION
-========================= */
-document.addEventListener("click", async (e) => {
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-  /* ===== VIEW ===== */
-  const viewBtn = e.target.closest(".act-view");
-  if (viewBtn) {
-    const row = viewBtn.closest("tr");
-    const id = row.dataset.id;
-    const req = careRequestsCache.find(r => r.id == id);
-    if (req) openModal(req);
-    return;
-  }
-
-  /* ===== OPEN ASSIGN MODAL ===== */
-  const assignBtn = e.target.closest(".act-assign");
-  if (assignBtn) {
-    const row = assignBtn.closest("tr");
-    selectedRequestId = row.dataset.id;
-    document.getElementById("assignModal").classList.add("show");
-    loadProviders();
-    return;
-  }
-
-  /* ===== APPROVE APPLICATION ===== */
-  if (e.target.classList.contains("act-approve")) {
-    const row = e.target.closest("tr");
-    const id = row.dataset.id;
-    const auth = getAuth();
-    if (!auth) return;
-
-    try {
-      e.target.textContent = "Approving...";
-
-      const res = await fetch(
-        `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
-        {
-          method: "PUT",
-          headers: { "Authorization": `Bearer ${auth.token}` }
-        }
-      );
-
-      if (res.status === 401) {
-        localStorage.removeItem("dh_user");
-        window.location.href = "../../login.html";
-        return;
-      }
-
-      if (!res.ok) {
-        alert("Approve failed");
-        e.target.textContent = "Approve";
-        return;
-      }
-
-      loadApplications();
-
-    } catch (err) {
-      console.error(err);
-      alert("Network error");
-    }
-  }
-
-  /* ===== VIEW APPLICATION ===== */
-  if (e.target.classList.contains("act-view-app")) {
-    const row = e.target.closest("tr");
-    const id = row.dataset.id;
-    const app = applicationsCache.find(a => a.id == id);
-    if (app) openApplicationModal(app);
-  }
-
-});
-
-/* =========================
-   CONFIRM ASSIGN
-========================= */
-async function confirmAssign() {
-  const providerId = document.getElementById("providerSelect").value;
-  const adminNote = document.getElementById("adminNoteInput").value;
-
-  if (!providerId) {
-    alert("Please select a provider");
-    return;
-  }
-
-  const auth = getAuth();
-  if (!auth) return;
-
-  try {
-    const res = await fetch(
-      `https://digihealth-6uy7.onrender.com/api/admin/care-requests/${selectedRequestId}/assign`,
-      {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${auth.token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          providerId: Number(providerId),
-          adminNote
-        })
-      }
-    );
-
-    if (res.status === 401) {
-      localStorage.removeItem("dh_user");
-      window.location.href = "../../login.html";
-      return;
-    }
-
-    if (!res.ok) {
-      const err = await res.text();
-      console.error(err);
-      alert("Assignment failed");
-      return;
-    }
-
-    closeAssignModal();
     loadCareRequests();
 
-  } catch (err) {
-    console.error(err);
-    alert("Network error");
+    loadApplications();
+
+    setInterval(
+      loadCareRequests,
+      30000
+    );
+
+    /* CARE */
+
+    document.getElementById("carePrevBtn")
+    .addEventListener("click", () => {
+
+      if (currentCarePage > 1) {
+
+        currentCarePage--;
+
+        renderCareRequests();
+      }
+    });
+
+    document.getElementById("careNextBtn")
+    .addEventListener("click", () => {
+
+      const totalPages = Math.ceil(
+        careRequestsCache.length /
+        CARE_ROWS_PER_PAGE
+      );
+
+      if (currentCarePage < totalPages) {
+
+        currentCarePage++;
+
+        renderCareRequests();
+      }
+    });
+
+    /* APPLICATIONS */
+
+    document.getElementById("appPrevBtn")
+    .addEventListener("click", () => {
+
+      if (currentAppPage > 1) {
+
+        currentAppPage--;
+
+        renderApplications();
+      }
+    });
+
+    document.getElementById("appNextBtn")
+    .addEventListener("click", () => {
+
+      const totalPages = Math.ceil(
+        applicationsCache.length /
+        APP_ROWS_PER_PAGE
+      );
+
+      if (currentAppPage < totalPages) {
+
+        currentAppPage++;
+
+        renderApplications();
+      }
+    });
+
   }
-}
+);
 
 /* =========================
-   MODALS
+   HELPERS
 ========================= */
-function openModal(req) {
-  const modal = document.getElementById("requestModal");
-  const body = document.getElementById("modalBody");
 
-  body.innerHTML = `
-    <h2>${req.fullName}</h2>
-    <p><strong>Email:</strong> ${req.email}</p>
-    <p><strong>Service:</strong> ${req.serviceNeeded}</p>
-    <p><strong>Location:</strong> ${req.locationArea}</p>
-    <p><strong>Status:</strong> ${req.status}</p>
-    <p><strong>Received:</strong> ${formatDate(req.submittedAt)}</p>
-  `;
-
-  modal.classList.add("show");
-}
-
-function closeViewModal() {
-  document.getElementById("requestModal").classList.remove("show");
-}
-
-function closeAssignModal() {
-  document.getElementById("assignModal").classList.remove("show");
-}
-
-/* =========================
-   UI HELPERS
-========================= */
 function getStatusBadge(status) {
+
   switch (status?.toLowerCase()) {
-    case "urgent":   return `<span class="badge badge-urgent">Urgent</span>`;
-    case "new":      return `<span class="badge badge-new">New</span>`;
-    case "assigned": return `<span class="badge badge-active">Assigned</span>`;
-    case "pending":  return `<span class="badge badge-pending">Pending</span>`;
-    default:         return `<span class="badge">${status}</span>`;
+
+    case "urgent":
+      return `<span class="badge badge-urgent">Urgent</span>`;
+
+    case "new":
+      return `<span class="badge badge-new">New</span>`;
+
+    case "assigned":
+      return `<span class="badge badge-active">Assigned</span>`;
+
+    case "pending":
+      return `<span class="badge badge-pending">Pending</span>`;
+
+    default:
+      return `<span class="badge">${status}</span>`;
   }
 }
 
 function renderActions(status) {
+
   if (status?.toLowerCase() === "assigned") {
-    return `<button class="act-btn act-view">View</button>`;
+
+    return `
+      <button class="act-btn act-view">
+        View
+      </button>
+    `;
   }
+
   return `
-    <button class="act-btn act-assign">Assign</button>
-    <button class="act-btn act-view">View</button>
+    <button class="act-btn act-assign">
+      Assign
+    </button>
+
+    <button class="act-btn act-view">
+      View
+    </button>
   `;
 }
 
 function formatDate(dateString) {
+
   const date = new Date(dateString);
+
   return date.toLocaleString(undefined, {
-    day: "numeric", month: "short",
-    hour: "2-digit", minute: "2-digit"
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
   });
-}
-
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-
-  loadCareRequests();
-  loadApplications();
-
-  setInterval(loadCareRequests, 30000);
-
-  document.getElementById("closeModal")?.addEventListener("click", closeViewModal);
-  document.getElementById("closeAssignModal")?.addEventListener("click", closeAssignModal);
-  document.getElementById("confirmAssignBtn")?.addEventListener("click", confirmAssign);
-
-  window.addEventListener("click", (e) => {
-    if (e.target.id === "requestModal") closeViewModal();
-    if (e.target.id === "assignModal") closeAssignModal();
-  });
-
-});
-
-function logout() {
-  localStorage.removeItem("dh_user");
-  window.location.href = "../../login.html";
 }
 
 </script>
-
-
-
+  
 </body>
 </html>
