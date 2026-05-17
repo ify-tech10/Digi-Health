@@ -874,6 +874,10 @@ function formatDate(dateString) {
     minute: "2-digit"
   });
 }
+function logout() {
+    localStorage.removeItem('dh_user');
+    window.location.href = '../../login.html';
+  }
 
 </script>
   
