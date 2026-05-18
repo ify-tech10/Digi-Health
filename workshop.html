@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Chief Nursing Officer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a2550;
+      --blue-light: #2a3f8a;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --teal: #0891b2;
+      --purple: #9333ea;
+      --white: #fff;
+      --off-white: #f8f9fc;
+      --sidebar-w: 250px;
+      --radius: 10px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+ 
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; text-align: center; line-height: 1.2; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(8,145,178,0.18); color: #67e8f9; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+ 
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 14px 6px 6px; }
+    .u-avatar { width: 28px; height: 28px; background: var(--teal); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+ 
+    /* ── WELCOME HERO ── */
+    .welcome-hero { background: linear-gradient(135deg, #0c1a3a 0%, #1a2d6b 100%); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; }
+    .welcome-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 85% 50%, rgba(8,145,178,0.18) 0%, transparent 60%); pointer-events: none; }
+    .wh-left { position: relative; }
+    .wh-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #67e8f9; margin-bottom: 6px; }
+    .wh-title { font-family: 'DM Serif Display', serif; font-size: 1.55rem; color: #fff; margin-bottom: 6px; line-height: 1.25; }
+    .wh-sub { font-size: 13px; color: #8898c8; }
+    .wh-right { display: flex; gap: 20px; position: relative; flex-wrap: wrap; }
+    .wh-stat { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px 18px; text-align: center; min-width: 90px; }
+    .wh-stat-val { font-size: 22px; font-weight: 700; color: #fff; }
+    .wh-stat-lbl { font-size: 11px; color: #8898c8; margin-top: 2px; }
+ 
+    /* ── BADGES ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-active   { background: #f0fdf4; color: var(--green-dark); } .badge-active::before { background: var(--green); }
+    .badge-pending  { background: #fff7ed; color: #c2410c; }           .badge-pending::before { background: #f97316; }
+    .badge-approved { background: #f0fdf4; color: var(--green-dark); } .badge-approved::before { background: var(--green); }
+    .badge-rejected { background: #fef2f2; color: #dc2626; }           .badge-rejected::before { background: #ef4444; }
+    .badge-review   { background: #eff6ff; color: #2563eb; }           .badge-review::before   { background: #3b82f6; }
+    .badge-new      { background: #faf5ff; color: var(--purple); }     .badge-new::before      { background: var(--purple); }
+ 
+    /* ── STATS GRID ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .sc-teal::after { background: var(--teal); }
+    .sc-green::after { background: var(--green); }
+    .sc-purple::after { background: var(--purple); }
+    .sc-orange::after { background: #f97316; }
+    .sc-red::after { background: #ef4444; }
+    .sc-blue::after { background: #3b82f6; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sc-teal .stat-icon   { background: #ecfeff; } .sc-teal .stat-icon svg   { stroke: var(--teal); }
+    .sc-green .stat-icon  { background: #f0fdf4; } .sc-green .stat-icon svg  { stroke: var(--green-dark); }
+    .sc-purple .stat-icon { background: #faf5ff; } .sc-purple .stat-icon svg { stroke: var(--purple); }
+    .sc-orange .stat-icon { background: #fff7ed; } .sc-orange .stat-icon svg { stroke: #f97316; }
+    .sc-red .stat-icon    { background: #fef2f2; } .sc-red .stat-icon svg    { stroke: #ef4444; }
+    .sc-blue .stat-icon   { background: #eff6ff; } .sc-blue .stat-icon svg   { stroke: #3b82f6; }
+    .stat-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #f0fdf4; color: var(--green-dark); }
+    .stat-delta.down { background: #fef2f2; color: #dc2626; }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+    .stat-sub   { font-size: 11.5px; color: #b0b8d0; margin-top: 2px; }
+ 
+    /* ── LAYOUT ── */
+    .grid-2   { display: grid; grid-template-columns: 1fr 1fr;    gap: 20px; margin-bottom: 24px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr;    gap: 20px; margin-bottom: 24px; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr;    gap: 20px; margin-bottom: 24px; }
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .ch-sub { font-size: 12px; color: #8898c8; }
+    .ch-right { display: flex; align-items: center; gap: 8px; }
+    .chart-wrap { padding: 20px; height: 220px; position: relative; }
+ 
+    /* ── APPROVAL TABLE ── */
+    .approval-table { width: 100%; border-collapse: collapse; }
+    .approval-table th { padding: 9px 16px; text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; background: #fafbff; border-bottom: 1px solid #eef0f8; white-space: nowrap; }
+    .approval-table td { padding: 12px 16px; font-size: 13px; color: #3a4570; border-bottom: 1px solid #f5f6fc; vertical-align: middle; }
+    .approval-table tr:last-child td { border-bottom: none; }
+    .approval-table tr:hover td { background: #fafbff; }
+    .td-name { font-weight: 700; color: var(--navy); }
+    .td-sub  { font-size: 11.5px; color: #8898c8; margin-top: 1px; }
+    .td-actions { display: flex; gap: 6px; }
+    .act-btn { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .act-approve { background: #f0fdf4; color: var(--green-dark); border-color: #bbf7d0; }
+    .act-approve:hover { background: #dcfce7; }
+    .act-reject  { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .act-reject:hover  { background: #fee2e2; }
+    .act-view    { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; }
+    .act-view:hover    { background: #e8eaf4; }
+    .act-assign  { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .act-assign:hover  { background: var(--blue-light); }
+ 
+    /* ── NURSE CARDS ── */
+    .nurse-list { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .nurse-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f8f9fc; border-radius: 9px; border: 1px solid #eef0f8; transition: border-color .15s; }
+    .nurse-item:hover { border-color: #c8ccdf; }
+    .nurse-av { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .nurse-info { flex: 1; }
+    .nurse-info h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 1px; }
+    .nurse-info p  { font-size: 11.5px; color: #8898c8; }
+    .nurse-stat  { text-align: right; }
+    .nurse-stat-val { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .nurse-stat-lbl { font-size: 10.5px; color: #8898c8; }
+    .workload-bar-wrap { margin-top: 4px; }
+    .workload-bar { height: 4px; background: #eef0f8; border-radius: 2px; overflow: hidden; }
+    .workload-fill { height: 100%; border-radius: 2px; }
+ 
+    /* ── REQUESTS LIST ── */
+    .req-list { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .req-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: #f8f9fc; border-radius: 8px; border-left: 3px solid transparent; }
+    .req-item.urgent { border-left-color: #ef4444; background: #fef9f9; }
+    .req-item.new    { border-left-color: #3b82f6; }
+    .req-info { flex: 1; }
+    .req-info h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 1px; }
+    .req-info p  { font-size: 11.5px; color: #8898c8; }
+    .req-time   { font-size: 11.5px; color: #b0b8d0; white-space: nowrap; }
+ 
+    /* ── ACTIVITY FEED ── */
+    .activity-list { padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .activity-item { display: flex; align-items: flex-start; gap: 10px; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .activity-text { font-size: 13px; color: #3a4570; line-height: 1.55; flex: 1; }
+    .activity-text strong { color: var(--navy); font-weight: 700; }
+    .activity-time { font-size: 11.5px; color: #b0b8d0; white-space: nowrap; }
+ 
+    /* ── VIEW ALL BTN ── */
+    .view-all-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 12.5px; font-weight: 600; color: var(--teal); cursor: pointer; border: none; background: none; width: 100%; border-top: 1px solid #f0f2fb; font-family: 'DM Sans', sans-serif; transition: color .15s; }
+    .view-all-btn:hover { color: #0e7490; }
+    .view-all-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+ 
+    /* ── QUICK ACTIONS ── */
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+    .qa-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f8f9fc; border: 1.5px solid #eef0f8; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .qa-btn:hover { border-color: var(--teal); background: #ecfeff; }
+    .qa-icon { width: 32px; height: 32px; background: #ecfeff; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qa-icon svg { width: 15px; height: 15px; stroke: var(--teal); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .qa-label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .qa-sub   { font-size: 11px; color: #8898c8; }
+ 
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 18px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 150px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-close   { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-approve { background: #f0fdf4; color: var(--green-dark); border: 1.5px solid #bbf7d0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-approve:hover { background: #dcfce7; }
+    .btn-modal-reject  { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-reject:hover  { background: #fee2e2; }
+ 
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+ 
+    @media (max-width: 1200px) { .stats-row { grid-template-columns: 1fr 1fr 1fr; } .grid-3-1, .grid-1-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .stats-row { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .welcome-hero { flex-direction: column; } }
+  </style>
+</head>
+<body>
+ 
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="dashboard-cno.html">
+    <div class="s-logo">CNO</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Chief Nursing Officer</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" href="dashboard-cno.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+ 
+    <div class="nav-section-label">Approvals</div>
+    <a class="nav-item" href="#" onclick="showSection('approvalsSection')"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Provider Applications <span class="nav-badge" id="appBadge">5</span></a>
+    <a class="nav-item" href="#" onclick="showSection('requestsSection')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Requests <span class="nav-badge" id="reqBadge">7</span></a>
+ 
+    <div class="nav-section-label">Team</div>
+    <a class="nav-item" href="#" onclick="showSection('nursesSection')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Nurses & Caregivers</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Team Schedule</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance</a>
+ 
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Reports</a>
+ 
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+  </div>
+</aside>
+ 
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>CNO Dashboard</h1>
+      <p id="topbarDate">Monday, 28 April 2026 · All systems operational</p>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">CN</div><span>Chief Nursing Officer</span></div>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- WELCOME HERO -->
+    <div class="welcome-hero">
+      <div class="wh-left">
+        <div class="wh-tag">Chief Nursing Officer Portal</div>
+        <div class="wh-title">Good morning, Dr. Ngozi Adeyemi</div>
+        <div class="wh-sub">You have 5 provider applications and 7 service requests awaiting your review.</div>
+      </div>
+      <div class="wh-right">
+        <div class="wh-stat"><div class="wh-stat-val" id="heroNurses">12</div><div class="wh-stat-lbl">Active Nurses</div></div>
+        <div class="wh-stat"><div class="wh-stat-val" id="heroVisits">18</div><div class="wh-stat-lbl">Visits Today</div></div>
+        <div class="wh-stat"><div class="wh-stat-val" id="heroPending">5</div><div class="wh-stat-lbl">Pending Approvals</div></div>
+        <div class="wh-stat"><div class="wh-stat-val" id="heroRating">4.8★</div><div class="wh-stat-lbl">Team Rating</div></div>
+      </div>
+    </div>
+ 
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card sc-teal">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="stat-delta">+1 this week</span></div>
+        <div class="stat-value" id="statNurses">12</div><div class="stat-label">Active Caregivers</div><div class="stat-sub">Nurses, care givers & doctors</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="stat-delta">+3 today</span></div>
+        <div class="stat-value" id="statVisits">18</div><div class="stat-label">Visits Today</div><div class="stat-sub">Across all zones</div>
+      </div>
+      <div class="stat-card sc-purple">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><span class="stat-delta">+2 today</span></div>
+        <div class="stat-value" id="statPending">5</div><div class="stat-label">Pending Applications</div><div class="stat-sub">Awaiting your approval</div>
+      </div>
+      <div class="stat-card sc-orange">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="stat-delta">+4 today</span></div>
+        <div class="stat-value" id="statRequests">7</div><div class="stat-label">Open Care Requests</div><div class="stat-sub">Needing assignment</div>
+      </div>
+      <div class="stat-card sc-blue">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div>
+        <div class="stat-value" id="statPatients">43</div><div class="stat-label">Active Patients</div><div class="stat-sub">Under nursing care</div>
+      </div>
+      <div class="stat-card sc-red">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+        <div class="stat-value" id="statUrgent">2</div><div class="stat-label">Urgent Requests</div><div class="stat-sub">Requires immediate action</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-delta">96%</span></div>
+        <div class="stat-value" id="statCompletion">96%</div><div class="stat-label">Visit Completion Rate</div><div class="stat-sub">This month</div>
+      </div>
+      <div class="stat-card sc-teal">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div></div>
+        <div class="stat-value" id="statRating">4.8★</div><div class="stat-label">Avg. Team Rating</div><div class="stat-sub">Patient satisfaction</div>
+      </div>
+    </div>
+ 
+    <!-- PROVIDER APPLICATIONS + QUICK ACTIONS -->
+    <div class="grid-3-1" id="approvalsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3>Provider Applications — Pending Approval</h3>
+          <div class="ch-right"><span class="ch-sub" id="appCount">5 pending</span></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="approval-table" id="applicationsTable">
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Role</th>
+                <th>Experience</th>
+                <th>Coverage</th>
+                <th>Applied</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applicationsBody"></tbody>
+          </table>
+        </div>
+        <button class="view-all-btn" onclick="window.location.href='admin-applications.html'">
+          View All Applications <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+ 
+      <!-- QUICK ACTIONS -->
+      <div class="card">
+        <div class="card-header"><h3>Quick Actions</h3></div>
+        <div class="quick-actions">
+          <button class="qa-btn" onclick="showToast('Opening provider creation...')">
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
+            <div><div class="qa-label">Add Provider</div><div class="qa-sub">Create nurse / care giver</div></div>
+          </button>
+          <button class="qa-btn" onclick="showToast('Opening assignment...')">
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div><div class="qa-label">Assign Request</div><div class="qa-sub">Match patient to nurse</div></div>
+          </button>
+          <button class="qa-btn" onclick="showToast('Opening schedule...')">
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div><div class="qa-label">View Schedule</div><div class="qa-sub">Team weekly schedule</div></div>
+          </button>
+          <button class="qa-btn" onclick="showToast('Generating report...')">
+            <div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div><div class="qa-label">Export Report</div><div class="qa-sub">Visits & performance</div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- SERVICE REQUESTS + ACTIVITY -->
+    <div class="grid-3-1" id="requestsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3>Incoming Care Requests</h3>
+          <div class="ch-right"><span class="ch-sub" id="reqCount">7 open</span></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="approval-table" id="requestsTable">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Service</th>
+                <th>Location</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="requestsBody"></tbody>
+          </table>
+        </div>
+        <button class="view-all-btn" onclick="window.location.href='admin-care-requests.html'">
+          View All Requests <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+ 
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header"><h3>Recent Activity</h3><span class="ch-sub">Live feed</span></div>
+        <div class="activity-list" id="activityList"></div>
+      </div>
+    </div>
+ 
+    <!-- NURSES WORKLOAD + VISIT CHART -->
+    <div class="grid-2" id="nursesSection">
+      <div class="card">
+        <div class="card-header"><h3>Team Workload</h3><span class="ch-sub">Active caregivers</span></div>
+        <div class="nurse-list" id="nursesList"></div>
+        <button class="view-all-btn" onclick="window.location.href='admin-personnel.html'">
+          Manage Personnel <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+ 
+      <div class="card">
+        <div class="card-header"><h3>Visit Completion — This Month</h3><span class="ch-sub">Daily visits logged</span></div>
+        <div class="chart-wrap"><canvas id="visitsChart"></canvas></div>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+ 
+<!-- APPLICATION DETAIL MODAL -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="appModalTitle">Application Details</h2>
+      <button class="modal-close" onclick="closeModal('appModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="appModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close"   onclick="closeModal('appModal')">Close</button>
+      <button class="btn-modal-reject"  id="appRejectBtn">Reject</button>
+      <button class="btn-modal-approve" id="appApproveBtn">Approve</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- REQUEST ASSIGN MODAL -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="assignModalTitle">Assign Caregiver</h2>
+      <button class="modal-close" onclick="closeModal('assignModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="assignModalBody">
+      <p style="font-size:13.5px;color:#5a6690;margin-bottom:12px;">Select a caregiver to assign to this request.</p>
+      <select id="assignSelect" style="width:100%;border:1.5px solid #dde0ee;border-radius:8px;padding:10px 12px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;margin-bottom:12px;">
+        <option value="" disabled selected>Choose a caregiver</option>
+        <option>Nurse Blessing Adeyemi — RN (8 patients)</option>
+        <option>Nurse Kemi Ojo — Community Health (6 patients)</option>
+        <option>Physio Tunde Afolabi — Physiotherapist (5 patients)</option>
+        <option>Nurse Amina Eze — Postnatal Specialist (4 patients)</option>
+        <option>Dr. Damilola Osei — Telemedicine (12 patients)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close"   onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn-modal-approve" onclick="confirmAssign()">Confirm Assignment</button>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+ 
+<script>
+/* ================================================================
+   API CONFIG — update API_BASE + set USE_API = true when ready
+================================================================ */
+const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
+const USE_API  = false; // 🔧 Set true when backend is ready
+ 
+async function apiFetch(path, options = {}) {
+  const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+ 
+/* ── AUTH ── */
+const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+// Allow CNO, ADMIN, SUPER_ADMIN, NURSING_OFFICER roles
+//const ALLOWED_ROLES = ['admin','cno','nursing_officer','super_admin'];
+//if (!user.loggedIn || !ALLOWED_ROLES.includes((user.role||'').toLowerCase())) {
+  // Commented out for demo — uncomment in production
+  // window.location.href = 'login.html';
+//}
+function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+ 
+/* ── SET TOPBAR DATE ── */
+document.getElementById('topbarDate').textContent =
+  new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' · All systems operational';
+ 
+/* ================================================================
+   MOCK DATA
+================================================================ */
+const MOCK = {
+  applications: [
+    { id:1, name:'Chiamaka Nwosu',    email:'chiamaka@email.com', role:'Registered Nurse',          experience:'4 years', coverage:'Lekki, VI',           applied:'Today, 8:14 AM',   status:'PENDING', qualification:"B.Sc Nursing", specialisations:'Post-Discharge, Wound Care', ref:'Dr. Emeka Obi' },
+    { id:2, name:'Yusuf Lawal',       email:'yusuf@email.com',    role:'Physiotherapist',            experience:'6 years', coverage:'Ikeja, Gbagada',      applied:'Yesterday',        status:'PENDING', qualification:'B.Sc Physiotherapy', specialisations:'Physiotherapy, Stroke Rehab', ref:'Dr. Fatima Sule' },
+    { id:3, name:'Blessing Eze',      email:'blessing@email.com', role:'Lab Technician',             experience:'3 years', coverage:'Yaba, Surulere',      applied:'25 Apr',           status:'PENDING', qualification:'HND Med Lab Sci', specialisations:'Blood Collection, Diagnostics', ref:'Mr. Chukwu Nwafor' },
+    { id:4, name:'Adaora Okafor',     email:'adaora@email.com',   role:'Postnatal Specialist',       experience:'5 years', coverage:'Surulere, Mushin',    applied:'22 Apr',           status:'PENDING', qualification:'Diploma Midwifery', specialisations:'Postnatal, Newborn, Breastfeeding', ref:'Dr. Amaka Nwosu' },
+    { id:5, name:'Taiwo Adeyinka',    email:'taiwo@email.com',    role:'Community Health Nurse',     experience:'2 years', coverage:'Magodo, Ojodu',       applied:'20 Apr',           status:'PENDING', qualification:'Diploma Community Health', specialisations:'Community Health, Medication', ref:'Nurse Kunle Adesanya' },
+  ],
+ 
+  requests: [
+    { id:1, patient:'Adaeze Onyekwere', service:'Post-Discharge Recovery',  location:'Lekki, Lagos',           received:'Today, 7:42 AM',    status:'URGENT' },
+    { id:2, patient:'Rotimi Fadahunsi', service:'Elderly Care Support',     location:'Ikeja, Lagos',           received:'Today, 6:18 AM',    status:'NEW' },
+    { id:3, patient:'Chidinma Okafor',  service:'Postnatal Mother & Baby',  location:'Surulere, Lagos',        received:'Yesterday, 11:55 PM', status:'NEW' },
+    { id:4, patient:'Kunle Adesanya',   service:'Chronic Care Management',  location:'Yaba, Lagos',            received:'Yesterday, 4:30 PM', status:'ASSIGNED' },
+    { id:5, patient:'Sade Coker',       service:'Home Nursing Care',        location:'Victoria Island, Lagos', received:'Yesterday, 2:10 PM', status:'ASSIGNED' },
+    { id:6, patient:'Ibrahim Musa',     service:'Lab & Diagnostic Services',location:'Gbagada, Lagos',         received:'26 Apr, 9:00 AM',   status:'PENDING' },
+    { id:7, patient:'Ngozi Obiechina',  service:'Physiotherapy & Rehab',   location:'Magodo, Lagos',          received:'26 Apr, 8:15 AM',   status:'PENDING' },
+  ],
+ 
+  nurses: [
+    { id:1, name:'Nurse Blessing Adeyemi', role:'RN',                   color:'#1a2550', patients:8,  capacity:10, rating:4.9 },
+    { id:2, name:'Nurse Kemi Ojo',         role:'Community Health',      color:'#0891b2', patients:6,  capacity:10, rating:4.7 },
+    { id:3, name:'Physio Tunde Afolabi',   role:'Physiotherapist',       color:'#7c3aed', patients:5,  capacity:10, rating:4.8 },
+    { id:4, name:'Nurse Amina Eze',        role:'Postnatal Specialist',  color:'#059669', patients:4,  capacity:10, rating:5.0 },
+    { id:5, name:'Dr. Damilola Osei',      role:'Telemedicine Doctor',   color:'#b45309', patients:12, capacity:12, rating:4.9 },
+  ],
+ 
+  activity: [
+    { type:'APPROVAL',   text:'Visit completed — <strong>Amara Osei</strong> by Nurse Blessing',       time:'8 min ago',  color:'#22c55e' },
+    { type:'REQUEST',    text:'New care request from <strong>Adaeze Onyekwere</strong> — Urgent',       time:'15 min ago', color:'#ef4444' },
+    { type:'APPLICATION',text:'New application from <strong>Chiamaka Nwosu</strong> — RN',              time:'1 hr ago',   color:'#9333ea' },
+    { type:'ASSIGNED',   text:'Request assigned — <strong>Kunle Adesanya</strong> → Nurse Kemi Ojo',   time:'2 hrs ago',  color:'#3b82f6' },
+    { type:'REPORT',     text:'Visit report submitted — <strong>Emeka Nwachukwu</strong>',              time:'3 hrs ago',  color:'#0891b2' },
+    { type:'REQUEST',    text:'New request — <strong>Rotimi Fadahunsi</strong> — Elderly Care',         time:'4 hrs ago',  color:'#f97316' },
+  ],
+};
+ 
+let applicationsData = [];
+let requestsData = [];
+let selectedRequestId = null;
+ 
+/* ================================================================
+   LOAD FUNCTIONS
+================================================================ */
+async function loadDashboard() {
+  try {
+    if (USE_API) {
+      const [stats, apps, reqs, nurses, activity] = await Promise.all([
+        apiFetch('/cno/dashboard/stats'),
+        apiFetch('/admin/providers?status=PENDING&limit=5'),
+        apiFetch('/admin/care-requests?limit=7'),
+        apiFetch('/caregivers?status=active'),
+        apiFetch('/cno/activity?limit=6'),
+      ]);
+      renderStats(stats);
+      renderApplications(apps);
+      renderRequests(reqs);
+      renderNurses(nurses);
+      renderActivity(activity);
+    } else {
+      renderApplications(MOCK.applications);
+      renderRequests(MOCK.requests);
+      renderNurses(MOCK.nurses);
+      renderActivity(MOCK.activity);
+    }
+    initChart();
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+    // Fall back to mock
+    renderApplications(MOCK.applications);
+    renderRequests(MOCK.requests);
+    renderNurses(MOCK.nurses);
+    renderActivity(MOCK.activity);
+    initChart();
+  }
+}
+ 
+/* ── RENDER STATS (from API) ── */
+function renderStats(stats) {
+  if (!stats) return;
+  if (stats.activeNurses)    document.getElementById('statNurses').textContent    = stats.activeNurses;
+  if (stats.visitsToday)     document.getElementById('statVisits').textContent     = stats.visitsToday;
+  if (stats.pendingApps)     document.getElementById('statPending').textContent    = stats.pendingApps;
+  if (stats.openRequests)    document.getElementById('statRequests').textContent   = stats.openRequests;
+  if (stats.activePatients)  document.getElementById('statPatients').textContent   = stats.activePatients;
+  if (stats.urgentRequests)  document.getElementById('statUrgent').textContent     = stats.urgentRequests;
+  if (stats.completionRate)  document.getElementById('statCompletion').textContent = stats.completionRate + '%';
+  if (stats.avgRating)       document.getElementById('statRating').textContent     = stats.avgRating + '★';
+  if (stats.heroNurses)      document.getElementById('heroNurses').textContent     = stats.heroNurses;
+  if (stats.heroVisits)      document.getElementById('heroVisits').textContent     = stats.heroVisits;
+  if (stats.heroPending)     document.getElementById('heroPending').textContent    = stats.heroPending;
+}
+ 
+/* ── RENDER APPLICATIONS ── */
+function renderApplications(data) {
+  applicationsData = data;
+  const tbody = document.getElementById('applicationsBody');
+  document.getElementById('appCount').textContent = data.length + ' pending';
+  document.getElementById('appBadge').textContent = data.filter(a => a.status === 'PENDING').length;
+  document.getElementById('statPending').textContent = data.filter(a => a.status === 'PENDING').length;
+  document.getElementById('heroPending').textContent = data.filter(a => a.status === 'PENDING').length;
+ 
+  tbody.innerHTML = data.map(a => `
+    <tr>
+      <td><div class="td-name">${a.name}</div><div class="td-sub">${a.email}</div></td>
+      <td>${a.role}</td>
+      <td>${a.experience}</td>
+      <td>${a.coverage}</td>
+      <td style="font-size:12px;color:#8898c8;">${a.applied}</td>
+      <td><div class="td-actions">
+        <button class="act-btn act-approve" onclick="approveApp(${a.id})">Approve</button>
+        <button class="act-btn act-view"    onclick="openApp(${a.id})">View</button>
+        <button class="act-btn act-reject"  onclick="rejectApp(${a.id})">Reject</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+ 
+/* ── RENDER REQUESTS ── */
+function renderRequests(data) {
+  requestsData = data;
+  const tbody = document.getElementById('requestsBody');
+  const open = data.filter(r => r.status !== 'ASSIGNED').length;
+  document.getElementById('reqCount').textContent   = open + ' open';
+  document.getElementById('reqBadge').textContent   = open;
+  document.getElementById('statRequests').textContent = open;
+ 
+  const statusBadge = s => {
+    if (s === 'URGENT')   return `<span class="badge badge-rejected">Urgent</span>`;
+    if (s === 'NEW')      return `<span class="badge badge-new">New</span>`;
+    if (s === 'PENDING')  return `<span class="badge badge-pending">Pending</span>`;
+    if (s === 'ASSIGNED') return `<span class="badge badge-approved">Assigned</span>`;
+    return `<span class="badge">${s}</span>`;
+  };
+ 
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td><div class="td-name">${r.patient}</div></td>
+      <td style="font-size:12.5px;">${r.service}</td>
+      <td style="font-size:12.5px;">${r.location}</td>
+      <td style="font-size:12px;color:#8898c8;">${r.received}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td><div class="td-actions">
+        ${r.status !== 'ASSIGNED' ? `<button class="act-btn act-assign" onclick="openAssign(${r.id})">Assign</button>` : ''}
+        <button class="act-btn act-view" onclick="openRequest(${r.id})">View</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+ 
+/* ── RENDER NURSES ── */
+function renderNurses(data) {
+  const list = document.getElementById('nursesList');
+  list.innerHTML = data.map(n => {
+    const pct  = Math.round((n.patients / n.capacity) * 100);
+    const fill = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f97316' : '#22c55e';
+    return `
+    <div class="nurse-item">
+      <div class="nurse-av" style="background:${n.color};">${n.name.split(' ').slice(-2).map(w=>w[0]).join('')}</div>
+      <div class="nurse-info">
+        <h4>${n.name}</h4>
+        <p>${n.role}</p>
+        <div class="workload-bar-wrap">
+          <div class="workload-bar"><div class="workload-fill" style="width:${pct}%;background:${fill};"></div></div>
+        </div>
+      </div>
+      <div class="nurse-stat">
+        <div class="nurse-stat-val">${n.patients}/${n.capacity}</div>
+        <div class="nurse-stat-lbl">patients</div>
+        <div style="font-size:11.5px;color:#fbbf24;margin-top:2px;">${n.rating}★</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
+/* ── RENDER ACTIVITY ── */
+function renderActivity(data) {
+  const list = document.getElementById('activityList');
+  list.innerHTML = data.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color || '#8898c8'};"></div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+ 
+/* ── CHART ── */
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#8898c8';
+function initChart() {
+  const ctx = document.getElementById('visitsChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, 'rgba(8,145,178,0.18)');
+  gradient.addColorStop(1, 'rgba(8,145,178,0.01)');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['1 Apr','5 Apr','10 Apr','15 Apr','20 Apr','25 Apr','28 Apr'],
+      datasets: [
+        { label:'Completed', data:[12,18,15,22,20,19,18], backgroundColor: '#0891b2', borderRadius:5, borderSkipped:false },
+        { label:'Scheduled', data:[14,20,17,24,22,21,20], backgroundColor: '#ecfeff', borderRadius:5, borderSkipped:false },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ font:{ size:11 }, boxWidth:10, padding:14 } } },
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ font:{ size:11 } }, stacked:false },
+        y:{ grid:{ color:'#f0f2fb' }, ticks:{ font:{ size:11 }, stepSize:5 }, beginAtZero:true }
+      }
+    }
+  });
+}
+ 
+/* ================================================================
+   APPROVE / REJECT APPLICATIONS
+================================================================ */
+async function approveApp(id) {
+  if (USE_API) {
+    try { await apiFetch(`/admin/providers/${id}/approve`, { method: 'PUT' }); }
+    catch { showToast('Failed to approve. Try again.', false); return; }
+  }
+  applicationsData = applicationsData.filter(a => a.id !== id);
+  renderApplications(applicationsData);
+  showToast('✅ Provider application approved!');
+}
+ 
+async function rejectApp(id) {
+  if (!confirm('Reject this application?')) return;
+  if (USE_API) {
+    try { await apiFetch(`/admin/providers/${id}/reject`, { method: 'PUT' }); }
+    catch { showToast('Failed to reject. Try again.', false); return; }
+  }
+  applicationsData = applicationsData.filter(a => a.id !== id);
+  renderApplications(applicationsData);
+  showToast('Application rejected.');
+}
+ 
+function openApp(id) {
+  const a = applicationsData.find(x => x.id === id);
+  document.getElementById('appModalTitle').textContent = a.name + ' — Application';
+  document.getElementById('appModalBody').innerHTML = `
+    <div class="modal-section"><h4>Personal Details</h4>
+      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${a.name}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${a.email}</span></div>
+      <div class="detail-row"><span class="detail-label">Role Applied</span><span class="detail-value">${a.role}</span></div>
+      <div class="detail-row"><span class="detail-label">Experience</span><span class="detail-value">${a.experience}</span></div>
+      <div class="detail-row"><span class="detail-label">Qualification</span><span class="detail-value">${a.qualification || '—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${a.specialisations || '—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${a.coverage}</span></div>
+      <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">${a.ref || '—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Applied</span><span class="detail-value">${a.applied}</span></div>
+    </div>`;
+  document.getElementById('appApproveBtn').onclick = () => { closeModal('appModal'); approveApp(id); };
+  document.getElementById('appRejectBtn').onclick  = () => { closeModal('appModal'); rejectApp(id); };
+  document.getElementById('appModal').classList.add('open');
+}
+ 
+/* ── ASSIGN REQUEST ── */
+function openAssign(id) {
+  selectedRequestId = id;
+  const r = requestsData.find(x => x.id === id);
+  document.getElementById('assignModalTitle').textContent = 'Assign — ' + r.patient;
+  document.getElementById('assignSelect').selectedIndex = 0;
+  document.getElementById('assignModal').classList.add('open');
+}
+ 
+async function confirmAssign() {
+  const sel = document.getElementById('assignSelect').value;
+  if (!sel) { showToast('Please select a caregiver.', false); return; }
+  const r = requestsData.find(x => x.id === selectedRequestId);
+ 
+  if (USE_API) {
+    try {
+      await apiFetch(`/admin/care-requests/${selectedRequestId}/assign`, {
+        method: 'PUT', body: JSON.stringify({ caregiverName: sel })
+      });
+    } catch { showToast('Assignment failed. Try again.', false); return; }
+  }
+ 
+  r.status = 'ASSIGNED';
+  renderRequests(requestsData);
+  closeModal('assignModal');
+  showToast('✅ ' + r.patient + ' assigned to ' + sel.split(' —')[0]);
+}
+ 
+function openRequest(id) {
+  const r = requestsData.find(x => x.id === id);
+  const modal = document.getElementById('appModal');
+  document.getElementById('appModalTitle').textContent = r.patient + ' — Care Request';
+  document.getElementById('appModalBody').innerHTML = `
+    <div class="modal-section"><h4>Request Details</h4>
+      <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${r.patient}</span></div>
+      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${r.service}</span></div>
+      <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${r.location}</span></div>
+      <div class="detail-row"><span class="detail-label">Received</span><span class="detail-value">${r.received}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${r.status}</span></div>
+    </div>`;
+  document.getElementById('appApproveBtn').textContent = 'Assign Caregiver';
+  document.getElementById('appApproveBtn').onclick = () => { closeModal('appModal'); openAssign(id); };
+  document.getElementById('appRejectBtn').style.display = 'none';
+  modal.classList.add('open');
+}
+ 
+/* ── UTILS ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+ 
+function showSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+ 
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.querySelector('svg').style.display = ok ? 'block' : 'none';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+ 
+/* ── INIT ── */
+loadDashboard();
+// Auto-refresh every 60 seconds
+setInterval(loadDashboard, 60000);
+</script>
+</body>
+</html>

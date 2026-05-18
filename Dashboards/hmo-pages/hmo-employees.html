@@ -117,7 +117,7 @@
 
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'hmo') {
+  if (!user.loggedIn || user.role !== 'HMO') {
     window.location.href = 'login.html';
   }
   function logout() {

@@ -1169,7 +1169,9 @@ async function loadFacilities() {
     </tr>
   `;
 
-  const data = await apiRequest(`https://digihealth-6uy7.onrender.com/api/admin/infrastructures`);
+  const data = await apiRequest(
+    `https://digihealth-6uy7.onrender.com/api/admin/infrastructures`
+  );
 
   if (!data) {
 
@@ -1184,9 +1186,46 @@ async function loadFacilities() {
     return;
   }
 
-  facilitiesCache = data;
+  // Normalize all facility types into one array
+  const allFacilities = [
 
-  renderFacilities(data);
+    ...(data.hospitals || []).map(h => ({
+      id: h.id,
+      name: h.hospitalName,
+      category: "Hospital",
+      type:"Hospital",
+      location: h.areaLga,
+      status: h.status,
+      enabled: h.enabled,
+      raw: h
+    })),
+
+    ...(data.pharmacies || []).map(p => ({
+      id: p.id,
+      name: p.pharmacyName,
+      category: "Pharmacy",
+      type: "Pharmacy",
+      location: p.areaLga,
+      status: p.status,
+      enabled: p.enabled,
+      raw: p
+    })),
+
+    ...(data.laboratories || []).map(l => ({
+      id: l.id,
+      name: l.laboratoryName,
+      category: "Laboratory",
+      type: l.type || "Laboratory",
+      location: l.areaLga,
+      status: l.status,
+      enabled: l.enabled,
+      raw: l
+    }))
+  ];
+
+  facilitiesCache = allFacilities;
+
+  renderFacilities(allFacilities);
 
   updateDashboardStats();
 }
