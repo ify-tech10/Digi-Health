@@ -900,14 +900,14 @@
       <input type="text" class="form-control" id="orgIndustry" placeholder="e.g. Finance, Tech, Education" />
     </div>
     <div class="form-group">
-      <label class="form-label">Contact Person</label>
+      <label class="form-label">HrContact Person</label>
       <input type="text" class="form-control" id="orgContact" placeholder="Full name" />
     </div>
     <div class="form-group">
       <label class="form-label">Contact Email</label>
       <input type="email" class="form-control" id="orgEmail" placeholder="contact@org.com" />
     </div>
-    <div class="form-group">
+    <!-- <div class="form-group">
       <label class="form-label">HMO Plan</label>
       <select class="form-control" id="orgPlan">
         <option value="">Select plan</option>
@@ -915,7 +915,7 @@
         <option value="STANDARD">Standard</option>
         <option value="PREMIUM">Premium</option>
       </select>
-    </div>
+    </div> -->
     <div class="form-group">
       <label class="form-label">Company Size</label>
       <select class="form-control" id="companySize" required>
@@ -927,6 +927,18 @@
           <option value="SIZE_1000_PLUS">1000+</option>
       </select>
       </div>
+      
+       <div class="form-group">
+        <label>Phone Number <span style="color:#ef4444;">*</span></label>
+        <input type="tel" id="nc_phone" placeholder="+234 XXX XXX XXXX" /></div>
+
+       <div class="form-group">
+        <label>Start Date</label>
+        <input type="date" id="nc_start" />
+      </div>
+
+       <div class="form-group full"><label>Address <span style="color:#ef4444;">*</span></label><input type="text" id="nc_address" placeholder="e.g. 12 Marina Street, Lagos Island, Lagos" /></div>
+
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('onboardOrgModal')">Cancel</button>
       <button class="btn btn-primary" onclick="submitOnboardOrg()">Onboard Organisation</button>
@@ -950,7 +962,7 @@
 </div>
  
 <script>
-/* =========================
+  /* =========================
    GLOBAL STATE
 ========================= */
 
@@ -969,48 +981,35 @@ const API_BASE = "https://digihealth-6uy7.onrender.com/api";
 ========================= */
 
 function getAuth() {
-
   try {
-
     const user = JSON.parse(localStorage.getItem("dh_user"));
 
     if (!user?.token) {
-
       localStorage.removeItem("dh_user");
       window.location.href = "../../login.html";
-
       return null;
     }
 
     if (user.role !== "RELATIONSHIP_MANAGER") {
-
       localStorage.removeItem("dh_user");
       window.location.href = "../../login.html";
-
       return null;
     }
 
     return user;
-
   } catch (err) {
-
     localStorage.removeItem("dh_user");
     window.location.href = "../../login.html";
-
     return null;
   }
 }
 
 function handle401(res) {
-
   if (res.status === 401) {
-
     localStorage.removeItem("dh_user");
     window.location.href = "../../login.html";
-
     return true;
   }
-
   return false;
 }
 
@@ -1019,7 +1018,6 @@ function handle401(res) {
 ========================= */
 
 function showToast(message, type = "info") {
-
   const container = document.getElementById("toastContainer");
 
   if (!container) {
@@ -1028,9 +1026,7 @@ function showToast(message, type = "info") {
   }
 
   const toast = document.createElement("div");
-
   toast.className = `toast toast-${type}`;
-
   toast.innerHTML = `
     <span>${message}</span>
     <button class="toast-close">&times;</button>
@@ -1038,37 +1034,26 @@ function showToast(message, type = "info") {
 
   container.appendChild(toast);
 
-  toast.querySelector(".toast-close").onclick = () => {
-    toast.remove();
-  };
+  toast.querySelector(".toast-close").onclick = () => toast.remove();
 
-  setTimeout(() => {
-    toast.remove();
-  }, 4000);
+  setTimeout(() => toast.remove(), 4000);
 }
 
 /* =========================
    API REQUEST HELPER
+   Single definition — authenticated, with rich error support
 ========================= */
 
 async function apiRequest(endpoint, options = {}) {
-
   const auth = getAuth();
-
   if (!auth) return null;
 
   try {
-
     const res = await fetch(endpoint, {
-
       ...options,
-
       headers: {
-
         "Content-Type": "application/json",
-
         "Authorization": `Bearer ${auth.token}`,
-
         ...(options.headers || {})
       }
     });
@@ -1078,19 +1063,23 @@ async function apiRequest(endpoint, options = {}) {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-
-      throw new Error(data.message || "Request failed");
+      // Build a rich error so callers can inspect validationErrors
+      const err = new Error(data.message || "Request failed");
+      err.validationErrors = data.validationErrors || null;
+      err.statusCode = res.status;
+      throw err;
     }
 
     return data;
 
   } catch (err) {
-
-    console.error(err);
-
-    showToast(err.message || "Network error", "error");
-
-    return null;
+    // Only show a generic toast when there are no field-level errors
+    // (callers that expect validationErrors will handle those themselves)
+    if (!err.validationErrors) {
+      showToast(err.message || "Network error", "error");
+    }
+    // Re-throw so callers can catch and inspect
+    throw err;
   }
 }
 
@@ -1099,56 +1088,30 @@ async function apiRequest(endpoint, options = {}) {
 ========================= */
 
 function showSection(name, el = null) {
-
-  ["dashboard", "facilities", "organisations", "hmo"]
-    .forEach(section => {
-
-      const target = document.getElementById(`section-${section}`);
-
-      if (target) target.style.display = "none";
-    });
+  ["dashboard", "facilities", "organisations", "hmo"].forEach(section => {
+    const target = document.getElementById(`section-${section}`);
+    if (target) target.style.display = "none";
+  });
 
   const activeSection = document.getElementById(`section-${name}`);
+  if (activeSection) activeSection.style.display = "block";
 
-  if (activeSection) {
-    activeSection.style.display = "block";
-  }
-
-  document.querySelectorAll(".nav-item")
-    .forEach(item => item.classList.remove("active"));
-
-  if (el) {
-    el.classList.add("active");
-  }
+  document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+  if (el) el.classList.add("active");
 
   const titles = {
-
     dashboard: "Dashboard",
-
     facilities: "Facilities",
-
     organisations: "Organisations",
-
     hmo: "HMO Status"
   };
 
   const topbar = document.getElementById("topbarTitle");
+  if (topbar) topbar.textContent = titles[name] || "Dashboard";
 
-  if (topbar) {
-    topbar.textContent = titles[name] || "Dashboard";
-  }
-
-  if (name === "facilities") {
-    loadFacilities();
-  }
-
-  if (name === "organisations") {
-    loadOrganisations();
-  }
-
-  if (name === "hmo") {
-    loadHMO();
-  }
+  if (name === "facilities") loadFacilities();
+  if (name === "organisations") loadOrganisations();
+  if (name === "hmo") loadHMO();
 }
 
 /* =========================
@@ -1156,50 +1119,35 @@ function showSection(name, el = null) {
 ========================= */
 
 async function loadFacilities() {
-
   const tbody = document.getElementById("facilitiesBody");
-
   if (!tbody) return;
 
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="6" style="text-align:center;padding:32px;">
-        Loading...
-      </td>
-    </tr>
-  `;
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Loading...</td></tr>`;
 
-  const data = await apiRequest(
-    `https://digihealth-6uy7.onrender.com/api/admin/infrastructures`
-  );
-
-  if (!data) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center;padding:32px;">
-          Failed to load facilities
-        </td>
-      </tr>
-    `;
-
+  let data;
+  try {
+    data = await apiRequest(`${API_BASE}/admin/infrastructures`);
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Failed to load facilities</td></tr>`;
     return;
   }
 
-  // Normalize all facility types into one array
-  const allFacilities = [
+  if (!data) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Failed to load facilities</td></tr>`;
+    return;
+  }
 
+  const allFacilities = [
     ...(data.hospitals || []).map(h => ({
       id: h.id,
       name: h.hospitalName,
       category: "Hospital",
-      type:"Hospital",
+      type: "Hospital",
       location: h.areaLga,
       status: h.status,
       enabled: h.enabled,
       raw: h
     })),
-
     ...(data.pharmacies || []).map(p => ({
       id: p.id,
       name: p.pharmacyName,
@@ -1210,7 +1158,6 @@ async function loadFacilities() {
       enabled: p.enabled,
       raw: p
     })),
-
     ...(data.laboratories || []).map(l => ({
       id: l.id,
       name: l.laboratoryName,
@@ -1224,16 +1171,12 @@ async function loadFacilities() {
   ];
 
   facilitiesCache = allFacilities;
-
   renderFacilities(allFacilities);
-
   updateDashboardStats();
 }
 
 function renderFacilities(data = []) {
-
   const tbody = document.getElementById("facilitiesBody");
-
   if (!tbody) return;
 
   const filtered =
@@ -1242,77 +1185,40 @@ function renderFacilities(data = []) {
       : data.filter(f => f.type === currentFacilityFilter);
 
   if (!filtered.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center;padding:32px;">
-          No facilities found
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">No facilities found</td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered.map(f => `
-
     <tr>
-
       <td class="td-name">
-        ${f.name || f.hospitalName || f.pharmacyName || f.laboratoryName || "—"}
+        ${f.name || "—"}
         <small>${f.email || ""}</small>
       </td>
-
       <td>${f.type || "—"}</td>
-
       <td>${f.location || f.address || "—"}</td>
-
       <td>${formatDate(f.createdAt)}</td>
-
       <td>${getBadge(f.status)}</td>
-
       <td>
-        <button class="act-btn" onclick="viewFacility('${f.id}')">
-          View
-        </button>
+        <button class="act-btn" onclick="viewFacility('${f.id}')">View</button>
       </td>
-
     </tr>
-
   `).join("");
 }
 
 function filterFacilities(type, el) {
-
   currentFacilityFilter = type;
-
-  document.querySelectorAll("#section-facilities .tab")
-    .forEach(tab => tab.classList.remove("active"));
-
-  if (el) {
-    el.classList.add("active");
-  }
-
+  document.querySelectorAll("#section-facilities .tab").forEach(tab => tab.classList.remove("active"));
+  if (el) el.classList.add("active");
   renderFacilities(facilitiesCache);
 }
 
 function searchFacilities(query) {
-
   const q = query.toLowerCase();
-
   const filtered = facilitiesCache.filter(f =>
-
-    (f.name || f.hospitalName || f.pharmacyName || f.laboratoryName || "")
-      .toLowerCase()
-      .includes(q)
-
-    ||
-
-    (f.location || f.address || "")
-      .toLowerCase()
-      .includes(q)
+    (f.name || "").toLowerCase().includes(q) ||
+    (f.location || f.address || "").toLowerCase().includes(q)
   );
-
   renderFacilities(filtered);
 }
 
@@ -1321,94 +1227,57 @@ function searchFacilities(query) {
 ========================= */
 
 async function loadOrganisations() {
-
   const tbody = document.getElementById("orgsBody");
-
   if (!tbody) return;
 
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="5" style="text-align:center;padding:32px;">
-        Loading...
-      </td>
-    </tr>
-  `;
+  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;">Loading...</td></tr>`;
 
-  const data = await apiRequest(`${API_BASE}/rm/organisations`);
+  let data;
+  try {
+    data = await apiRequest(`${API_BASE}/rm/organisations`);
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;">Failed to load organisations</td></tr>`;
+    return;
+  }
 
   if (!data) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" style="text-align:center;padding:32px;">
-          Failed to load organisations
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;">Failed to load organisations</td></tr>`;
     return;
   }
 
   orgsCache = data;
-
   renderOrgs(data);
-
   updateDashboardStats();
 }
 
 function renderOrgs(data = []) {
-
   const tbody = document.getElementById("orgsBody");
-
   if (!tbody) return;
 
   if (!data.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" style="text-align:center;padding:32px;">
-          No organisations found
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;">No organisations found</td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(org => `
-
     <tr>
-
       <td class="td-name">
         ${org.name}
         <small>${org.contactEmail || ""}</small>
       </td>
-
       <td>${org.industry || "—"}</td>
-
       <td>${formatDate(org.createdAt)}</td>
-
       <td>${getHMOBadge(org.hmoStatus)}</td>
-
       <td>
-        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">
-          View HMO
-        </button>
+        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">View HMO</button>
       </td>
-
     </tr>
-
   `).join("");
 }
 
 function searchOrgs(query) {
-
   const q = query.toLowerCase();
-
-  const filtered = orgsCache.filter(org =>
-    org.name?.toLowerCase().includes(q)
-  );
-
+  const filtered = orgsCache.filter(org => org.name?.toLowerCase().includes(q));
   renderOrgs(filtered);
 }
 
@@ -1417,43 +1286,30 @@ function searchOrgs(query) {
 ========================= */
 
 async function loadHMO() {
-
   const tbody = document.getElementById("hmoBody");
-
   if (!tbody) return;
 
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="6" style="text-align:center;padding:32px;">
-        Loading...
-      </td>
-    </tr>
-  `;
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Loading...</td></tr>`;
 
-  const data = await apiRequest(`${API_BASE}/rm/organisations`);
+  let data;
+  try {
+    data = await apiRequest(`${API_BASE}/rm/organisations`);
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Failed to load HMO data</td></tr>`;
+    return;
+  }
 
   if (!data) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center;padding:32px;">
-          Failed to load HMO data
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">Failed to load HMO data</td></tr>`;
     return;
   }
 
   orgsCache = data;
-
   renderHMO(data);
 }
 
 function renderHMO(data = []) {
-
   const tbody = document.getElementById("hmoBody");
-
   if (!tbody) return;
 
   const filtered =
@@ -1462,71 +1318,35 @@ function renderHMO(data = []) {
       : data.filter(org => org.hmoStatus === currentHMOFilter);
 
   if (!filtered.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center;padding:32px;">
-          No records found
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;">No records found</td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered.map(org => `
-
     <tr>
-
       <td class="td-name">
         ${org.name}
         <small>${org.contactEmail || ""}</small>
       </td>
-
       <td>${org.hmoPlan || "—"}</td>
-
       <td>${org.memberCount ?? "—"}</td>
-
       <td>${org.hmoExpiry ? formatDate(org.hmoExpiry) : "—"}</td>
-
       <td>${getHMOBadge(org.hmoStatus)}</td>
-
       <td>
-
-        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">
-          View
-        </button>
-
+        <button class="act-btn" onclick="viewOrgHMO('${org.id}')">View</button>
         ${org.hmoStatus !== "CONFIRMED"
-          ? `
-            <button
-              class="act-btn primary"
-              onclick="confirmHMO('${org.id}')"
-            >
-              Confirm
-            </button>
-          `
+          ? `<button class="act-btn primary" onclick="confirmHMO('${org.id}')">Confirm</button>`
           : ""
         }
-
       </td>
-
     </tr>
-
   `).join("");
 }
 
 function filterHMO(status, el) {
-
   currentHMOFilter = status;
-
-  document.querySelectorAll("#section-hmo .tab")
-    .forEach(tab => tab.classList.remove("active"));
-
-  if (el) {
-    el.classList.add("active");
-  }
-
+  document.querySelectorAll("#section-hmo .tab").forEach(tab => tab.classList.remove("active"));
+  if (el) el.classList.add("active");
   renderHMO(orgsCache);
 }
 
@@ -1535,88 +1355,45 @@ function filterHMO(status, el) {
 ========================= */
 
 function updateDashboardStats() {
+  const statFacilities = document.getElementById("statFacilities");
+  const statOrgs       = document.getElementById("statOrgs");
+  const statHMO        = document.getElementById("statHMO");
+  const statPending    = document.getElementById("statPending");
 
-  const statFacilities =
-    document.getElementById("statFacilities");
-
-  const statOrgs =
-    document.getElementById("statOrgs");
-
-  const statHMO =
-    document.getElementById("statHMO");
-
-  const statPending =
-    document.getElementById("statPending");
-
-  if (statFacilities) {
-    statFacilities.textContent = facilitiesCache.length;
-  }
-
-  if (statOrgs) {
-    statOrgs.textContent = orgsCache.length;
-  }
-
-  if (statHMO) {
-
-    statHMO.textContent =
-      orgsCache.filter(o => o.hmoStatus === "CONFIRMED").length;
-  }
-
-  if (statPending) {
-
-    statPending.textContent =
-      orgsCache.filter(o => o.hmoStatus === "PENDING").length;
-  }
+  if (statFacilities) statFacilities.textContent = facilitiesCache.length;
+  if (statOrgs)       statOrgs.textContent       = orgsCache.length;
+  if (statHMO)        statHMO.textContent        = orgsCache.filter(o => o.hmoStatus === "CONFIRMED").length;
+  if (statPending)    statPending.textContent    = orgsCache.filter(o => o.hmoStatus === "PENDING").length;
 }
 
 /* =========================
-   VIEW HMO
+   VIEW HMO MODAL
 ========================= */
 
 function viewOrgHMO(id) {
-
   const org = orgsCache.find(o => o.id == id);
-
   if (!org) return;
 
   selectedOrgId = id;
 
   const body = document.getElementById("hmoModalBody");
-
   if (!body) return;
 
   body.innerHTML = `
-
     <p><strong>Organisation:</strong> ${org.name}</p>
-
     <p><strong>Contact:</strong> ${org.contactEmail || "—"}</p>
-
     <p><strong>Plan:</strong> ${org.hmoPlan || "—"}</p>
-
     <p><strong>Members:</strong> ${org.memberCount ?? "—"}</p>
-
-    <p><strong>Expiry:</strong>
-      ${org.hmoExpiry ? formatDate(org.hmoExpiry) : "—"}
-    </p>
-
-    <p><strong>Status:</strong>
-      ${getHMOBadge(org.hmoStatus)}
-    </p>
+    <p><strong>Expiry:</strong> ${org.hmoExpiry ? formatDate(org.hmoExpiry) : "—"}</p>
+    <p><strong>Status:</strong> ${getHMOBadge(org.hmoStatus)}</p>
   `;
 
-  const confirmBtn =
-    document.getElementById("confirmHMOBtn");
-
+  const confirmBtn = document.getElementById("confirmHMOBtn");
   if (confirmBtn) {
-
     if (org.hmoStatus === "CONFIRMED") {
-
       confirmBtn.style.display = "none";
-
     } else {
-
       confirmBtn.style.display = "inline-flex";
-
       confirmBtn.onclick = () => confirmHMO(id);
     }
   }
@@ -1629,25 +1406,15 @@ function viewOrgHMO(id) {
 ========================= */
 
 async function confirmHMO(id) {
-
-  const data = await apiRequest(
-
-    `${API_BASE}/rm/organisations/${id}/confirm-hmo`,
-
-    {
-      method: "PUT"
-    }
-  );
-
-  if (!data) return;
-
-  showToast("HMO confirmed successfully", "success");
-
-  closeModal("viewHMOModal");
-
-  loadHMO();
-
-  loadOrganisations();
+  try {
+    await apiRequest(`${API_BASE}/rm/organisations/${id}/confirm-hmo`, { method: "PUT" });
+    showToast("HMO confirmed successfully", "success");
+    closeModal("viewHMOModal");
+    loadHMO();
+    loadOrganisations();
+  } catch {
+    // toast already shown by apiRequest
+  }
 }
 
 /* =========================
@@ -1655,12 +1422,10 @@ async function confirmHMO(id) {
 ========================= */
 
 function openModal(id) {
-
   document.getElementById(id)?.classList.add("show");
 }
 
 function closeModal(id) {
-
   document.getElementById(id)?.classList.remove("show");
 }
 
@@ -1669,33 +1434,25 @@ function openFacilitySelector() {
 }
 
 function openHospitalModal() {
-
   closeModal("facilitySelectorModal");
-
   openModal("hospitalModal");
 }
 
 function openPharmacyModal() {
-
   closeModal("facilitySelectorModal");
-
   openModal("pharmacyModal");
 }
 
 function openLabModal() {
-
   closeModal("facilitySelectorModal");
-
   openModal("labModal");
 }
 
 function openOnboardOrgModal() {
-
   openModal("onboardOrgModal");
 }
 
 window.addEventListener("click", (e) => {
-
   [
     "facilitySelectorModal",
     "hospitalModal",
@@ -1704,11 +1461,7 @@ window.addEventListener("click", (e) => {
     "onboardOrgModal",
     "viewHMOModal"
   ].forEach(id => {
-
-    if (e.target.id === id) {
-
-      closeModal(id);
-    }
+    if (e.target.id === id) closeModal(id);
   });
 });
 
@@ -1717,13 +1470,9 @@ window.addEventListener("click", (e) => {
 ========================= */
 
 function setButtonLoading(buttonId, loading, text = "Submit") {
-
   const btn = document.getElementById(buttonId);
-
   if (!btn) return;
-
   btn.disabled = loading;
-
   btn.textContent = loading ? "Saving..." : text;
 }
 
@@ -1732,55 +1481,33 @@ function setButtonLoading(buttonId, loading, text = "Submit") {
 ========================= */
 
 function resetFacilityForm(modalId) {
-
   const modal = document.getElementById(modalId);
-
   if (!modal) return;
-
-  modal.querySelectorAll("input, textarea, select")
-    .forEach(field => {
-
-      if (field.type === "checkbox") {
-
-        field.checked = false;
-
-      } else {
-
-        field.value = "";
-      }
-    });
+  modal.querySelectorAll("input, textarea, select").forEach(field => {
+    if (field.type === "checkbox") field.checked = false;
+    else field.value = "";
+  });
 }
 
 /* =========================
    UNIVERSAL FACILITY SUBMIT
 ========================= */
 
-async function submitFacility({
-  endpoint,
-  payload,
-  modalId,
-  successMessage,
-  buttonId
-}) {
-
-  const data = await apiRequest(endpoint, {
-
-    method: "POST",
-
-    body: JSON.stringify(payload)
-  });
-
-  setButtonLoading(buttonId, false);
-
-  if (!data) return;
-
-  showToast(successMessage, "success");
-
-  closeModal(modalId);
-
-  resetFacilityForm(modalId);
-
-  loadFacilities();
+async function submitFacility({ endpoint, payload, modalId, successMessage, buttonId }) {
+  try {
+    await apiRequest(endpoint, { method: "POST", body: JSON.stringify(payload) });
+    showToast(successMessage, "success");
+    closeModal(modalId);
+    resetFacilityForm(modalId);
+    loadFacilities();
+  } catch (err) {
+    if (err.validationErrors) {
+      showToast(Object.values(err.validationErrors).join(" | "), "error");
+    }
+    // generic errors already toasted by apiRequest
+  } finally {
+    setButtonLoading(buttonId, false);
+  }
 }
 
 /* =========================
@@ -1788,76 +1515,36 @@ async function submitFacility({
 ========================= */
 
 async function submitHospital() {
-
-  const hospitalName =
-    document.getElementById("f_name").value.trim();
-
-  const address =
-    document.getElementById("f_address").value.trim();
-
-  const phoneNumber =
-    document.getElementById("f_phone").value.trim();
+  const hospitalName = document.getElementById("f_name").value.trim();
+  const address      = document.getElementById("f_address").value.trim();
+  const phoneNumber  = document.getElementById("f_phone").value.trim();
 
   if (!hospitalName || !address || !phoneNumber) {
-
     showToast("Please fill all required fields", "error");
-
     return;
   }
 
   setButtonLoading("addSubmitBtn", true);
 
-  const payload = {
-
-    hospitalName,
-
-    type:
-      document.getElementById("f_type").value,
-
-    status:
-      document.getElementById("f_status").value,
-
-    address,
-
-    areaLga:
-      document.getElementById("f_area").value.trim(),
-
-    phoneNumber,
-
-    email:
-      document.getElementById("f_email").value.trim(),
-
-    contactPerson:
-      document.getElementById("f_contact").value.trim(),
-
-    bedCapacity:
-      parseInt(document.getElementById("f_beds").value) || 0,
-
-    emergencyUnit:
-      document.getElementById("f_emergency").value,
-
-    specialisations:
-      document.getElementById("f_specs")
-        .value
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean),
-
-    notes:
-      document.getElementById("f_notes").value.trim()
-  };
-
   await submitFacility({
-
     endpoint: `${API_BASE}/admin/hospitals`,
-
-    payload,
-
-    modalId: "hospitalModal",
-
+    payload: {
+      hospitalName,
+      type:          document.getElementById("f_type").value,
+      status:        document.getElementById("f_status").value,
+      address,
+      areaLga:       document.getElementById("f_area").value.trim(),
+      phoneNumber,
+      email:         document.getElementById("f_email").value.trim(),
+      contactPerson: document.getElementById("f_contact").value.trim(),
+      bedCapacity:   parseInt(document.getElementById("f_beds").value) || 0,
+      emergencyUnit: document.getElementById("f_emergency").value,
+      specialisations: document.getElementById("f_specs").value.split(",").map(s => s.trim()).filter(Boolean),
+      notes:         document.getElementById("f_notes").value.trim()
+    },
+    modalId:        "hospitalModal",
     successMessage: "Hospital onboarded successfully",
-
-    buttonId: "addSubmitBtn"
+    buttonId:       "addSubmitBtn"
   });
 }
 
@@ -1866,86 +1553,46 @@ async function submitHospital() {
 ========================= */
 
 async function submitPharmacy() {
-
-  const pharmacyName =
-    document.getElementById("f_name").value.trim();
-
-  const address =
-    document.getElementById("f_address").value.trim();
-
-  const phoneNumber =
-    document.getElementById("f_phone").value.trim();
+  const pharmacyName = document.getElementById("f_name").value.trim();
+  const address      = document.getElementById("f_address").value.trim();
+  const phoneNumber  = document.getElementById("f_phone").value.trim();
 
   if (!pharmacyName || !address || !phoneNumber) {
-
     showToast("Please fill all required fields", "error");
-
     return;
   }
 
   setButtonLoading("addSubmitBtn", true);
 
   const services = [];
-
   [
     ["s_24h", "24hr"],
     ["s_delivery", "Home Delivery"],
     ["s_compound", "Compounding"],
     ["s_vaccine", "Vaccinations"]
   ].forEach(([id, value]) => {
-
-    if (document.getElementById(id)?.checked) {
-
-      services.push(value);
-    }
+    if (document.getElementById(id)?.checked) services.push(value);
   });
 
-  const payload = {
-
-    pharmacyName,
-
-    address,
-
-    areaLga:
-      document.getElementById("f_area").value.trim(),
-
-    phoneNumber,
-
-    servicesOffered: services,
-
-    chainBrand:
-      document.getElementById("f_chain").value.trim(),
-
-    status:
-      document.getElementById("f_status").value,
-
-    email:
-      document.getElementById("f_email").value.trim(),
-
-    contactPerson:
-      document.getElementById("f_contact").value.trim(),
-
-    openingHours:
-      document.getElementById("f_hours").value.trim(),
-
-    nafdacRegNo:
-      document.getElementById("f_nafdac").value.trim(),
-
-    notes:
-      document.getElementById("f_notes").value.trim()
-  };
-
   await submitFacility({
-
     endpoint: `${API_BASE}/admin/pharmacies`,
-
-    payload,
-
-    modalId: "pharmacyModal",
-
+    payload: {
+      pharmacyName,
+      address,
+      areaLga:       document.getElementById("f_area").value.trim(),
+      phoneNumber,
+      servicesOffered: services,
+      chainBrand:    document.getElementById("f_chain").value.trim(),
+      status:        document.getElementById("f_status").value,
+      email:         document.getElementById("f_email").value.trim(),
+      contactPerson: document.getElementById("f_contact").value.trim(),
+      openingHours:  document.getElementById("f_hours").value.trim(),
+      nafdacRegNo:   document.getElementById("f_nafdac").value.trim(),
+      notes:         document.getElementById("f_notes").value.trim()
+    },
+    modalId:        "pharmacyModal",
     successMessage: "Pharmacy onboarded successfully",
-
-    buttonId: "addSubmitBtn"
+    buttonId:       "addSubmitBtn"
   });
 }
 
@@ -1954,82 +1601,38 @@ async function submitPharmacy() {
 ========================= */
 
 async function submitLab() {
-
-  const laboratoryName =
-    document.getElementById("f_name").value.trim();
-
-  const address =
-    document.getElementById("f_address").value.trim();
-
-  const phoneNumber =
-    document.getElementById("f_phone").value.trim();
+  const laboratoryName = document.getElementById("f_name").value.trim();
+  const address        = document.getElementById("f_address").value.trim();
+  const phoneNumber    = document.getElementById("f_phone").value.trim();
 
   if (!laboratoryName || !address || !phoneNumber) {
-
     showToast("Please fill all required fields", "error");
-
     return;
   }
 
   setButtonLoading("addSubmitBtn", true);
 
-  const payload = {
-
-    laboratoryName,
-
-    address,
-
-    areaLga:
-      document.getElementById("f_area").value.trim(),
-
-    phoneNumber,
-
-    typeChain:
-      document.getElementById("f_chain").value.trim(),
-
-    accreditationBody:
-      document.getElementById("f_accred").value.trim(),
-
-    status:
-      document.getElementById("f_status").value,
-
-    email:
-      document.getElementById("f_email").value.trim(),
-
-    contactLabManager:
-      document.getElementById("f_contact").value.trim(),
-
-    openingHours:
-      document.getElementById("f_hours").value.trim(),
-
-    turnaroundTime:
-      document.getElementById("f_tat").value.trim(),
-
-    resultDelivery:
-      document.getElementById("f_result").value,
-
-    testsOffered:
-      document.getElementById("f_tests")
-        .value
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean),
-
-    notes:
-      document.getElementById("f_notes").value.trim()
-  };
-
   await submitFacility({
-
     endpoint: `${API_BASE}/admin/laboratories`,
-
-    payload,
-
-    modalId: "labModal",
-
+    payload: {
+      laboratoryName,
+      address,
+      areaLga:             document.getElementById("f_area").value.trim(),
+      phoneNumber,
+      typeChain:           document.getElementById("f_chain").value.trim(),
+      accreditationBody:   document.getElementById("f_accred").value.trim(),
+      status:              document.getElementById("f_status").value,
+      email:               document.getElementById("f_email").value.trim(),
+      contactLabManager:   document.getElementById("f_contact").value.trim(),
+      openingHours:        document.getElementById("f_hours").value.trim(),
+      turnaroundTime:      document.getElementById("f_tat").value.trim(),
+      resultDelivery:      document.getElementById("f_result").value,
+      testsOffered:        document.getElementById("f_tests").value.split(",").map(s => s.trim()).filter(Boolean),
+      notes:               document.getElementById("f_notes").value.trim()
+    },
+    modalId:        "labModal",
     successMessage: "Laboratory onboarded successfully",
-
-    buttonId: "addSubmitBtn"
+    buttonId:       "addSubmitBtn"
   });
 }
 
@@ -2038,57 +1641,66 @@ async function submitLab() {
 ========================= */
 
 async function submitOnboardOrg() {
+  const saveBtn = document.querySelector("#onboardOrgModal .btn-primary");
 
-  const name =
-    document.getElementById("orgName").value.trim();
+  const companyName    = document.getElementById("orgName")?.value.trim();
+  const companyAddress = document.getElementById("nc_address")?.value.trim();
+  const phoneNumber    = document.getElementById("nc_phone")?.value.trim();
+  const industry       = document.getElementById("orgIndustry")?.value.trim();
+  const hrContactName  = document.getElementById("orgContact")?.value.trim();
+  const contactEmail   = document.getElementById("orgEmail")?.value.trim();
+  const companySize    = document.getElementById("companySize")?.value;
+  const startDate      = document.getElementById("nc_start")?.value;
 
-  const industry =
-    document.getElementById("orgIndustry").value.trim();
-
-  const contactPerson =
-    document.getElementById("orgContact").value.trim();
-
-  const contactEmail =
-    document.getElementById("orgEmail").value.trim();
-
-  const hmoPlan =
-    document.getElementById("orgPlan").value;
-
-  const companySize =
-    document.getElementById("companySize").value;
-
-  if (!name || !contactEmail) {
-
-    showToast("Please fill required fields", "error");
-
+  if (!companyName || !companyAddress || !phoneNumber || !contactEmail || !companySize || !hrContactName) {
+    showToast("Please fill all required fields", "error");
     return;
   }
 
-  const data = await apiRequest(
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
+    showToast("Invalid email address", "error");
+    return;
+  }
 
-    `${API_BASE}/rm/organisations`,
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Saving..."; }
 
-    {
+  try {
+    await apiRequest(`${API_BASE}/admin/hmo`, {
       method: "POST",
-
       body: JSON.stringify({
-        name,
-        industry,
-        contactPerson,
-        contactEmail,
-        hmoPlan,
-        companySize
+        companyName,
+        companyAddress,
+        phoneNumber,
+        companySize,
+        industry: industry || "Other",
+        hrContactName,
+        email: contactEmail,
+        startDate,
+        createdBy: "RELATIONSHIP_MANAGER"
       })
+    });
+
+    showToast("Organisation onboarded successfully", "success");
+    closeModal("onboardOrgModal");
+
+    // Reset form
+    ["orgName", "nc_address", "nc_phone", "orgIndustry", "orgContact", "orgEmail", "companySize", "nc_start"]
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+
+    loadOrganisations();
+
+  } catch (err) {
+    if (err.validationErrors) {
+      // Show each field error as a toast
+      Object.values(err.validationErrors).forEach(msg => showToast(msg, "error"));
     }
-  );
-
-  if (!data) return;
-
-  showToast("Organisation onboarded successfully", "success");
-
-  closeModal("onboardOrgModal");
-
-  loadOrganisations();
+    // Generic errors already toasted by apiRequest
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save Organisation"; }
+  }
 }
 
 /* =========================
@@ -2096,96 +1708,37 @@ async function submitOnboardOrg() {
 ========================= */
 
 function getBadge(status) {
-
   switch ((status || "").toUpperCase()) {
-
-    case "ACTIVE":
-
-      return `
-        <span class="badge badge-active">
-          Active
-        </span>
-      `;
-
-    case "INACTIVE":
-
-      return `
-        <span class="badge badge-inactive">
-          Inactive
-        </span>
-      `;
-
-    default:
-
-      return `
-        <span class="badge badge-pending">
-          ${status || "Pending"}
-        </span>
-      `;
+    case "ACTIVE":   return `<span class="badge badge-active">Active</span>`;
+    case "INACTIVE": return `<span class="badge badge-inactive">Inactive</span>`;
+    default:         return `<span class="badge badge-pending">${status || "Pending"}</span>`;
   }
 }
 
 function getHMOBadge(status) {
-
   switch ((status || "").toUpperCase()) {
-
-    case "CONFIRMED":
-
-      return `
-        <span class="badge badge-confirmed">
-          Confirmed
-        </span>
-      `;
-
-    case "PENDING":
-
-      return `
-        <span class="badge badge-pending">
-          Pending
-        </span>
-      `;
-
-    case "INACTIVE":
-
-      return `
-        <span class="badge badge-inactive">
-          Inactive
-        </span>
-      `;
-
-    default:
-
-      return `
-        <span class="badge badge-inactive">
-          ${status || "—"}
-        </span>
-      `;
+    case "CONFIRMED": return `<span class="badge badge-confirmed">Confirmed</span>`;
+    case "PENDING":   return `<span class="badge badge-pending">Pending</span>`;
+    case "INACTIVE":  return `<span class="badge badge-inactive">Inactive</span>`;
+    default:          return `<span class="badge badge-inactive">${status || "—"}</span>`;
   }
 }
 
 function formatDate(date) {
-
   if (!date) return "—";
-
   return new Date(date).toLocaleDateString(undefined, {
-
     day: "numeric",
-
     month: "short",
-
     year: "numeric"
   });
 }
 
 function logout() {
-
   localStorage.removeItem("dh_user");
-
   window.location.href = "../../login.html";
 }
 
 function viewFacility(id) {
-
   showToast(`Viewing facility ${id}`, "info");
 }
 
@@ -2194,33 +1747,16 @@ function viewFacility(id) {
 ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
   const auth = getAuth();
-
   if (!auth) return;
 
-  const avatar =
-    document.getElementById("sidebarAvatar");
+  const avatar = document.getElementById("sidebarAvatar");
+  const name   = document.getElementById("sidebarName");
 
-  const name =
-    document.getElementById("sidebarName");
-
-  if (avatar) {
-
-    avatar.textContent =
-      (auth.email || "RM")
-      .substring(0, 2)
-      .toUpperCase();
-  }
-
-  if (name) {
-
-    name.textContent =
-      auth.email || "Manager";
-  }
+  if (avatar) avatar.textContent = (auth.email || "RM").substring(0, 2).toUpperCase();
+  if (name)   name.textContent   = auth.email || "Manager";
 
   loadFacilities();
-
   loadOrganisations();
 });
 </script>

@@ -234,6 +234,44 @@
       cursor:pointer;
     }
 
+    /* =========================
+   FORM ALERTS
+========================= */
+
+.form-alert {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  animation: fadeIn 0.25s ease;
+}
+
+.form-alert.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.form-alert.success {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  color: #059669;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
     
 
     /* ── FOOTER ── */

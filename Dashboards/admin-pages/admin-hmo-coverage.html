@@ -106,14 +106,7 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr data-status="urgent" data-service="Post-Discharge Recovery">
-              <td><div class="td-name">ABC Healthcare</div></td>
-              <td>1000+</td>
-              <td>Lekki, Lagos</td>
-              <td>ABC@healthcare.com</td>
-              <td>+234 801 234 5678</td>
-              <td><div class="td-actions"><button class="act-btn ">Approve</button><button class="act-btn act-view">Reject</button></div></td>
-            </tr>
+           
             </tbody>
         </table>
       </div>
@@ -272,12 +265,12 @@
         <div class="ae-group"><label>Company Size <span style="color:#ef4444;">*</span></label>
           <select id="nc_size">
             <option value="" disabled selected>Select size range</option>
-            <option>1 – 10 employees</option>
-            <option>11 – 50 employees</option>
-            <option>51 – 100 employees</option>
-            <option>101 – 250 employees</option>
-            <option>251 – 500 employees</option>
-            <option>500+ employees</option>
+            <option value="SIZE_1_10">1 – 10 employees</option>
+            <option value="SIZE_11_50">11 – 50 employees</option>
+            <option value="SIZE_51_100">51 – 100 employees</option>
+            <option value="SIZE_101_250">101 – 250 employees</option>
+            <option value="SIZE_251_500">251 – 500 employees</option>
+            <option value="SIZE_500_PLUS">500+ employees</option>
           </select>
         </div>
         <!-- <div class="ae-group"><label>HMO Plan <span style="color:#ef4444;">*</span></label>
@@ -358,6 +351,67 @@
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   if (!user.loggedIn || user.role !== 'ADMIN') window.location.href = 'login.html';
   function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
+
+
+  async function loadHmoRequests() {
+  const tbody = document.getElementById("tableBody");
+
+  try {
+
+    const auth = getAuth();
+
+    const res = await fetch("https://digihealth-6uy7.onrender.com/api/admin/hmo", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+
+        // 🔴 MOST LIKELY FIX: add auth token
+        "Authorization": `Bearer ${auth.token}`
+      }
+    });
+
+    // ✅ SAFE PARSE (prevents crash)
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      throw new Error("Server returned non-JSON response (likely 403/HTML)");
+    }
+
+    if (!res.ok) {
+      showToast(data.message || "Failed to load HMO requests");
+      console.log("Backend error:", data);
+      return;
+    }
+
+    const requests = Array.isArray(data)
+      ? data
+      : data.data || [];
+
+    tbody.innerHTML = requests.map(req => `
+      <tr>
+        <td><div class="td-name">${req.companyName || "—"}</div></td>
+        <td>${req.companySize || "—"}</td>
+        <td>${req.companyAddress || "—"}</td>
+        <td>${req.email || "—"}</td>
+        <td>${req.phoneNumber || "—"}</td>
+        <td>
+          <div class="td-actions">
+            <button class="act-btn" onclick="approveRequest('${req.id || ""}')">Approve</button>
+            <button class="act-btn act-view" onclick="rejectRequest('${req.id || ""}')">Reject</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+    document.getElementById("rowCount").textContent =
+      `${requests.length} requests`;
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || "Network error loading HMO requests");
+  }
+}
  
   // ── DATA ──
   const companies = [
@@ -565,36 +619,126 @@
     document.getElementById('addCompanyModal').classList.add('open');
   }
  
-  function saveCompany() {
-    const name = document.getElementById('nc_name').value.trim();
-    const email = document.getElementById('nc_email').value.trim();
-    const phone = document.getElementById('nc_phone').value.trim();
-    const address = document.getElementById('nc_address').value.trim();
-    const size = document.getElementById('nc_size').value;
-    const plan = document.getElementById('nc_plan').value;
-    if (!name || !email || !phone || !address || !size || !plan) {
-      showToast('Please fill in all required fields.');
+  async function saveCompany() {
+
+  const auth = getAuth();
+  if (!auth) return;
+
+  const companyName = document.getElementById('nc_name').value.trim();
+  const email = document.getElementById('nc_email').value.trim();
+  const phoneNumber = document.getElementById('nc_phone').value.trim();
+  const companyAddress = document.getElementById('nc_address').value.trim();
+  const companySize = document.getElementById('nc_size').value;
+
+  if (
+    !companyName ||
+    !email ||
+    !phoneNumber ||
+    !companyAddress ||
+    !companySize
+  ) {
+    showToast('Please fill in all required fields.');
+    return;
+  }
+
+  const payload = {
+    companyName,
+    email,
+    phoneNumber,
+    companyAddress,
+    companySize,
+
+    industry: document.getElementById('nc_industry').value || 'Other',
+
+    hrContactName:
+      document.getElementById('nc_contact').value || '—',
+
+    createdBy: "ADMIN"
+  };
+
+  try {
+
+    const saveBtn = document.querySelector(
+      '#addCompanyModal .btn-modal-primary'
+    );
+
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+    }
+
+    const res = await fetch(
+      "https://digihealth-6uy7.onrender.com/api/admin/hmo",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${auth.token}`
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    let data = {};
+
+    try {
+      data = await res.json();
+    } catch (e) {}
+
+    if (!res.ok) {
+      console.error("Backend Error:", data);
+      showToast(data.message || "Failed to create company");
       return;
     }
-    const newCo = {
-      id: companies.length + 1, name, email, phone, address, size,
-      industry: document.getElementById('nc_industry').value || 'Other',
-      contact: document.getElementById('nc_contact').value || '—',
-      plan, employees: 0,
-      premium: parseInt(document.getElementById('nc_premium').value) || 0,
-      status: 'pending',
-      since: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
-      nextBilling: '1 May 2026'
-    };
-    companies.push(newCo);
-    // Add to employee company filter
-    const opt = document.createElement('option');
-    opt.value = newCo.name; opt.textContent = newCo.name;
-    document.getElementById('empCompanyFilter').appendChild(opt);
+
+    // Update UI immediately
+    companies.unshift({
+      id: data.id || Date.now(),
+      name: data.companyName || companyName,
+      email: data.email || email,
+      phone: data.phoneNumber || phoneNumber,
+      address: data.companyAddress || companyAddress,
+      size: data.companySize || companySize,
+      industry: data.industry || "Other",
+      contact: data.hrContactName || "—",
+      employees: data.employees || 0,
+      status: data.status || "pending",
+      since: "Now",
+      nextBilling: data.nextBilling || "Pending"
+    });
+
     renderCompanies(companies);
-    closeModal('addCompanyModal');
-    showToast('✅ ' + name + ' added successfully!');
+
+    // update dropdown
+    const opt = document.createElement("option");
+    opt.value = companyName;
+    opt.textContent = companyName;
+
+    document
+      .getElementById("empCompanyFilter")
+      .appendChild(opt);
+
+    closeModal("addCompanyModal");
+
+    showToast(`✅ ${companyName} created successfully`);
+
+  } catch (err) {
+
+    console.error(err);
+    showToast(err.message || "Network error");
+
+  } finally {
+
+    const saveBtn = document.querySelector(
+      '#addCompanyModal .btn-modal-primary'
+    );
+
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Company";
+    }
   }
+}
  
   // ── ADD EMPLOYEE ──
   function openAddEmployee(companyName) {
@@ -669,6 +813,44 @@
   });
   renderCompanies(companies);
   renderEmployees(employees);
+
+  document.addEventListener("DOMContentLoaded", loadHmoRequests);
+
+
+  function getAuth() {
+
+  try {
+
+    const user = JSON.parse(
+      localStorage.getItem("dh_user")
+    );
+
+    if (!user || !user.token) {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    if (user.role !== "ADMIN") {
+      localStorage.removeItem("dh_user");
+      window.location.href = "../../login.html";
+      return null;
+    }
+
+    return {
+      token: user.token,
+      role: user.role
+    };
+
+  } catch (err) {
+
+    localStorage.removeItem("dh_user");
+
+    window.location.href = "../../login.html";
+
+    return null;
+  }
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Care Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 240px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 12px 6px 6px; }
+    .u-avatar { width: 26px; height: 26px; background: var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* BADGE */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-done { background: #f0fdf4; color: var(--green-dark); } .badge-done::before { background: var(--green); }
+    .badge-new  { background: #eff6ff; color: #2563eb; }           .badge-new::before  { background: #3b82f6; }
+
+    /* INFO BANNER */
+    .info-banner { background: linear-gradient(135deg, #0c1a3a 0%, #1a2d6b 100%); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; position: relative; overflow: hidden; }
+    .info-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(34,197,94,0.1) 0%, transparent 60%); pointer-events: none; }
+    .ib-icon { width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ib-icon svg { width: 20px; height: 20px; stroke: #c5cde8; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .ib-text { flex: 1; position: relative; }
+    .ib-text h3 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .ib-text p { font-size: 12.5px; color: #8898c8; line-height: 1.5; }
+    .ib-stats { display: flex; gap: 24px; flex-shrink: 0; position: relative; flex-wrap: wrap; }
+    .ib-stat { text-align: center; }
+    .ib-stat-val { font-size: 22px; font-weight: 700; color: #fff; }
+    .ib-stat-lbl { font-size: 11px; color: #7888b8; margin-top: 1px; }
+
+    /* LAYOUT */
+    .page-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 14px; flex: 1; min-width: 200px; }
+    .search-box svg { width: 15px; height: 15px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .search-box input { border: none; outline: none; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .search-box input::placeholder { color: #b0b8d0; }
+    .filter-select { border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 32px 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+    /* REPORT CARDS */
+    .reports-list { display: flex; flex-direction: column; gap: 14px; }
+    .report-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s, transform .15s; cursor: pointer; }
+    .report-card:hover { box-shadow: 0 6px 22px rgba(26,37,80,0.09); transform: translateY(-1px); }
+    .rc-accent { height: 4px; background: linear-gradient(90deg, #1a2550, #2a3f8a); }
+    .rc-body { padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; }
+    .rc-icon { width: 44px; height: 44px; background: #f0f2fb; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rc-icon svg { width: 20px; height: 20px; stroke: var(--navy); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .rc-info { flex: 1; }
+    .rc-info h3 { font-size: 14.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .rc-nurse { font-size: 12.5px; color: #8898c8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .rc-nurse-av { width: 20px; height: 20px; background: var(--green-dark); border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 700; flex-shrink: 0; }
+    .rc-vitals { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .rc-vital { font-size: 11.5px; background: #f0f2fb; color: #5a6690; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-family: monospace; }
+    .rc-preview { font-size: 12.5px; color: #7a84a8; line-height: 1.5; }
+    .rc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .rc-date { font-size: 12px; color: #b0b8d0; }
+    .rc-actions { display: flex; gap: 7px; }
+    .rc-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .rc-btn-view { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; }
+    .rc-btn-view:hover { background: #e8eaf4; }
+    .rc-btn-dl { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .rc-btn-dl:hover { background: var(--blue-light); }
+
+    /* CONDITION TAG */
+    .condition-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 5px; }
+    .ct-improving { background: #f0fdf4; color: var(--green-dark); }
+    .ct-stable    { background: #f0f2fb; color: #5a6690; }
+    .ct-flag      { background: #fff7ed; color: #c2410c; }
+
+    /* RIGHT PANEL */
+    .right-panel { display: flex; flex-direction: column; gap: 16px; }
+    .panel-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .panel-header { padding: 14px 18px; border-bottom: 1px solid #f0f2fb; }
+    .panel-header h3 { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+    .panel-header p { font-size: 12px; color: #8898c8; margin-top: 2px; }
+
+    /* FOLLOW-UP LIST */
+    .followup-item { display: flex; align-items: flex-start; gap: 9px; padding: 9px 18px; border-bottom: 1px solid #f5f6fc; }
+    .followup-item:last-child { border-bottom: none; }
+    .fi-check { width: 20px; height: 20px; background: #f0fdf4; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .fi-check svg { width: 10px; height: 10px; stroke: var(--green-dark); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .fi-text { font-size: 13px; color: #3a4570; line-height: 1.55; }
+
+    /* MEDICATIONS */
+    .med-item { display: flex; align-items: center; gap: 10px; padding: 11px 18px; border-bottom: 1px solid #f5f6fc; }
+    .med-item:last-child { border-bottom: none; }
+    .med-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .med-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 1px; }
+    .med-dose { font-size: 11.5px; color: #8898c8; }
+    .med-freq { font-size: 11px; background: #f0f2fb; color: #5a6690; padding: 2px 7px; border-radius: 4px; font-weight: 600; margin-left: auto; }
+
+    /* NURSE NOTES */
+    .note-item { padding: 12px 18px; border-bottom: 1px solid #f5f6fc; }
+    .note-item:last-child { border-bottom: none; }
+    .note-date { font-size: 10.5px; font-weight: 700; color: #b0b8d0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .note-text { font-size: 13px; color: #5a6690; line-height: 1.6; }
+
+    /* ESCALATION */
+    .escalation { background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 9px; padding: 14px 16px; display: flex; gap: 10px; }
+    .esc-icon { width: 32px; height: 32px; background: rgba(254,215,170,0.4); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .esc-icon svg { width: 16px; height: 16px; stroke: #c2410c; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .esc-text h4 { font-size: 13px; font-weight: 700; color: #c2410c; margin-bottom: 3px; }
+    .esc-text p { font-size: 12px; color: #9a3412; line-height: 1.5; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 640px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 26px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 22px 26px 26px; }
+    .report-section { margin-bottom: 22px; }
+    .report-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid #f0f2fb; }
+    .report-row { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f5f6fc; }
+    .report-row:last-child { border-bottom: none; }
+    .report-label { width: 160px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .report-value { font-size: 13px; color: var(--navy); line-height: 1.6; }
+    .vitals-inline { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .vi-tag { background: #f0f2fb; border: 1px solid #e0e4f0; color: var(--navy); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; }
+    .modal-footer { padding: 16px 26px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-close { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-dl { background: var(--navy); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 7px; }
+    .btn-modal-dl svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 56px 24px; }
+    .empty-state svg { stroke: #c8d6e8; fill: none; stroke-width: 1.5; margin-bottom: 14px; }
+    .empty-state h4 { font-size: 15px; font-weight: 700; color: #8898c8; margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: #b0b8d0; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1100px) { .page-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .rc-body { flex-wrap: wrap; } .rc-right { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; } }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../../Dashboards/dashboard-patient.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Patient Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../../Dashboards/dashboard-patient.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="patient-bookings.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Bookings</a>
+    <a class="nav-item" href="patient-care-history.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Care History</a>
+    <a class="nav-item active" href="patient-care-reports.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" href="patient-profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+    <a class="nav-item" href="home-health-contact.html"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>Contact Support</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Care Reports</h1><p>Detailed visit reports from your nurse</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">AO</div><span>Amara Osei</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Info banner -->
+    <div class="info-banner">
+      <div class="ib-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+      <div class="ib-text">
+        <h3>Your Care Reports</h3>
+        <p>After every visit, your nurse submits a detailed report covering vitals, care provided, observations and your follow-up plan. View and download each one below.</p>
+      </div>
+      <div class="ib-stats">
+        <div class="ib-stat"><div class="ib-stat-val" id="totalCount">—</div><div class="ib-stat-lbl">Total Reports</div></div>
+        <div class="ib-stat"><div class="ib-stat-val" id="newCount">—</div><div class="ib-stat-lbl">New This Week</div></div>
+      </div>
+    </div>
+
+    <div class="page-grid">
+
+      <!-- LEFT — Reports List -->
+      <div>
+        <div class="toolbar">
+          <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search reports..." oninput="filterReports(this.value)" /></div>
+          <select class="filter-select" onchange="filterByMonth(this.value)">
+            <option value="">All Months</option>
+            <option value="Apr 2026">April 2026</option>
+            <option value="Mar 2026">March 2026</option>
+          </select>
+        </div>
+        <div class="reports-list" id="reportsList"></div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+
+        <!-- Latest Follow-up -->
+        <div class="panel-card">
+          <div class="panel-header"><h3>Latest Follow-up Instructions</h3><p>From Nurse Blessing · 22 Apr 2026</p></div>
+          <div>
+            <div class="followup-item"><div class="fi-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="fi-text">Continue Amlodipine 5mg daily without missing a dose</span></div>
+            <div class="followup-item"><div class="fi-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="fi-text">Change wound dressing every 2 days</span></div>
+            <div class="followup-item"><div class="fi-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="fi-text">Monitor blood pressure daily — alert nurse if above 140/90</span></div>
+            <div class="followup-item"><div class="fi-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="fi-text">Reduce salt intake and increase fluid to 2L per day</span></div>
+          </div>
+        </div>
+
+        <!-- Active Medications -->
+        <div class="panel-card">
+          <div class="panel-header"><h3>Active Medications</h3><p>As per last visit report</p></div>
+          <div>
+            <div class="med-item"><div class="med-dot" style="background:#3b82f6;"></div><div style="flex:1;"><div class="med-name">Amlodipine 5mg</div><div class="med-dose">Blood pressure · Oral</div></div><span class="med-freq">Once daily</span></div>
+            <div class="med-item"><div class="med-dot" style="background:#9333ea;"></div><div style="flex:1;"><div class="med-name">Metronidazole 400mg</div><div class="med-dose">Wound care · Oral</div></div><span class="med-freq">3× daily</span></div>
+            <div class="med-item"><div class="med-dot" style="background:#f97316;"></div><div style="flex:1;"><div class="med-name">Paracetamol 500mg</div><div class="med-dose">Pain relief · As needed</div></div><span class="med-freq">PRN</span></div>
+          </div>
+        </div>
+
+        <!-- Flagged Note -->
+        <div class="escalation">
+          <div class="esc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="esc-text">
+            <h4>Nurse's Flag — 19 Apr 2026</h4>
+            <p>BP elevated at 134/86. Flagged to admin for review. Contact DiGi Health if BP exceeds 140/90.</p>
+          </div>
+        </div>
+
+        <!-- Nurse Notes -->
+        <div class="panel-card">
+          <div class="panel-header"><h3>Nurse's General Notes</h3><p>Ongoing observations</p></div>
+          <div>
+            <div class="note-item"><div class="note-date">22 Apr 2026</div><div class="note-text">Wound healing well. No signs of infection. Pain level 2/10. Patient alert and improving.</div></div>
+            <div class="note-item"><div class="note-date">19 Apr 2026</div><div class="note-text">BP slightly elevated. Medication reviewed. Advised patient to rest more and reduce salt.</div></div>
+            <div class="note-item"><div class="note-date">15 Apr 2026</div><div class="note-text">Initial care plan established. Patient recovering well. Family supportive and engaged.</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT DETAIL MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="reportModalTitle">Visit Report</h2>
+      <button class="modal-close" onclick="document.getElementById('reportModal').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="reportModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="document.getElementById('reportModal').classList.remove('open')">Close</button>
+      <button class="btn-modal-dl" onclick="showToast('Report downloaded.')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+  /* ── AUTH ── */
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  //if (!user.loggedIn || user.role !== 'patient') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+
+  /* ── API CONFIG ── */
+  const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
+  const USE_API  = false; // 🔧 Set true when backend is ready
+
+  async function apiFetch(path, options = {}) {
+    const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+    const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+    const res = await fetch(API_BASE + path, { ...options, headers });
+    if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  /* ── MOCK DATA ── */
+  const MOCK_REPORTS = [
+    { id:1, date:'22 Apr 2026', month:'Apr 2026', title:'Wound Care & Medication Check', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'8:30 AM – 9:45 AM', location:'Egbeda, Lagos', isNew:true, vitals:{ bp:'128/82', hr:'76', temp:'36.5', spo2:'98', weight:'62' }, activities:'Wound dressing, Medication administration, Vital signs monitoring', meds:'Amlodipine 5mg — confirmed taken, Metronidazole 400mg — confirmed taken', observations:'Wound healing well. No signs of infection. Slight redness at edges — monitored. Pain level 2/10. Appetite improving.', condition:'Improving — on track', followup:'Continue current medication. Change dressing every 2 days. Monitor BP daily.', escalation:'None', preview:'Wound healing well. BP 128/82. Medication confirmed taken.' },
+    { id:2, date:'19 Apr 2026', month:'Apr 2026', title:'Vital Signs Monitoring', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'9:00 AM – 10:00 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'134/86', hr:'78', temp:'36.6', spo2:'97', weight:'62' }, activities:'Vital signs monitoring, Medication administration, Wound dressing', meds:'Amlodipine 5mg — dose reviewed', observations:'BP elevated at 134/86. Wound dressing changed. Mild swelling noted. Patient reported headache. Medication adjusted per care plan.', condition:'Stable — no change', followup:'Monitor BP daily. Alert admin if BP exceeds 140/90. Reduce salt intake.', escalation:'BP elevated — flagged to admin for review.', preview:'BP elevated at 134/86. Wound dressing changed. Flagged to admin.' },
+    { id:3, date:'15 Apr 2026', month:'Apr 2026', title:'Post-Discharge Assessment', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'10:00 AM – 11:30 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'130/84', hr:'74', temp:'36.7', spo2:'97', weight:'62' }, activities:'Wound dressing, Vital signs monitoring, Patient education, Family education', meds:'Amlodipine 5mg, Metronidazole 400mg', observations:'Post-appendectomy. Wound is clean. No signs of infection. Patient slightly anxious but cooperative. Family present and engaged.', condition:'Stable — no change', followup:'Continue wound care 3× weekly. Family educated on wound signs. Next visit in 4 days.', escalation:'None', preview:'Post-appendectomy assessment. Wound clean. Family educated on care.' },
+    { id:4, date:'12 Apr 2026', month:'Apr 2026', title:'Wound Dressing & BP Check', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'8:30 AM – 9:30 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'136/88', hr:'80', temp:'36.8', spo2:'97', weight:'62' }, activities:'Wound dressing, Vital signs monitoring, Medication administration', meds:'Amlodipine 5mg, Paracetamol 500mg PRN', observations:'Wound showing early signs of healing. Some discomfort at incision site. Pain reported at 4/10. BP slightly elevated.', condition:'Stable — no change', followup:'Pain management with Paracetamol as needed. Continue dressing changes.', escalation:'None', preview:'Wound healing. Pain level 4/10. Paracetamol PRN advised.' },
+    { id:5, date:'8 Apr 2026', month:'Apr 2026', title:'Wound Care', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'9:00 AM – 10:00 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'138/90', hr:'82', temp:'37.0', spo2:'97', weight:'63' }, activities:'Wound dressing, Vital signs monitoring', meds:'Amlodipine 5mg', observations:'6 days post-discharge. Wound stable. No infection. Temperature slightly elevated but within normal range.', condition:'Stable — no change', followup:'Continue wound care. Increase fluid intake. Rest advised.', escalation:'None', preview:'6 days post-discharge. Wound stable. Temperature normal. Rest advised.' },
+    { id:6, date:'5 Apr 2026', month:'Apr 2026', title:'Medication Review', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'8:30 AM – 9:30 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'140/90', hr:'84', temp:'36.9', spo2:'96', weight:'63' }, activities:'Medication administration, Vital signs monitoring, Patient education', meds:'Amlodipine 5mg, Metronidazole 400mg', observations:'3 days post-discharge. BP borderline. Patient slightly fatigued. Medications confirmed administered. Patient and family briefed on medication schedule.', condition:'Stable — no change', followup:'Strict medication adherence. Low-sodium diet. Rest.', escalation:'BP 140/90 — borderline. Monitoring closely.', preview:'BP borderline 140/90. Medication confirmed. Family briefed on schedule.' },
+    { id:7, date:'3 Apr 2026', month:'Apr 2026', title:'Initial Care Visit', nurse:'Nurse Blessing Adeyemi', nurseInit:'BA', time:'9:00 AM – 10:30 AM', location:'Egbeda, Lagos', isNew:false, vitals:{ bp:'142/92', hr:'86', temp:'37.1', spo2:'96', weight:'63' }, activities:'Wound dressing, Vital signs monitoring, Patient education, Family education', meds:'Amlodipine 5mg, Metronidazole 400mg — commenced', observations:'Day 1 post-discharge. Appendectomy wound assessed — clean, sutured. Patient in mild pain (5/10). BP elevated — medication commenced. Family present and supportive.', condition:'Stable — post-operative', followup:'Daily medication as prescribed. Wound dressing every 2 days. No strenuous activity.', escalation:'BP elevated — commenced Amlodipine. Admin notified.', preview:'Day 1 post-discharge. Wound assessed. Medication commenced. BP elevated — admin notified.' },
+    { id:8, date:'29 Mar 2026', month:'Mar 2026', title:'Pre-Discharge Briefing', nurse:'Admin Team', nurseInit:'AT', time:'2:00 PM – 2:30 PM', location:'Lagos Island General Hospital', isNew:false, vitals:{ bp:'148/96', hr:'90', temp:'37.2', spo2:'95', weight:'63' }, activities:'Pre-discharge briefing, Medication counselling, Care plan introduction', meds:'Amlodipine 5mg — prescribed on discharge', observations:'Patient briefed on home care plan. Wound management instructions given. Emergency contact numbers provided.', condition:'Stable — post-operative', followup:'Follow care plan strictly. First home visit on 3 Apr. Call DiGi Health if any concerns.', escalation:'None', preview:'Pre-discharge briefing. Care plan introduced. First home visit scheduled for 3 Apr.' },
+  ];
+
+  let reports = [...MOCK_REPORTS];
+  let searchFilter = '';
+  let monthFilter  = '';
+
+  /* ── LOAD ── */
+  async function loadReports() {
+    if (USE_API) {
+      try {
+        const data = await apiFetch('/patients/me/care-reports');
+        reports = data;
+      } catch (err) {
+        console.warn('API unavailable, using mock data.', err);
+        reports = MOCK_REPORTS;
+      }
+    }
+    document.getElementById('totalCount').textContent = reports.length;
+    document.getElementById('newCount').textContent   = reports.filter(r => r.isNew).length;
+    renderReports();
+  }
+
+  /* ── FILTER ── */
+  function filterReports(val) { searchFilter = val.toLowerCase(); renderReports(); }
+  function filterByMonth(val) { monthFilter  = val; renderReports(); }
+
+  /* ── RENDER ── */
+  function renderReports() {
+    const filtered = reports.filter(r => {
+      const ms = !searchFilter || r.title.toLowerCase().includes(searchFilter) || r.nurse.toLowerCase().includes(searchFilter) || r.preview.toLowerCase().includes(searchFilter);
+      const mm = !monthFilter  || r.month === monthFilter;
+      return ms && mm;
+    });
+
+    const list = document.getElementById('reportsList');
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><h4>No reports found</h4><p>Try adjusting your search or filters.</p></div>`;
+      return;
+    }
+
+    const condMap = { 'Improving — on track':'ct-improving', 'Stable — no change':'ct-stable', 'Stable — post-operative':'ct-stable' };
+
+    list.innerHTML = filtered.map(r => {
+      const condCls  = condMap[r.condition] || 'ct-stable';
+      const newBadge = r.isNew ? `<span class="badge badge-new" style="margin-left:8px;">New</span>` : '';
+      const flagged  = r.escalation && r.escalation !== 'None';
+
+      return `
+      <div class="report-card" onclick="openReport(${r.id})">
+        <div class="rc-accent" style="background:${flagged ? 'linear-gradient(90deg,#f97316,#ef4444)' : 'linear-gradient(90deg,#1a2550,#2a3f8a)'};"></div>
+        <div class="rc-body">
+          <div class="rc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="rc-info">
+            <h3>${r.title} ${newBadge}</h3>
+            <div class="rc-nurse"><div class="rc-nurse-av">${r.nurseInit}</div>${r.nurse}</div>
+            <div class="rc-vitals">
+              <span class="rc-vital">BP: ${r.vitals.bp}</span>
+              <span class="rc-vital">HR: ${r.vitals.hr}</span>
+              <span class="rc-vital">Temp: ${r.vitals.temp}°C</span>
+              <span class="rc-vital">SpO₂: ${r.vitals.spo2}%</span>
+              <span class="condition-tag ${condCls}">${r.condition}</span>
+              ${flagged ? `<span class="condition-tag ct-flag">⚠ Flagged</span>` : ''}
+            </div>
+            <div class="rc-preview">${r.preview}</div>
+          </div>
+          <div class="rc-right">
+            <div class="rc-date">${r.date}</div>
+            <div class="rc-actions">
+              <button class="rc-btn rc-btn-view" onclick="event.stopPropagation(); openReport(${r.id})">View</button>
+              <button class="rc-btn rc-btn-dl"   onclick="event.stopPropagation(); showToast('Report downloaded.')">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── OPEN REPORT ── */
+  function openReport(id) {
+    const r = reports.find(x => x.id === id);
+    r.isNew = false;
+    document.getElementById('totalCount').textContent = reports.length;
+    document.getElementById('newCount').textContent   = reports.filter(x => x.isNew).length;
+
+    document.getElementById('reportModalTitle').textContent = r.title + ' — ' + r.date;
+    document.getElementById('reportModalBody').innerHTML = `
+      <div class="report-section"><h4>Visit Information</h4>
+        <div class="report-row"><span class="report-label">Date</span><span class="report-value">${r.date}</span></div>
+        <div class="report-row"><span class="report-label">Time</span><span class="report-value">${r.time}</span></div>
+        <div class="report-row"><span class="report-label">Nurse</span><span class="report-value">${r.nurse}</span></div>
+        <div class="report-row"><span class="report-label">Location</span><span class="report-value">${r.location}</span></div>
+      </div>
+      <div class="report-section"><h4>Vital Signs</h4>
+        <div class="vitals-inline">
+          <span class="vi-tag">BP: ${r.vitals.bp} mmHg</span>
+          <span class="vi-tag">HR: ${r.vitals.hr} bpm</span>
+          <span class="vi-tag">Temp: ${r.vitals.temp}°C</span>
+          <span class="vi-tag">SpO₂: ${r.vitals.spo2}%</span>
+          <span class="vi-tag">Weight: ${r.vitals.weight} kg</span>
+        </div>
+      </div>
+      <div class="report-section"><h4>Care Provided</h4>
+        <div class="report-row"><span class="report-label">Activities</span><span class="report-value">${r.activities}</span></div>
+        <div class="report-row"><span class="report-label">Medications</span><span class="report-value">${r.meds}</span></div>
+      </div>
+      <div class="report-section"><h4>Clinical Observations</h4>
+        <p style="font-size:13.5px;color:#3a4570;line-height:1.7;">${r.observations}</p>
+      </div>
+      <div class="report-section"><h4>Assessment & Follow-up Plan</h4>
+        <div class="report-row"><span class="report-label">Patient Condition</span><span class="report-value">${r.condition}</span></div>
+        <div class="report-row"><span class="report-label">Follow-up</span><span class="report-value">${r.followup}</span></div>
+        <div class="report-row"><span class="report-label">Escalation / Flags</span><span class="report-value" style="${r.escalation !== 'None' ? 'color:#c2410c;font-weight:600;' : ''}">${r.escalation}</span></div>
+        <div class="report-row"><span class="report-label">Signed by</span><span class="report-value">${r.nurse}</span></div>
+      </div>
+    `;
+    document.getElementById('reportModal').classList.add('open');
+    renderReports();
+  }
+
+  document.getElementById('reportModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('reportModal')) document.getElementById('reportModal').classList.remove('open');
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  loadReports();
+</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Care History</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 240px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 34px; height: 34px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 11px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 12px 6px 6px; }
+    .u-avatar { width: 26px; height: 26px; background: var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 20px; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+    .c-blue .stat-icon { background: #eff6ff; } .c-blue .stat-icon svg { stroke: #3b82f6; }
+    .c-green .stat-icon { background: #f0fdf4; } .c-green .stat-icon svg { stroke: var(--green-dark); }
+    .c-purple .stat-icon { background: #faf5ff; } .c-purple .stat-icon svg { stroke: #9333ea; }
+    .c-navy .stat-icon { background: #f0f2fb; } .c-navy .stat-icon svg { stroke: var(--navy); }
+
+    /* LAYOUT */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+    .card:last-child { margin-bottom: 0; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .card-header .ch-sub { font-size: 12px; color: #8898c8; }
+    .chart-wrap { padding: 20px; height: 220px; position: relative; }
+
+    /* VITALS TREND */
+    .vitals-tabs { display: flex; gap: 6px; padding: 12px 16px 0; }
+    .vitals-tab { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid #e0e4f0; background: #f8f9fc; color: #8898c8; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .vitals-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* CARE PLAN */
+    .care-plan { padding: 16px 20px; }
+    .cp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .cp-icon { width: 40px; height: 40px; background: #f0fdf4; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .cp-icon svg { width: 18px; height: 18px; stroke: var(--green-dark); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .cp-info h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .cp-info p { font-size: 12.5px; color: #8898c8; }
+    .cp-progress-wrap { margin-bottom: 16px; }
+    .cp-progress-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; }
+    .cp-progress-label span { font-weight: 600; color: var(--navy); }
+    .cp-progress-label small { color: #8898c8; }
+    .cp-bar { height: 10px; background: #eef0f8; border-radius: 5px; overflow: hidden; }
+    .cp-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--green), var(--green-dark)); transition: width .6s ease; }
+    .cp-milestones { display: flex; flex-direction: column; gap: 8px; }
+    .cp-milestone { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; background: #f8f9fc; }
+    .cp-milestone.done { background: #f0fdf4; }
+    .cp-milestone.active { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .cp-milestone.pending { opacity: 0.5; }
+    .cm-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cm-icon.done { background: var(--green); }
+    .cm-icon.active { background: #3b82f6; }
+    .cm-icon.pending { background: #e0e4f0; }
+    .cm-icon svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cm-text { font-size: 13px; font-weight: 600; color: var(--navy); flex: 1; }
+    .cm-date { font-size: 11.5px; color: #8898c8; }
+
+    /* TIMELINE */
+    .timeline { padding: 16px 20px; }
+    .tl-month { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin: 14px 0 10px; }
+    .tl-month:first-child { margin-top: 0; }
+    .tl-item { display: flex; gap: 12px; padding: 10px 0; position: relative; }
+    .tl-item::before { content: ''; position: absolute; left: 13px; top: 28px; bottom: -10px; width: 1.5px; background: #eef0f8; }
+    .tl-item:last-child::before { display: none; }
+    .tl-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; }
+    .tl-dot.completed { background: #f0fdf4; border: 2px solid var(--green); }
+    .tl-dot.cancelled { background: #fef2f2; border: 2px solid #ef4444; }
+    .tl-dot svg { width: 12px; height: 12px; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .tl-dot.completed svg { stroke: var(--green-dark); }
+    .tl-dot.cancelled svg { stroke: #dc2626; }
+    .tl-info { flex: 1; padding-top: 4px; }
+    .tl-info h4 { font-size: 13.5px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .tl-info p { font-size: 12px; color: #8898c8; margin-bottom: 4px; }
+    .tl-vitals { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tl-vital { font-size: 11.5px; background: #f0f2fb; color: #5a6690; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-family: monospace; }
+
+    /* VITALS CARDS */
+    .vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 20px; }
+    .vital-card { background: #f8f9fc; border-radius: 8px; padding: 14px; }
+    .vc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #b0b8d0; margin-bottom: 6px; }
+    .vc-value { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .vc-unit { font-size: 11.5px; color: #8898c8; }
+    .vc-trend { font-size: 11.5px; font-weight: 600; margin-top: 4px; }
+    .vc-trend.up { color: #f97316; }
+    .vc-trend.down { color: var(--green-dark); }
+    .vc-trend.stable { color: #8898c8; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #f0f2fb; flex-wrap: wrap; }
+    .search-sm { display: flex; align-items: center; gap: 7px; background: #f8f9fc; border: 1.5px solid #e8eaf4; border-radius: 7px; padding: 7px 11px; flex: 1; min-width: 160px; }
+    .search-sm svg { width: 13px; height: 13px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .search-sm input { border: none; outline: none; font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .search-sm input::placeholder { color: #c0c8d8; }
+    .filter-sm { border: 1.5px solid #e8eaf4; border-radius: 7px; padding: 7px 26px 7px 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: #f8f9fc; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+    .btn-export { display: flex; align-items: center; gap: 6px; background: var(--white); border: 1.5px solid #dde0ee; color: var(--navy); padding: 7px 13px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .btn-export:hover { border-color: var(--navy); }
+    .btn-export svg { width: 13px; height: 13px; stroke: var(--navy); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } .vitals-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .vitals-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../../Dashboards/dashboard-patient.html"><div class="s-logo">DH</div><div class="s-brand-text"><strong>DiGi Health</strong><span>Patient Portal</span></div></a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../../Dashboards/dashboard-patient.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="patient-bookings.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Bookings</a>
+    <a class="nav-item active" href="patient-care-history.html"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Care History</a>
+    <a class="nav-item" href="patient-care-reports.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Reports</a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" href="patient-profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+    <a class="nav-item" href="home-health-contact.html"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.42 2 2 0 0 1 3.62 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>Contact Support</a>
+  </nav>
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Care History</h1><p>Your health journey with DiGi Health</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">AO</div><span>Amara Osei</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card c-blue"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div><div class="stat-value">12</div><div class="stat-label">Total Visits</div></div>
+      <div class="stat-card c-green"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="stat-value">11</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card c-purple"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div></div><div class="stat-value">4</div><div class="stat-label">Weeks on Plan</div></div>
+      <div class="stat-card c-navy"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div></div><div class="stat-value">Improving</div><div class="stat-label">Overall Health Trend</div></div>
+    </div>
+
+    <!-- Care plan + Vitals latest -->
+    <div class="grid-2">
+
+      <!-- Care Plan Progress -->
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header"><h3>Care Plan Progress</h3><span class="ch-sub">6-Week Post-Discharge Recovery</span></div>
+        <div class="care-plan">
+          <div class="cp-header">
+            <div class="cp-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div class="cp-info"><h3>Post-Discharge Recovery Plan</h3><p>Started 2 Apr 2026 · Nurse Blessing Adeyemi</p></div>
+          </div>
+          <div class="cp-progress-wrap">
+            <div class="cp-progress-label"><span>Progress</span><small>Week 4 of 6 · 12 of 18 visits</small></div>
+            <div class="cp-bar"><div class="cp-fill" style="width:67%;"></div></div>
+          </div>
+          <div class="cp-milestones">
+            <div class="cp-milestone done"><div class="cm-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cm-text">Initial Assessment & Care Plan Setup</div><div class="cm-date">2 Apr</div></div>
+            <div class="cp-milestone done"><div class="cm-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cm-text">Week 1 – 2: Wound Care & Vital Monitoring</div><div class="cm-date">3–14 Apr</div></div>
+            <div class="cp-milestone done"><div class="cm-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cm-text">Week 3 – 4: Medication Review & Recovery</div><div class="cm-date">15–28 Apr</div></div>
+            <div class="cp-milestone active"><div class="cm-icon active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="cm-text">Week 5: Progress Assessment</div><div class="cm-date">29 Apr–2 May</div></div>
+            <div class="cp-milestone pending"><div class="cm-icon pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div><div class="cm-text">Week 6: Final Check & Discharge</div><div class="cm-date">5–9 May</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Vitals -->
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header"><h3>Latest Vitals</h3><span class="ch-sub">Recorded 22 Apr 2026</span></div>
+        <div class="vitals-grid">
+          <div class="vital-card"><div class="vc-label">Blood Pressure</div><div class="vc-value">128/82</div><div class="vc-unit">mmHg</div><div class="vc-trend down">↓ Improving from 134/86</div></div>
+          <div class="vital-card"><div class="vc-label">Heart Rate</div><div class="vc-value">76</div><div class="vc-unit">bpm</div><div class="vc-trend stable">→ Normal range</div></div>
+          <div class="vital-card"><div class="vc-label">Temperature</div><div class="vc-value">36.5</div><div class="vc-unit">°C</div><div class="vc-trend stable">→ Normal</div></div>
+          <div class="vital-card"><div class="vc-label">SpO₂</div><div class="vc-value">98</div><div class="vc-unit">%</div><div class="vc-trend stable">→ Excellent</div></div>
+          <div class="vital-card"><div class="vc-label">Weight</div><div class="vc-value">62</div><div class="vc-unit">kg</div><div class="vc-trend stable">→ Stable</div></div>
+          <div class="vital-card"><div class="vc-label">Pain Level</div><div class="vc-value">2/10</div><div class="vc-unit">self-reported</div><div class="vc-trend down">↓ Down from 4/10</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Vitals Trend Chart -->
+    <div class="card">
+      <div class="card-header"><h3>Vitals Trend</h3><span class="ch-sub">Last 4 weeks</span></div>
+      <div class="vitals-tabs">
+        <button class="vitals-tab active" onclick="switchVital(this,'bp')">Blood Pressure</button>
+        <button class="vitals-tab" onclick="switchVital(this,'hr')">Heart Rate</button>
+        <button class="vitals-tab" onclick="switchVital(this,'temp')">Temperature</button>
+        <button class="vitals-tab" onclick="switchVital(this,'spo2')">SpO₂</button>
+      </div>
+      <div class="chart-wrap"><canvas id="vitalsChart"></canvas></div>
+    </div>
+
+    <!-- Visit Timeline -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Visit Timeline</h3>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="ch-sub">12 visits</span>
+          <button class="btn-export" onclick="exportHistory()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-sm"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search visits..." oninput="filterTimeline(this.value)" /></div>
+        <select class="filter-sm" onchange="filterByMonth(this.value)">
+          <option value="">All Months</option>
+          <option value="Apr">April 2026</option>
+          <option value="Mar">March 2026</option>
+        </select>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  //if (!user.loggedIn || user.role !== 'patient') window.location.href = 'login.html';
+  //function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+
+  const visits = [
+    { date:'22 Apr', mon:'Apr', title:'Wound Care & Medication Check', nurse:'Nurse Blessing Adeyemi', time:'8:30 AM', status:'completed', vitals:['BP: 128/82','HR: 76','Temp: 36.5°C','SpO₂: 98%'] },
+    { date:'19 Apr', mon:'Apr', title:'Vital Signs Monitoring', nurse:'Nurse Blessing Adeyemi', time:'9:00 AM', status:'completed', vitals:['BP: 134/86','HR: 78','Temp: 36.6°C'] },
+    { date:'15 Apr', mon:'Apr', title:'Post-Discharge Assessment', nurse:'Nurse Blessing Adeyemi', time:'10:00 AM', status:'completed', vitals:['BP: 130/84','HR: 74','Temp: 36.7°C'] },
+    { date:'12 Apr', mon:'Apr', title:'Wound Dressing & BP Check', nurse:'Nurse Blessing Adeyemi', time:'8:30 AM', status:'completed', vitals:['BP: 136/88','HR: 80','Temp: 36.8°C'] },
+    { date:'10 Apr', mon:'Apr', title:'Blood Pressure Monitoring', nurse:'Nurse Blessing Adeyemi', time:'8:00 AM', status:'cancelled', vitals:[] },
+    { date:'8 Apr', mon:'Apr', title:'Wound Care', nurse:'Nurse Blessing Adeyemi', time:'9:00 AM', status:'completed', vitals:['BP: 138/90','HR: 82','Temp: 37.0°C'] },
+    { date:'5 Apr', mon:'Apr', title:'Medication Review', nurse:'Nurse Blessing Adeyemi', time:'8:30 AM', status:'completed', vitals:['BP: 140/90','HR: 84','Temp: 36.9°C'] },
+    { date:'3 Apr', mon:'Apr', title:'Initial Care Visit', nurse:'Nurse Blessing Adeyemi', time:'9:00 AM', status:'completed', vitals:['BP: 142/92','HR: 86','Temp: 37.1°C'] },
+    { date:'2 Apr', mon:'Apr', title:'Post-Discharge Assessment', nurse:'Nurse Blessing Adeyemi', time:'10:00 AM', status:'completed', vitals:['BP: 144/94','HR: 88','Temp: 37.2°C'] },
+    { date:'29 Mar', mon:'Mar', title:'Pre-discharge Briefing', nurse:'Admin Team', time:'2:00 PM', status:'completed', vitals:[] },
+    { date:'27 Mar', mon:'Mar', title:'Hospital Discharge Day', nurse:'Dr. Amaka Obi', time:'11:00 AM', status:'completed', vitals:['BP: 148/96','HR: 90'] },
+    { date:'20 Mar', mon:'Mar', title:'Post-surgery Follow-up', nurse:'Dr. Amaka Obi', time:'9:00 AM', status:'completed', vitals:['BP: 150/98','HR: 92'] },
+  ];
+
+  let searchFilter = '';
+  let monthFilter = '';
+
+  function filterTimeline(val) { searchFilter = val.toLowerCase(); renderTimeline(); }
+  function filterByMonth(val) { monthFilter = val; renderTimeline(); }
+
+  function renderTimeline() {
+    const filtered = visits.filter(v => {
+      const ms = !searchFilter || v.title.toLowerCase().includes(searchFilter) || v.nurse.toLowerCase().includes(searchFilter);
+      const mm = !monthFilter || v.mon === monthFilter;
+      return ms && mm;
+    });
+
+    const tl = document.getElementById('timeline');
+    if (!filtered.length) { tl.innerHTML = '<p style="text-align:center;padding:32px;color:#b0b8d0;">No visits found.</p>'; return; }
+
+    let html = '';
+    let lastMon = '';
+    filtered.forEach(v => {
+      if (v.mon !== lastMon) { html += `<div class="tl-month">${v.mon === 'Apr' ? 'April 2026' : 'March 2026'}</div>`; lastMon = v.mon; }
+      const dotIcon = v.status === 'completed'
+        ? `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`
+        : `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      html += `<div class="tl-item">
+        <div class="tl-dot ${v.status}">${dotIcon}</div>
+        <div class="tl-info">
+          <h4>${v.title}</h4>
+          <p>${v.nurse} · ${v.date} at ${v.time}</p>
+          ${v.vitals.length ? `<div class="tl-vitals">${v.vitals.map(vt => `<span class="tl-vital">${vt}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    tl.innerHTML = html;
+  }
+
+  // Vitals chart data
+  const vitalsData = {
+    bp:   { labels:['2 Apr','8 Apr','12 Apr','15 Apr','19 Apr','22 Apr'], values:[144,140,136,130,134,128], label:'Systolic BP (mmHg)', color:'#3b82f6', yMin:110, yMax:160 },
+    hr:   { labels:['2 Apr','8 Apr','12 Apr','15 Apr','19 Apr','22 Apr'], values:[88,82,80,74,78,76], label:'Heart Rate (bpm)', color:'#ef4444', yMin:50, yMax:110 },
+    temp: { labels:['2 Apr','8 Apr','12 Apr','15 Apr','19 Apr','22 Apr'], values:[37.2,37.0,36.8,36.7,36.6,36.5], label:'Temperature (°C)', color:'#f97316', yMin:36, yMax:38 },
+    spo2: { labels:['2 Apr','8 Apr','12 Apr','15 Apr','19 Apr','22 Apr'], values:[95,96,97,97,98,98], label:'SpO₂ (%)', color:'#22c55e', yMin:90, yMax:100 },
+  };
+
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  Chart.defaults.color = '#8898c8';
+  let vChart;
+
+  function initVitalsChart(type = 'bp') {
+    const d = vitalsData[type];
+    const ctx = document.getElementById('vitalsChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, d.color + '25');
+    gradient.addColorStop(1, d.color + '02');
+    if (vChart) vChart.destroy();
+    vChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: d.labels,
+        datasets: [{ label: d.label, data: d.values, borderColor: d.color, backgroundColor: gradient, fill: true, tension: 0.4, pointBackgroundColor: d.color, pointRadius: 5, borderWidth: 2.5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#f0f2fb' }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: '#f0f2fb' }, ticks: { font: { size: 11 } }, min: d.yMin, max: d.yMax }
+        }
+      }
+    });
+  }
+
+  function switchVital(el, type) {
+    document.querySelectorAll('.vitals-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    initVitalsChart(type);
+  }
+
+  function exportHistory() {
+    const rows = [['Date','Visit','Nurse','Status','Vitals']];
+    visits.forEach(v => rows.push([v.date, v.title, v.nurse, v.status, v.vitals.join(' | ')]));
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv,' + encodeURIComponent(csv); a.download = 'care-history.csv'; a.click();
+  }
+
+  initVitalsChart();
+  renderTimeline();
+</script>
+</body>
+</html>
