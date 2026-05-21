@@ -67,7 +67,13 @@
         <option value="busy">At Capacity</option>
         <option value="off">Off Duty</option>
       </select>
-      <button class="btn-primary"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Personnel</button>
+      <button class="btn-primary" onclick="openPersonnelSelector()">
+        <svg viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Onboard Personnel
+      </button>
     </div>
 
     <div class="personnel-grid" id="personnelGrid">
@@ -114,6 +120,819 @@
     </div>
   </div>
 </div>
+
+
+<!-- Personnel selector Modal -->
+
+
+<div class="modal-overlay" id="personnelSelectorModal">
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2>Select Personnel Type</h2>
+
+      <button
+        class="modal-close"
+        onclick="closeModal('personnelSelectorModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="personnel-type-grid">
+
+        <button class="personnel-type-btn"
+          onclick="openAdminModal()">
+          👨‍💼 Admin
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openRMModal()">
+          🤝 Relationship Manager
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openClinicalModal()">
+          🩺 Doctors / Nurses / Caregivers
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openPatientModal()">
+          🧑‍🦽 Patients
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openCNOModal()">
+          🏥 CNO / MD
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openLabScientistModal()">
+          🧪 Lab Scientist
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openPharmacistModal()">
+          💊 Pharmacist
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openCustomerCareModal()">
+          🎧 Customer Care Specialist
+        </button>
+
+        <button class="personnel-type-btn"
+          onclick="openFinanceModal()">
+          💰 Finance Manager
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+ADMIN MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="adminModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Admin</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('adminModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="admin_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="admin_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="admin_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" id="admin_department"/>
+        </div>
+
+        <div class="form-group">
+          <label>Access Level</label>
+
+          <select id="admin_access_level">
+            <option>Super Admin</option>
+            <option>Operations Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+
+          <select id="admin_status">
+            <option>ACTIVE</option>
+            <option>INACTIVE</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('adminModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitAdmin()">
+        Add Admin
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+RM MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="rmModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Relationship Manager</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('rmModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="rm_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="rm_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="rm_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Region</label>
+          <input type="text" id="rm_region"/>
+        </div>
+
+        <div class="form-group">
+          <label>Portfolio Size</label>
+          <input type="number" id="rm_portfolio"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('rmModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitRM()">
+        Add RM
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+DOCTORS / NURSES / CAREGIVERS
+========================================================= -->
+
+<div class="modal-overlay" id="clinicalModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Clinical Personnel</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('clinicalModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="clinical_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="clinical_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="clinical_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Role</label>
+
+          <select id="clinical_role">
+            <option>Doctor</option>
+            <option>Nurse</option>
+            <option>Caregiver</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Specialization</label>
+          <input type="text" id="clinical_specialization"/>
+        </div>
+
+        <div class="form-group">
+          <label>License Number</label>
+          <input type="text" id="clinical_license"/>
+        </div>
+
+        <div class="form-group">
+          <label>Years Experience</label>
+          <input type="number" id="clinical_experience"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('clinicalModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitClinical()">
+        Add Personnel
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+PATIENT MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="patientModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Patient</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('patientModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="patient_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="patient_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="patient_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Blood Group</label>
+          <input type="text" id="patient_blood_group"/>
+        </div>
+
+        <div class="form-group">
+          <label>Insurance Provider</label>
+          <input type="text" id="patient_insurance"/>
+        </div>
+
+        <div class="form-group">
+          <label>Next of Kin</label>
+          <input type="text" id="patient_nok"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('patientModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitPatient()">
+        Add Patient
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+CNO / MD MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="cnoModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard CNO / MD</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('cnoModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cno_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="cno_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Hospital</label>
+          <input type="text" id="cno_hospital"/>
+        </div>
+
+        <div class="form-group">
+          <label>Medical License</label>
+          <input type="text" id="cno_license"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('cnoModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitCNO()">
+        Add Executive
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+LAB SCIENTIST MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="labScientistModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Lab Scientist</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('labScientistModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="lab_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Certification</label>
+          <input type="text" id="lab_certification"/>
+        </div>
+
+        <div class="form-group">
+          <label>Special Tests</label>
+          <input type="text" id="lab_tests"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('labScientistModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitLabScientist()">
+        Add Scientist
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+PHARMACIST MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="pharmacistModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Pharmacist</h2>
+
+      <button class="modal-close"
+        onclick="closeModal('pharmacistModal')">
+
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="pharmacist_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>PCN Number</label>
+          <input type="text" id="pharmacist_pcn"/>
+        </div>
+
+        <div class="form-group">
+          <label>Branch</label>
+          <input type="text" id="pharmacist_branch"/>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close"
+        onclick="closeModal('pharmacistModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary"
+        onclick="submitPharmacist()">
+        Add Pharmacist
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+FINANCE MANAGER MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="financeModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Finance Manager</h2>
+
+      <button class="modal-close" onclick="closeModal('financeModal')">
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="finance_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="finance_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="finance_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" id="finance_department"/>
+        </div>
+
+        <div class="form-group">
+          <label>Role Level</label>
+          <select id="finance_role_level">
+            <option>Junior Finance</option>
+            <option>Senior Finance</option>
+            <option>Finance Lead</option>
+            <option>Chief Financial Officer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Access Level</label>
+          <select id="finance_access">
+            <option>READ_ONLY</option>
+            <option>TRANSACTION</option>
+            <option>FULL_ACCESS</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select id="finance_status">
+            <option>ACTIVE</option>
+            <option>INACTIVE</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close" onclick="closeModal('financeModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary" onclick="submitFinance()">
+        Add Finance Manager
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+CUSTOMER CARE SPECIALIST MODAL
+========================================================= -->
+
+<div class="modal-overlay" id="customerCareModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Onboard Customer Care Specialist</h2>
+
+      <button class="modal-close" onclick="closeModal('customerCareModal')">
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cc_full_name"/>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="cc_email"/>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="cc_phone"/>
+        </div>
+
+        <div class="form-group">
+          <label>Shift</label>
+          <select id="cc_shift">
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Night</option>
+            <option>Rotational</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Support Channel</label>
+          <select id="cc_channel">
+            <option>Phone Support</option>
+            <option>Email Support</option>
+            <option>Live Chat</option>
+            <option>All Channels</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Experience (Years)</label>
+          <input type="number" id="cc_experience"/>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select id="cc_status">
+            <option>ACTIVE</option>
+            <option>INACTIVE</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn-modal-close" onclick="closeModal('customerCareModal')">
+        Cancel
+      </button>
+
+      <button class="btn-modal-primary" onclick="submitCustomerCare()">
+        Add Specialist
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+
 
 <script src="../admin-scripts/admin-personnel.js"></script>
 </body>

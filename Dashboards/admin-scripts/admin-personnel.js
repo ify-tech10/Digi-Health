@@ -178,6 +178,94 @@ function getStatusClass(status = "") {
   });
   function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../../login.html'; }
 
+
+  function openModal(id) {
+  document.getElementById(id).classList.add("open");
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+
+
+  function openPersonnelSelector() {
+  openModal("personnelSelectorModal");
+}
+
+/* =========================
+ADMIN
+========================= */
+function openAdminModal() {
+  closeModal("personnelSelectorModal");
+  openModal("adminModal");
+}
+
+/* =========================
+RELATIONSHIP MANAGER
+========================= */
+function openRMModal() {
+  closeModal("personnelSelectorModal");
+  openModal("rmModal");
+}
+
+/* =========================
+CLINICAL (Doctors/Nurses/Caregivers)
+========================= */
+function openClinicalModal() {
+  closeModal("personnelSelectorModal");
+  openModal("clinicalModal");
+}
+
+/* =========================
+PATIENT
+========================= */
+function openPatientModal() {
+  closeModal("personnelSelectorModal");
+  openModal("patientModal");
+}
+
+/* =========================
+CNO / MD
+========================= */
+function openCNOModal() {
+  closeModal("personnelSelectorModal");
+  openModal("cnoModal");
+}
+
+/* =========================
+LAB SCIENTIST
+========================= */
+function openLabScientistModal() {
+  closeModal("personnelSelectorModal");
+  openModal("labScientistModal");
+}
+
+/* =========================
+PHARMACIST
+========================= */
+function openPharmacistModal() {
+  closeModal("personnelSelectorModal");
+  openModal("pharmacistModal");
+}
+
+/* =========================
+CUSTOMER CARE
+========================= */
+function openCustomerCareModal() {
+  closeModal("personnelSelectorModal");
+  openModal("customerCareModal");
+}
+
+/* =========================
+FINANCE MANAGER
+========================= */
+function openFinanceModal() {
+  closeModal("personnelSelectorModal");
+  openModal("financeModal");
+}
+
+
+
    /* =========================
     INIT
   ========================= */

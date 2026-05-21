@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Customer Care Specialist</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a2550;
+      --blue-mid: #2a3f8a;
+      --teal: #0891b2;
+      --teal-light: #ecfeff;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --white: #fff;
+      --off-white: #f7f8fc;
+      --sidebar-w: 250px;
+      --radius: 10px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 14px 12px; }
+    .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 14px 0 5px; }
+    .nav-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(8,145,178,0.18); color: #67e8f9; }
+    .nav-item svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .nav-badge-teal { margin-left: auto; background: var(--teal); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 14px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .user-card { display: flex; align-items: center; gap: 10px; padding: 10px 10px; margin-bottom: 6px; }
+    .uc-avatar { width: 34px; height: 34px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .uc-name  { font-size: 13px; font-weight: 700; color: #fff; }
+    .uc-role  { font-size: 11px; color: #7888b8; }
+    .logout-btn { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; color: #8898c8; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ─── MAIN ────────────────────────────────────────────── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .tb-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .tb-btn svg { width: 15px; height: 15px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .tb-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .status-chip { display: flex; align-items: center; gap: 7px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; color: var(--green-dark); cursor: pointer; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .content { padding: 24px 32px; flex: 1; }
+
+    /* ─── HERO BANNER ─────────────────────────────────────── */
+    .hero { background: linear-gradient(135deg, #0c1a3a 0%, #1a2d6b 100%); border-radius: 14px; padding: 22px 28px; margin-bottom: 22px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 85% 50%, rgba(8,145,178,0.15) 0%, transparent 60%); pointer-events: none; }
+    .hero-text { position: relative; }
+    .hero-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #67e8f9; margin-bottom: 5px; }
+    .hero-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: #fff; margin-bottom: 4px; line-height: 1.3; }
+    .hero-sub { font-size: 12.5px; color: #8898c8; }
+    .hero-kpis { display: flex; gap: 16px; position: relative; flex-wrap: wrap; }
+    .hero-kpi { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; padding: 12px 16px; text-align: center; min-width: 80px; }
+    .kpi-val { font-size: 20px; font-weight: 700; color: #fff; }
+    .kpi-lbl { font-size: 10.5px; color: #8898c8; margin-top: 2px; }
+
+    /* ─── STATS ───────────────────────────────────────────── */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .s-teal::after   { background: var(--teal); }
+    .s-green::after  { background: var(--green); }
+    .s-orange::after { background: #f97316; }
+    .s-purple::after { background: #9333ea; }
+    .s-red::after    { background: #ef4444; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .s-teal .stat-icon   { background: var(--teal-light); }   .s-teal .stat-icon svg   { stroke: var(--teal); }
+    .s-green .stat-icon  { background: #f0fdf4; }              .s-green .stat-icon svg  { stroke: var(--green-dark); }
+    .s-orange .stat-icon { background: #fff7ed; }              .s-orange .stat-icon svg { stroke: #f97316; }
+    .s-purple .stat-icon { background: #faf5ff; }              .s-purple .stat-icon svg { stroke: #9333ea; }
+    .s-red .stat-icon    { background: #fef2f2; }              .s-red .stat-icon svg    { stroke: #ef4444; }
+    .stat-delta { font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #f0fdf4; color: var(--green-dark); }
+    .stat-delta.bad { background: #fef2f2; color: #dc2626; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 1px; }
+    .stat-label { font-size: 11.5px; color: #8898c8; }
+
+    /* ─── LAYOUT GRID ─────────────────────────────────────── */
+    .layout-main { display: grid; grid-template-columns: 1fr 340px; gap: 20px; margin-bottom: 20px; }
+    .layout-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .card-header { padding: 13px 18px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .card-header h3 { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+    .ch-sub { font-size: 11.5px; color: #8898c8; }
+
+    /* ─── TICKETS ─────────────────────────────────────────── */
+    .ticket-toolbar { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #f0f2fb; flex-wrap: wrap; }
+    .tk-search { display: flex; align-items: center; gap: 7px; background: #f8f9fc; border: 1.5px solid #e8eaf4; border-radius: 7px; padding: 7px 11px; flex: 1; min-width: 140px; }
+    .tk-search svg { width: 13px; height: 13px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .tk-search input { border: none; outline: none; font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .tk-search input::placeholder { color: #c0c8d8; }
+    .tk-filter { border: 1.5px solid #e8eaf4; border-radius: 7px; padding: 7px 24px 7px 9px; font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: #f8f9fc; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; }
+
+    .tickets-list { max-height: 420px; overflow-y: auto; }
+    .ticket-item { display: flex; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f5f6fc; cursor: pointer; transition: background .12s; position: relative; }
+    .ticket-item:last-child { border-bottom: none; }
+    .ticket-item:hover { background: #fafbff; }
+    .ticket-item.selected { background: var(--teal-light); border-left: 3px solid var(--teal); }
+    .ticket-item.unread::before { content: ''; position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+    .ti-avatar { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .ti-body { flex: 1; min-width: 0; }
+    .ti-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+    .ti-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .ti-time { font-size: 10.5px; color: #b0b8d0; white-space: nowrap; }
+    .ti-subject { font-size: 12.5px; font-weight: 600; color: #3a4570; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ti-preview { font-size: 12px; color: #8898c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ti-badges { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+
+    /* badge system */
+    .tbadge { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .tb-open     { background: #eff6ff; color: #2563eb; }
+    .tb-urgent   { background: #fef2f2; color: #dc2626; }
+    .tb-resolved { background: #f0fdf4; color: var(--green-dark); }
+    .tb-pending  { background: #fff7ed; color: #c2410c; }
+    .tb-escalated{ background: #faf5ff; color: #9333ea; }
+    .tb-type { background: #f0f2fb; color: #5a6690; }
+
+    /* ─── TICKET DETAIL PANE ──────────────────────────────── */
+    .detail-pane { display: flex; flex-direction: column; height: 100%; }
+    .dp-header { padding: 16px 18px; border-bottom: 1px solid #f0f2fb; }
+    .dp-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .dp-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .dp-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #8898c8; }
+    .dp-meta-item svg { width: 12px; height: 12px; stroke: #b0b8d0; fill: none; stroke-width: 2; }
+    .dp-messages { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; max-height: 320px; }
+    .msg { max-width: 85%; }
+    .msg-agent { align-self: flex-end; }
+    .msg-patient { align-self: flex-start; }
+    .msg-bubble { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.55; }
+    .msg-agent .msg-bubble { background: var(--navy); color: #fff; border-bottom-right-radius: 3px; }
+    .msg-patient .msg-bubble { background: #f0f2fb; color: var(--navy); border-bottom-left-radius: 3px; }
+    .msg-name { font-size: 10.5px; color: #b0b8d0; margin-bottom: 4px; }
+    .msg-agent .msg-name { text-align: right; }
+    .msg-time { font-size: 10px; color: #b0b8d0; margin-top: 3px; }
+    .msg-agent .msg-time { text-align: right; }
+    .dp-reply { padding: 12px 16px; border-top: 1px solid #f0f2fb; display: flex; gap: 8px; align-items: flex-end; }
+    .reply-input { flex: 1; border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--navy); outline: none; resize: none; min-height: 70px; transition: border-color .18s; }
+    .reply-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8,145,178,0.07); }
+    .reply-actions { display: flex; flex-direction: column; gap: 6px; }
+    .btn-send { background: var(--teal); color: #fff; border: none; padding: 9px 16px; border-radius: 7px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 6px; transition: background .15s; white-space: nowrap; }
+    .btn-send:hover { background: #0e7490; }
+    .btn-send svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-resolve { background: #f0fdf4; color: var(--green-dark); border: 1.5px solid #bbf7d0; padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .btn-resolve:hover { background: #dcfce7; }
+    .btn-escalate { background: #faf5ff; color: #9333ea; border: 1.5px solid #e9d5ff; padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .btn-escalate:hover { background: #f3e8ff; }
+    .dp-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+    .dp-empty svg { stroke: #c8d6e8; fill: none; stroke-width: 1.5; margin-bottom: 12px; }
+    .dp-empty h4 { font-size: 14px; font-weight: 700; color: #8898c8; margin-bottom: 4px; }
+    .dp-empty p { font-size: 12.5px; color: #b0b8d0; }
+
+    /* ─── PATIENTS TABLE ──────────────────────────────────── */
+    .pt-table { width: 100%; border-collapse: collapse; }
+    .pt-table th { padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; background: #fafbff; border-bottom: 1px solid #eef0f8; white-space: nowrap; }
+    .pt-table td { padding: 11px 14px; font-size: 13px; color: #3a4570; border-bottom: 1px solid #f5f6fc; vertical-align: middle; }
+    .pt-table tr:last-child td { border-bottom: none; }
+    .pt-table tr:hover td { background: #fafbff; cursor: pointer; }
+    .td-bold { font-weight: 700; color: var(--navy); }
+    .td-sub  { font-size: 11px; color: #8898c8; margin-top: 1px; }
+
+    /* ─── ACTIVITY FEED ───────────────────────────────────── */
+    .activity-feed { padding: 8px 16px 14px; display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+    .af-item { display: flex; align-items: flex-start; gap: 10px; }
+    .af-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .af-text { font-size: 12.5px; color: #3a4570; line-height: 1.55; flex: 1; }
+    .af-text strong { color: var(--navy); font-weight: 700; }
+    .af-time { font-size: 11px; color: #b0b8d0; white-space: nowrap; }
+
+    /* ─── VIEW ALL BTN ────────────────────────────────────── */
+    .view-all { width: 100%; padding: 10px; font-size: 12.5px; font-weight: 600; color: var(--teal); cursor: pointer; border: none; background: none; border-top: 1px solid #f0f2fb; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .view-all:hover { color: #0e7490; }
+    .view-all svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* ─── MODAL ───────────────────────────────────────────── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 18px 22px 14px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 26px; height: 26px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 13px; height: 13px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 18px 22px 22px; }
+    .modal-section { margin-bottom: 16px; }
+    .ms-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .dr-label { width: 140px; flex-shrink: 0; font-size: 12px; font-weight: 600; color: #8898c8; }
+    .dr-value { font-size: 12.5px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid #eef0f8; display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-mclose { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 8px 16px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+    /* ─── TOAST ───────────────────────────────────────────── */
+    .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .toast svg { width: 14px; height: 14px; stroke: var(--green); fill: none; stroke-width: 2.5; }
+    .toast.show { opacity: 1; }
+
+    /* ─── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #dde0ee; border-radius: 3px; }
+
+    @media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(3, 1fr); } .layout-main { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .layout-bottom { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .stats-row { grid-template-columns: 1fr 1fr; } .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ───────────────────────────────────────────── -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="dashboard-ccs.html">
+    <div class="s-logo">CCS</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Customer Care</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item active" href="dashboard-ccs.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+
+    <div class="nav-label">Tickets</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Tickets <span class="nav-badge" id="sidebarBadge">12</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Urgent <span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Resolved</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Escalated <span class="nav-badge-teal">2</span></a>
+
+    <div class="nav-label">Patients</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patient Lookup</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Care Requests</a>
+
+    <div class="nav-label">Reports</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>My Performance</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</a>
+
+    <div class="nav-label">Account</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="uc-avatar">FA</div>
+      <div><div class="uc-name" id="sidebarName">Fatima Abdullahi</div><div class="uc-role">Customer Care Specialist</div></div>
+    </div>
+    <button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+  </div>
+</aside>
+
+<!-- ─── MAIN ───────────────────────────────────────────────── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Customer Care Dashboard</h1>
+      <p id="topbarDate">Thursday, 21 May 2026</p>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="tb-dot"></div></button>
+      <div class="status-chip" onclick="toggleStatus()"><div class="status-dot" id="statusDot"></div><span id="statusLabel">Online</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-tag">Customer Care Portal</div>
+        <div class="hero-title">Good morning, Fatima 👋</div>
+        <div class="hero-sub">You have 3 urgent tickets and 12 open conversations waiting for your attention.</div>
+      </div>
+      <div class="hero-kpis">
+        <div class="hero-kpi"><div class="kpi-val" id="heroOpen">12</div><div class="kpi-lbl">Open Tickets</div></div>
+        <div class="hero-kpi"><div class="kpi-val" id="heroResolved">8</div><div class="kpi-lbl">Resolved Today</div></div>
+        <div class="hero-kpi"><div class="kpi-val" id="heroAvgTime">4.2m</div><div class="kpi-lbl">Avg Response</div></div>
+        <div class="hero-kpi"><div class="kpi-val" id="heroSat">96%</div><div class="kpi-lbl">Satisfaction</div></div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card s-teal">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="stat-delta">+3 today</span></div>
+        <div class="stat-value" id="statOpen">12</div><div class="stat-label">Open Tickets</div>
+      </div>
+      <div class="stat-card s-red">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+        <div class="stat-value" id="statUrgent">3</div><div class="stat-label">Urgent / Escalated</div>
+      </div>
+      <div class="stat-card s-green">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="stat-delta">+5 vs yesterday</span></div>
+        <div class="stat-value" id="statResolved">8</div><div class="stat-label">Resolved Today</div>
+      </div>
+      <div class="stat-card s-orange">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="stat-delta bad">+1.2m</span></div>
+        <div class="stat-value" id="statAvgTime">4.2m</div><div class="stat-label">Avg First Response</div>
+      </div>
+      <div class="stat-card s-purple">
+        <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><span class="stat-delta">↑ 2%</span></div>
+        <div class="stat-value" id="statCsat">96%</div><div class="stat-label">CSAT Score</div>
+      </div>
+    </div>
+
+    <!-- TICKET INBOX + DETAIL PANE -->
+    <div class="layout-main">
+
+      <!-- LEFT: Ticket Inbox -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Ticket Inbox</h3>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="ch-sub" id="ticketCountLabel">12 tickets</span>
+          </div>
+        </div>
+        <div class="ticket-toolbar">
+          <div class="tk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search tickets..." oninput="filterTickets(this.value)" /></div>
+          <select class="tk-filter" onchange="filterByStatus(this.value)">
+            <option value="">All</option>
+            <option value="OPEN">Open</option>
+            <option value="URGENT">Urgent</option>
+            <option value="PENDING">Pending</option>
+            <option value="ESCALATED">Escalated</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+          <select class="tk-filter" onchange="filterByType(this.value)">
+            <option value="">All Types</option>
+            <option value="Booking">Booking</option>
+            <option value="Billing">Billing</option>
+            <option value="Complaint">Complaint</option>
+            <option value="HMO">HMO</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        <div class="tickets-list" id="ticketsList"></div>
+      </div>
+
+      <!-- RIGHT: Ticket Detail Pane -->
+      <div class="card detail-pane" id="detailPane">
+        <div class="dp-empty" id="dpEmpty">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <h4>No ticket selected</h4>
+          <p>Click a ticket from the inbox to view the conversation</p>
+        </div>
+        <div id="dpContent" style="display:none; display:flex; flex-direction:column; height:100%;">
+          <div class="dp-header">
+            <h3 id="dpTitle">—</h3>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;" id="dpBadges"></div>
+            <div class="dp-meta" id="dpMeta"></div>
+          </div>
+          <div class="dp-messages" id="dpMessages"></div>
+          <div class="dp-reply">
+            <textarea class="reply-input" id="replyInput" placeholder="Type your reply..."></textarea>
+            <div class="reply-actions">
+              <button class="btn-send" onclick="sendReply()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send</button>
+              <button class="btn-resolve" onclick="resolveTicket()">✓ Resolve</button>
+              <button class="btn-escalate" onclick="escalateTicket()">↑ Escalate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENT LOOKUP + ACTIVITY -->
+    <div class="layout-bottom">
+
+      <!-- Recent Patient Enquiries -->
+      <div class="card">
+        <div class="card-header"><h3>Recent Patient Enquiries</h3><span class="ch-sub">Click to view ticket</span></div>
+        <div style="overflow-x:auto;">
+          <table class="pt-table" id="patientTable">
+            <thead><tr><th>Patient</th><th>Last Contact</th><th>Issue</th><th>Status</th></tr></thead>
+            <tbody id="patientTableBody"></tbody>
+          </table>
+        </div>
+        <button class="view-all" onclick="showToast('Opening patient lookup...')">View All Patients <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="card">
+        <div class="card-header"><h3>Activity Feed</h3><span class="ch-sub">Your recent actions</span></div>
+        <div class="activity-feed" id="activityFeed"></div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- PATIENT INFO MODAL -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="pmTitle">Patient Information</h2><button class="modal-close" onclick="closeModal('patientModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="pmBody"></div>
+    <div class="modal-footer"><button class="btn-mclose" onclick="closeModal('patientModal')">Close</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ================================================================
+   API CONFIG — swap API_BASE + set USE_API = true when ready
+================================================================ */
+const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
+const USE_API  = false; // 🔧 Set true when backend is ready
+
+async function apiFetch(path, options = {}) {
+  const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+/* ── AUTH ── */
+const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+// Uncomment in production:
+// if (!user.loggedIn || !['customer_care','admin','super_admin'].includes((user.role||'').toLowerCase())) window.location.href = 'login.html';
+function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+
+/* ── TOPBAR DATE ── */
+document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+/* ── STATUS TOGGLE ── */
+let isOnline = true;
+function toggleStatus() {
+  isOnline = !isOnline;
+  document.getElementById('statusDot').style.background = isOnline ? '#22c55e' : '#f97316';
+  document.getElementById('statusLabel').textContent = isOnline ? 'Online' : 'Away';
+  document.querySelector('.status-chip').style.background = isOnline ? '#f0fdf4' : '#fff7ed';
+  document.querySelector('.status-chip').style.borderColor = isOnline ? '#bbf7d0' : '#fed7aa';
+  document.querySelector('.status-chip').style.color = isOnline ? '#16a34a' : '#c2410c';
+}
+
+/* ================================================================
+   MOCK DATA
+================================================================ */
+const MOCK = {
+  stats: { open:12, urgent:3, resolved:8, avgTime:'4.2m', csat:'96%' },
+
+  tickets: [
+    { id:1,  name:'Amara Osei',        initials:'AO', color:'#1a2550', subject:'Visit not confirmed — 29 April',     preview:'Good morning, I booked a visit for tomorrow and I have not received any confirmation. Please help.',       type:'Booking',   status:'URGENT',   time:'8 min ago',   unread:true,
+      messages:[
+        { from:'patient', name:'Amara Osei',        text:'Good morning, I booked a visit for tomorrow 29th April and have not received any confirmation. Please help.',     time:'8:02 AM' },
+        { from:'patient', name:'Amara Osei',        text:'My patient ID is DH-PAT-001. The visit is for Post-Discharge Recovery at 9:00 AM.',                              time:'8:04 AM' },
+      ],
+      patient:{ name:'Amara Osei', id:'DH-PAT-001', phone:'+234 801 111 2222', email:'amara@email.com', plan:'Standard', nurse:'Nurse Blessing Adeyemi', status:'Active' }
+    },
+    { id:2,  name:'Kofi Mensah',       initials:'KM', color:'#0891b2', subject:'HMO card not working on portal',      preview:'I have been trying to log in with my HMO credentials and keep getting an error message.',                   type:'HMO',       status:'OPEN',     time:'22 min ago',  unread:true,
+      messages:[
+        { from:'patient', name:'Kofi Mensah',       text:'Hi, I cannot log in. I keep getting "invalid credentials" even though I just registered.',                        time:'7:48 AM' },
+      ],
+      patient:{ name:'Kofi Mensah', id:'DH-HMO-012', phone:'+234 802 222 3333', email:'kofi@email.com', plan:'HMO — Zenith Tech', nurse:'Not yet assigned', status:'Active' }
+    },
+    { id:3,  name:'Ngozi Obiechina',   initials:'NO', color:'#16a34a', subject:'Billing discrepancy on invoice #INV-0047', preview:'I was charged twice for the same visit. Please review and refund.',                            type:'Billing',   status:'URGENT',   time:'35 min ago',  unread:true,
+      messages:[
+        { from:'patient', name:'Ngozi Obiechina',   text:'Good morning. I received two invoice notifications for the same visit on 22nd April. Invoice #INV-0047.',         time:'7:35 AM' },
+        { from:'agent',   name:'Fatima Abdullahi',  text:'Hello Ngozi, thank you for reaching out. I can see the duplicate charge — let me escalate this to our finance team right away.', time:'7:40 AM' },
+        { from:'patient', name:'Ngozi Obiechina',   text:'Thank you. Please resolve quickly, it was ₦10,000.',                                                              time:'7:42 AM' },
+      ],
+      patient:{ name:'Ngozi Obiechina', id:'DH-PAT-018', phone:'+234 803 333 4444', email:'ngozi@email.com', plan:'Standard', nurse:'Nurse Kemi Ojo', status:'Active' }
+    },
+    { id:4,  name:'Emeka Nwachukwu',   initials:'EN', color:'#9333ea', subject:'Need to reschedule tomorrow\'s visit',  preview:'Something came up and I need to reschedule my Chronic Care visit from tomorrow to Friday.',           type:'Booking',   status:'OPEN',     time:'1 hr ago',    unread:false,
+      messages:[
+        { from:'patient', name:'Emeka Nwachukwu',   text:'Hi, I need to reschedule my visit from Thursday 30th April to Friday 1st May at the same time if possible.',     time:'7:10 AM' },
+      ],
+      patient:{ name:'Emeka Nwachukwu', id:'DH-PAT-002', phone:'+234 804 444 5555', email:'emeka@email.com', plan:'Standard', nurse:'Nurse Blessing Adeyemi', status:'Active' }
+    },
+    { id:5,  name:'Fatima Kabir',      initials:'FK', color:'#b45309', subject:'Nurse arrived 2 hours late',            preview:'This is unacceptable. My nurse arrived two hours after the scheduled time with no communication.',    type:'Complaint', status:'ESCALATED', time:'2 hrs ago',   unread:false,
+      messages:[
+        { from:'patient', name:'Fatima Kabir',      text:'This is unacceptable. My nurse was scheduled at 9:30 AM and arrived at 11:45 AM. No call, no message.',          time:'12:15 PM' },
+        { from:'agent',   name:'Fatima Abdullahi',  text:'Hello Fatima, I sincerely apologise for this experience. I have escalated this to our CNO for immediate review and you will receive a follow-up call within 2 hours.', time:'12:22 PM' },
+      ],
+      patient:{ name:'Fatima Kabir', id:'DH-PAT-005', phone:'+234 805 555 6666', email:'fatima@email.com', plan:'HMO — Beta Company', nurse:'Nurse Amina Eze', status:'Active' }
+    },
+    { id:6,  name:'Taiwo Oluwaseun',   initials:'TO', color:'#dc2626', subject:'How do I add a second patient?',        preview:'My mother is also in need of care. How do I add another patient under my account?',                    type:'General',   status:'OPEN',     time:'3 hrs ago',   unread:false,
+      messages:[
+        { from:'patient', name:'Taiwo Oluwaseun',   text:'Hi, my mother also needs care. Can I add her to my account or does she need a separate profile?',                time:'5:22 AM' },
+      ],
+      patient:{ name:'Taiwo Oluwaseun', id:'DH-PAT-006', phone:'+234 806 666 7777', email:'taiwo@email.com', plan:'Standard', nurse:'Nurse Blessing Adeyemi', status:'Active' }
+    },
+    { id:7,  name:'Chukwuemeka Uche',  initials:'CU', color:'#0e7490', subject:'Care plan paused — need to resume',    preview:'My care plan was put on hold. I am ready to resume. Please activate it again.',                       type:'Booking',   status:'PENDING',  time:'4 hrs ago',   unread:false,
+      messages:[
+        { from:'patient', name:'Chukwuemeka Uche',  text:'Good morning, my care plan was paused 2 weeks ago. I have now recovered enough to resume. Please reactivate.',   time:'4:00 AM' },
+      ],
+      patient:{ name:'Chukwuemeka Uche', id:'DH-PAT-007', phone:'+234 807 777 8888', email:'chukwu@email.com', plan:'Standard', nurse:'Nurse Kemi Ojo', status:'On Hold' }
+    },
+    { id:8,  name:'Sade Coker',        initials:'SC', color:'#7c3aed', subject:'Request for visit report copy',         preview:'Can I get a PDF copy of my last three visit reports? I need them for my doctor.',                    type:'General',   status:'RESOLVED', time:'Yesterday',   unread:false,
+      messages:[
+        { from:'patient', name:'Sade Coker',        text:'Please can I get copies of my last 3 visit reports? My GP requested them.',                                      time:'Yesterday 2:00 PM' },
+        { from:'agent',   name:'Fatima Abdullahi',  text:'Hello Sade, I have sent the last 3 visit reports to your registered email address. Please check and confirm receipt.', time:'Yesterday 2:15 PM' },
+        { from:'patient', name:'Sade Coker',        text:'Received! Thank you so much.',                                                                                   time:'Yesterday 2:20 PM' },
+      ],
+      patient:{ name:'Sade Coker', id:'DH-PAT-009', phone:'+234 808 888 9999', email:'sade@email.com', plan:'HMO — Flutterwave', nurse:'Physio Tunde Afolabi', status:'Active' }
+    },
+  ],
+
+  activity: [
+    { text:'Resolved ticket — <strong>Sade Coker</strong> visit report request',          time:'2 hrs ago',   color:'#22c55e' },
+    { text:'Escalated complaint — <strong>Fatima Kabir</strong> late nurse arrival',       time:'3 hrs ago',   color:'#9333ea' },
+    { text:'Replied to <strong>Ngozi Obiechina</strong> billing discrepancy',              time:'4 hrs ago',   color:'#3b82f6' },
+    { text:'New urgent ticket — <strong>Amara Osei</strong> booking confirmation',        time:'8 hrs ago',   color:'#ef4444' },
+    { text:'Patient lookup — <strong>Emeka Nwachukwu</strong> profile viewed',            time:'9 hrs ago',   color:'#0891b2' },
+    { text:'Resolved ticket — <strong>Taiwo Oluwaseun</strong> account enquiry',          time:'Yesterday',   color:'#22c55e' },
+  ],
+};
+
+let tickets = [];
+let currentTicketId = null;
+let searchFilter = '';
+let statusFilter = '';
+let typeFilter = '';
+
+/* ================================================================
+   LOAD
+================================================================ */
+async function loadDashboard() {
+  try {
+    if (USE_API) {
+      const [stats, tkts, activity] = await Promise.all([
+        apiFetch('/customer-care/me/stats'),
+        apiFetch('/customer-care/me/tickets'),
+        apiFetch('/customer-care/me/activity?limit=6'),
+      ]);
+      renderStats(stats);
+      tickets = tkts;
+      renderActivity(activity);
+    } else {
+      tickets = MOCK.tickets;
+      renderActivity(MOCK.activity);
+    }
+    renderTickets();
+    renderPatientTable();
+  } catch (err) {
+    console.error('Load error:', err);
+    tickets = MOCK.tickets;
+    renderActivity(MOCK.activity);
+    renderTickets();
+    renderPatientTable();
+  }
+}
+
+/* ── RENDER STATS ── */
+function renderStats(s) {
+  if (!s) return;
+  if (s.open)     { document.getElementById('statOpen').textContent = s.open;     document.getElementById('heroOpen').textContent = s.open; }
+  if (s.urgent)   { document.getElementById('statUrgent').textContent = s.urgent; }
+  if (s.resolved) { document.getElementById('statResolved').textContent = s.resolved; document.getElementById('heroResolved').textContent = s.resolved; }
+  if (s.avgTime)  { document.getElementById('statAvgTime').textContent = s.avgTime; document.getElementById('heroAvgTime').textContent = s.avgTime; }
+  if (s.csat)     { document.getElementById('statCsat').textContent = s.csat;     document.getElementById('heroSat').textContent = s.csat; }
+}
+
+/* ── RENDER TICKETS ── */
+function renderTickets() {
+  const filtered = tickets.filter(t => {
+    const ms = !searchFilter || t.name.toLowerCase().includes(searchFilter) || t.subject.toLowerCase().includes(searchFilter);
+    const ss = !statusFilter || t.status === statusFilter;
+    const ts = !typeFilter   || t.type   === typeFilter;
+    return ms && ss && ts;
+  });
+  document.getElementById('ticketCountLabel').textContent = filtered.length + ' tickets';
+  document.getElementById('sidebarBadge').textContent     = tickets.filter(t => t.status !== 'RESOLVED').length;
+
+  const statusClass = { URGENT:'tb-urgent', OPEN:'tb-open', PENDING:'tb-pending', ESCALATED:'tb-escalated', RESOLVED:'tb-resolved' };
+  const list = document.getElementById('ticketsList');
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#b0b8d0;">No tickets match your filters.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => `
+    <div class="ticket-item ${currentTicketId === t.id ? 'selected' : ''} ${t.unread ? 'unread' : ''}" onclick="openTicket(${t.id})">
+      <div class="ti-avatar" style="background:${t.color};">${t.initials}</div>
+      <div class="ti-body">
+        <div class="ti-top"><span class="ti-name">${t.name}</span><span class="ti-time">${t.time}</span></div>
+        <div class="ti-subject">${t.subject}</div>
+        <div class="ti-preview">${t.preview}</div>
+        <div class="ti-badges">
+          <span class="tbadge ${statusClass[t.status] || 'tb-open'}">${t.status}</span>
+          <span class="tbadge tb-type">${t.type}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── OPEN TICKET ── */
+function openTicket(id) {
+  currentTicketId = id;
+  const t = tickets.find(x => x.id === id);
+  t.unread = false;
+  renderTickets();
+
+  document.getElementById('dpEmpty').style.display = 'none';
+  const content = document.getElementById('dpContent');
+  content.style.display = 'flex';
+
+  document.getElementById('dpTitle').textContent = t.subject;
+
+  const statusClass = { URGENT:'tb-urgent', OPEN:'tb-open', PENDING:'tb-pending', ESCALATED:'tb-escalated', RESOLVED:'tb-resolved' };
+  document.getElementById('dpBadges').innerHTML = `
+    <span class="tbadge ${statusClass[t.status]}">${t.status}</span>
+    <span class="tbadge tb-type">${t.type}</span>
+  `;
+
+  document.getElementById('dpMeta').innerHTML = `
+    <div class="dp-meta-item"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${t.patient.name}</div>
+    <div class="dp-meta-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12"/></svg>${t.patient.phone}</div>
+    <div class="dp-meta-item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>${t.patient.plan}</div>
+    <div class="dp-meta-item" style="cursor:pointer;color:var(--teal);font-weight:600;" onclick="openPatientModal(${t.id})"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View full profile</div>
+  `;
+
+  renderMessages(t);
+  document.getElementById('replyInput').value = '';
+  document.getElementById('replyInput').placeholder = `Reply to ${t.name}...`;
+}
+
+/* ── RENDER MESSAGES ── */
+function renderMessages(t) {
+  const msgs = document.getElementById('dpMessages');
+  msgs.innerHTML = t.messages.map(m => `
+    <div class="msg msg-${m.from === 'agent' ? 'agent' : 'patient'}">
+      <div class="msg-name">${m.name}</div>
+      <div class="msg-bubble">${m.text}</div>
+      <div class="msg-time">${m.time}</div>
+    </div>
+  `).join('');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* ── SEND REPLY ── */
+async function sendReply() {
+  const input = document.getElementById('replyInput');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  const t = tickets.find(x => x.id === currentTicketId);
+  const now = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+  if (USE_API) {
+    try {
+      await apiFetch(`/customer-care/me/tickets/${currentTicketId}/reply`, {
+        method: 'POST', body: JSON.stringify({ message: text })
+      });
+    } catch { showToast('Failed to send reply.', false); return; }
+  }
+
+  t.messages.push({ from:'agent', name:'Fatima Abdullahi', text, time: now });
+  t.preview  = text;
+  t.time     = 'Just now';
+  if (t.status === 'OPEN' || t.status === 'URGENT') t.status = 'PENDING';
+
+  input.value = '';
+  renderMessages(t);
+  renderTickets();
+
+  // Log to activity
+  MOCK.activity.unshift({ text:`Replied to <strong>${t.name}</strong> — ${t.subject.slice(0,30)}...`, time:'Just now', color:'#3b82f6' });
+  renderActivity(MOCK.activity);
+
+  showToast('Reply sent to ' + t.name);
+}
+
+/* ── RESOLVE TICKET ── */
+async function resolveTicket() {
+  const t = tickets.find(x => x.id === currentTicketId);
+  if (!t) return;
+
+  if (USE_API) {
+    try { await apiFetch(`/customer-care/me/tickets/${currentTicketId}/resolve`, { method: 'PATCH' }); }
+    catch { showToast('Failed to resolve.', false); return; }
+  }
+
+  t.status = 'RESOLVED';
+  MOCK.activity.unshift({ text:`Resolved ticket — <strong>${t.name}</strong> ${t.subject.slice(0,25)}...`, time:'Just now', color:'#22c55e' });
+  renderTickets();
+  renderActivity(MOCK.activity);
+  openTicket(currentTicketId);
+  showToast('✅ Ticket resolved!');
+}
+
+/* ── ESCALATE TICKET ── */
+async function escalateTicket() {
+  const t = tickets.find(x => x.id === currentTicketId);
+  if (!t) return;
+
+  if (USE_API) {
+    try { await apiFetch(`/customer-care/me/tickets/${currentTicketId}/escalate`, { method: 'PATCH' }); }
+    catch { showToast('Failed to escalate.', false); return; }
+  }
+
+  t.status = 'ESCALATED';
+  MOCK.activity.unshift({ text:`Escalated ticket — <strong>${t.name}</strong> ${t.subject.slice(0,25)}...`, time:'Just now', color:'#9333ea' });
+  renderTickets();
+  renderActivity(MOCK.activity);
+  openTicket(currentTicketId);
+  showToast('Ticket escalated to supervisor.');
+}
+
+/* ── PATIENT MODAL ── */
+function openPatientModal(ticketId) {
+  const t = tickets.find(x => x.id === ticketId);
+  const p = t.patient;
+  document.getElementById('pmTitle').textContent = p.name + ' — Patient Profile';
+  document.getElementById('pmBody').innerHTML = `
+    <div class="modal-section"><div class="ms-label">Patient Details</div>
+      <div class="detail-row"><span class="dr-label">Patient ID</span><span class="dr-value">${p.id}</span></div>
+      <div class="detail-row"><span class="dr-label">Full Name</span><span class="dr-value">${p.name}</span></div>
+      <div class="detail-row"><span class="dr-label">Phone</span><span class="dr-value">${p.phone}</span></div>
+      <div class="detail-row"><span class="dr-label">Email</span><span class="dr-value">${p.email}</span></div>
+      <div class="detail-row"><span class="dr-label">Care Plan</span><span class="dr-value">${p.plan}</span></div>
+      <div class="detail-row"><span class="dr-label">Assigned Nurse</span><span class="dr-value">${p.nurse}</span></div>
+      <div class="detail-row"><span class="dr-label">Account Status</span><span class="dr-value">${p.status}</span></div>
+    </div>`;
+  document.getElementById('patientModal').classList.add('open');
+}
+
+/* ── RENDER PATIENT TABLE ── */
+function renderPatientTable() {
+  const statusClass = { URGENT:'tb-urgent', OPEN:'tb-open', PENDING:'tb-pending', ESCALATED:'tb-escalated', RESOLVED:'tb-resolved' };
+  document.getElementById('patientTableBody').innerHTML = tickets.slice(0,6).map(t => `
+    <tr onclick="openTicket(${t.id})">
+      <td><div class="td-bold">${t.name}</div><div class="td-sub">${t.patient.id}</div></td>
+      <td style="font-size:12px;color:#8898c8;">${t.time}</td>
+      <td style="font-size:12.5px;">${t.type}</td>
+      <td><span class="tbadge ${statusClass[t.status] || 'tb-open'}">${t.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ── RENDER ACTIVITY ── */
+function renderActivity(data) {
+  document.getElementById('activityFeed').innerHTML = data.map(a => `
+    <div class="af-item">
+      <div class="af-dot" style="background:${a.color || '#8898c8'};"></div>
+      <div class="af-text">${a.text}</div>
+      <div class="af-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+/* ── FILTERS ── */
+function filterTickets(val)   { searchFilter = val.toLowerCase(); renderTickets(); }
+function filterByStatus(val)  { statusFilter = val;               renderTickets(); }
+function filterByType(val)    { typeFilter   = val;               renderTickets(); }
+
+/* ── UTILS ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.querySelector('svg').style.display = ok ? 'block' : 'none';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── Enter to send ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey && currentTicketId) sendReply();
+});
+
+/* ── INIT ── */
+loadDashboard();
+setInterval(loadDashboard, 60000);
+
+/* ================================================================
+   SPRING BOOT ENDPOINT CONTRACT
+   ================================================================
+   GET  /api/customer-care/me/stats              → stats object
+   GET  /api/customer-care/me/tickets            → tickets array
+   GET  /api/customer-care/me/tickets/:id        → single ticket + messages
+   POST /api/customer-care/me/tickets/:id/reply  → { message }
+   PATCH /api/customer-care/me/tickets/:id/resolve  → 200 OK
+   PATCH /api/customer-care/me/tickets/:id/escalate → 200 OK
+   GET  /api/customer-care/me/activity?limit=N   → activity array
+   GET  /api/patients/:id                        → patient profile
+================================================================ */
+</script>
+</body>
+</html>

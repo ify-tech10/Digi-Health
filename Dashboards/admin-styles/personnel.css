@@ -119,3 +119,269 @@
 
     @media (max-width: 1100px) { .personnel-grid { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .personnel-grid { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } }
+
+    /* =========================
+GLOBAL MODAL SYSTEM
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 15, 30, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s ease;
+  z-index: 9999;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================
+MODAL CONTAINER
+========================= */
+
+.modal {
+  width: 520px;
+  max-width: 92%;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  transform: translateY(20px);
+  transition: 0.25s ease;
+  overflow: hidden;
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0);
+}
+
+/* =========================
+MODAL HEADER
+========================= */
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef0f4;
+  background: #f9fafc;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a2550;
+}
+
+/* =========================
+CLOSE BUTTON
+========================= */
+
+.modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+  stroke: #333;
+}
+
+/* =========================
+MODAL BODY
+========================= */
+
+.modal-body {
+  padding: 18px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* =========================
+MODAL FOOTER
+========================= */
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid #eef0f4;
+  background: #fafbfc;
+}
+
+/* =========================
+FORM LAYOUT
+========================= */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9dee8;
+  outline: none;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #1a2550;
+  box-shadow: 0 0 0 3px rgba(26,37,80,0.08);
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+.btn-primary,
+.btn-modal-primary {
+  background: #1a2550;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-primary:hover,
+.btn-modal-primary:hover {
+  background: #111a3a;
+}
+
+.btn-modal-close {
+  background: #eef1f6;
+  color: #333;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-modal-close:hover {
+  background: #e3e8f2;
+}
+
+/* =========================
+PERSONNEL SELECTOR GRID
+========================= */
+
+.personnel-type-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.personnel-type-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e6e9f0;
+  background: #f9fafc;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.personnel-type-btn:hover {
+  background: #eef2ff;
+  border-color: #cfd8ff;
+}
+
+/* =========================
+DETAIL MODAL (VIEW PROFILE)
+========================= */
+
+.modal-section {
+  margin-bottom: 14px;
+}
+
+.modal-section h4 {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #1a2550;
+  border-left: 3px solid #1a2550;
+  padding-left: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #777;
+}
+
+.detail-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+}
+
+/* =========================
+SCROLLBAR (optional polish)
+========================= */
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cfd6e4;
+  border-radius: 10px;
+}
