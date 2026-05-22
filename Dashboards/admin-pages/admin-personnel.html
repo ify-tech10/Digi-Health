@@ -320,54 +320,47 @@ RM MODAL
 
       <div class="form-grid">
 
-        <!-- PERSONAL DETAILS -->
         <div class="form-group">
-          <label>Full Name *</label>
+          <label>Full Name</label>
           <input type="text" id="rm_full_name"/>
         </div>
 
         <div class="form-group">
-          <label>Email *</label>
+          <label>Email</label>
           <input type="email" id="rm_email"/>
         </div>
 
         <div class="form-group">
-          <label>Phone Number *</label>
-          <input type="tel" id="rm_phone"/>
+          <label>Phone</label>
+          <input type="text" id="rm_phone"/>
         </div>
 
         <div class="form-group">
-          <label>Location / Region *</label>
-          <input type="text" id="rm_region"/>
+          <label>Password</label>
+          <input type="password" id="rm_password"/>
         </div>
 
-        <!-- PROFESSIONAL DETAILS -->
         <div class="form-group">
-          <label>Years of Experience</label>
-          <select id="rm_experience">
-            <option value="" disabled selected>Select range</option>
-            <option>Less than 1 year</option>
-            <option>1 – 2 years</option>
-            <option>3 – 5 years</option>
-            <option>6 – 10 years</option>
-            <option>More than 10 years</option>
+          <label>Department</label>
+          <input type="text" id="rm_department"/>
+        </div>
+
+        <!-- <div class="form-group">
+          <label>Access Level</label>
+
+          <select id="admin_access_level">
+            <option>Super Admin</option>
+            <option>Operations Admin</option>
           </select>
-        </div>
+        </div> -->
 
         <div class="form-group">
-          <label>Portfolio Size (Optional)</label>
-          <input type="number" id="rm_portfolio" placeholder="e.g. 50 clients"/>
-        </div>
+          <label>Status</label>
 
-        <div class="form-group">
-          <label>Specialisation</label>
-          <input type="text" id="rm_specialization" placeholder="e.g. Client Relations, Healthcare Management"/>
-        </div>
-
-        <!-- OPTIONAL -->
-        <div class="form-group">
-          <label>Additional Notes</label>
-          <textarea id="rm_notes" placeholder="Any extra information about this RM..."></textarea>
+          <select id="admin_status">
+            <option>ACTIVE</option>
+            <option>INACTIVE</option>
+          </select>
         </div>
 
       </div>
@@ -377,13 +370,13 @@ RM MODAL
     <div class="modal-footer">
 
       <button class="btn-modal-close"
-        onclick="closeModal('rmModal')">
+        onclick="closeModal('adminModal')">
         Cancel
       </button>
 
       <button class="btn-modal-primary"
-        onclick="submitRM()">
-        Add RM
+        onclick="submitAdmin()">
+        Add Admin
       </button>
 
     </div>
@@ -496,7 +489,6 @@ CLINICAL PERSONNEL MODAL
               <option>Registered Nurse (RN)</option>
               <option>Community Health Nurse</option>
               <option>Physiotherapist</option>
-              <option>Lab Technician</option>
               <option>Postnatal Care Specialist</option>
               <option>Elderly Care Assistant</option>
               <option>Home Health Aide</option>
