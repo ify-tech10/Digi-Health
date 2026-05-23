@@ -265,6 +265,321 @@ function openFinanceModal() {
 }
 
 
+/* =========================================================
+BASE API
+========================================================= */
+
+const API_BASE = "https://digihealth-6uy7.onrender.com/api/admin/personnel";
+
+/* =========================================================
+GENERIC REQUEST HELPER
+========================================================= */
+
+async function onboardRequest(endpoint, payload, successMessage) {
+
+  try {
+
+    const res = await fetch(`${API_BASE}/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+
+      alert(
+        data.message ||
+        data.error ||
+        "Unable to complete request"
+      );
+
+      return;
+    }
+
+    alert(successMessage || "Onboarding successful");
+
+    return data;
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Network error. Please try again.");
+  }
+}
+
+/* =========================================================
+ADMIN
+========================================================= */
+
+async function submitAdmin() {
+
+  const payload = {
+    fullName: document.getElementById("admin_full_name").value.trim(),
+    email: document.getElementById("admin_email").value.trim(),
+    phoneNumber: document.getElementById("admin_phone").value.trim(),
+    department: document.getElementById("admin_department").value.trim(),
+    accessLevel: document.getElementById("admin_access_level").value,
+    status: document.getElementById("admin_status").value
+  };
+
+  const res = await onboardRequest(
+    "admins",
+    payload,
+    "Admin onboarded successfully"
+  );
+
+  if (res) closeModal("adminModal");
+}
+
+/* =========================================================
+RELATIONSHIP MANAGER
+========================================================= */
+
+async function submitRM() {
+
+  const payload = {
+    fullName: document.getElementById("rm_full_name").value.trim(),
+    email: document.getElementById("rm_email").value.trim(),
+    phoneNumber: document.getElementById("rm_phone").value.trim(),
+    locationArea: document.getElementById("rm_location").value.trim(),
+    gender: document.getElementById("rm_gender").value,
+    dateOfBirth: document.getElementById("rm_dob").value,
+    region: document.getElementById("rm_region").value.trim(),
+    yearsOfExperience: document.getElementById("rm_experience").value,
+    employmentStatus: document.getElementById("rm_employment_status").value,
+    professionalSummary: document.getElementById("rm_summary").value.trim(),
+    availabilityType: document.getElementById("rm_availability").value
+  };
+
+  const res = await onboardRequest(
+    "relationship-managers",
+    payload,
+    "Relationship Manager onboarded successfully"
+  );
+
+  if (res) closeModal("rmModal");
+}
+
+/* =========================================================
+CLINICAL PERSONNEL
+========================================================= */
+
+async function submitClinical() {
+
+  const specialisations = [
+    ...document.querySelectorAll(
+      "#clinicalModal input[name='clinical_specialisation']:checked"
+    )
+  ].map(el => el.value);
+
+  const workingHours = [
+    ...document.querySelectorAll(
+      "#clinicalModal input[name='clinical_hours']:checked"
+    )
+  ].map(el => el.value);
+
+  const payload = {
+    fullName: document.getElementById("clinical_full_name").value.trim(),
+    email: document.getElementById("clinical_email").value.trim(),
+    phoneNumber: document.getElementById("clinical_phone").value.trim(),
+    locationArea: document.getElementById("clinical_location").value.trim(),
+    gender: document.getElementById("clinical_gender").value,
+    dateOfBirth: document.getElementById("clinical_dob").value,
+
+    serviceProviderType: document.getElementById("clinical_role").value,
+    yearsOfExperience: document.getElementById("clinical_experience").value,
+    highestQualification: document.getElementById("clinical_qualification").value,
+    employmentStatus: document.getElementById("clinical_employment_status").value,
+
+    areasOfSpecialisation: specialisations,
+    professionalSummary: document.getElementById("clinical_summary").value.trim(),
+
+    licenseNumber: document.getElementById("clinical_license").value.trim(),
+
+    availabilityType: document.getElementById("clinical_availability").value,
+    startDate: document.getElementById("clinical_start_date").value,
+    preferredWorkingHours: workingHours,
+    coverageAreas: document.getElementById("clinical_coverage").value.trim(),
+    additionalInfo: document.getElementById("clinical_additional_info").value.trim()
+  };
+
+  const res = await onboardRequest(
+    "clinical",
+    payload,
+    "Clinical personnel onboarded successfully"
+  );
+
+  if (res) closeModal("clinicalModal");
+}
+
+/* =========================================================
+PATIENT
+========================================================= */
+
+async function submitPatient() {
+
+  const payload = {
+    fullName: document.getElementById("patient_full_name").value.trim(),
+    email: document.getElementById("patient_email").value.trim(),
+    phoneNumber: document.getElementById("patient_phone").value.trim(),
+    bloodGroup: document.getElementById("patient_blood_group").value.trim(),
+    insuranceProvider: document.getElementById("patient_insurance").value.trim(),
+    nextOfKin: document.getElementById("patient_nok").value.trim()
+  };
+
+  const res = await onboardRequest(
+    "patients",
+    payload,
+    "Patient onboarded successfully"
+  );
+
+  if (res) closeModal("patientModal");
+}
+
+/* =========================================================
+CNO / MD
+========================================================= */
+
+async function submitCNO() {
+
+  const payload = {
+    fullName: document.getElementById("cno_full_name").value.trim(),
+    email: document.getElementById("cno_email").value.trim(),
+    phoneNumber: document.getElementById("cno_phone").value.trim(),
+    hospital: document.getElementById("cno_hospital").value.trim(),
+    department: document.getElementById("cno_department").value.trim(),
+    medicalLicense: document.getElementById("cno_license").value.trim(),
+    yearsOfExperience: document.getElementById("cno_experience").value,
+    locationArea: document.getElementById("cno_location").value.trim()
+  };
+
+  const res = await onboardRequest(
+    "executives",
+    payload,
+    "CNO / MD onboarded successfully"
+  );
+
+  if (res) closeModal("cnoModal");
+}
+
+/* =========================================================
+LAB SCIENTIST
+========================================================= */
+
+async function submitLabScientist() {
+
+  const specialisations = [
+    ...document.querySelectorAll(
+      "#labScientistModal input[name='lab_specialisation']:checked"
+    )
+  ].map(el => el.value);
+
+  const payload = {
+    fullName: document.getElementById("lab_full_name").value.trim(),
+    email: document.getElementById("lab_email").value.trim(),
+    phoneNumber: document.getElementById("lab_phone").value.trim(),
+    certification: document.getElementById("lab_certification").value.trim(),
+    specialTests: document.getElementById("lab_tests").value.trim(),
+    yearsOfExperience: document.getElementById("lab_experience").value,
+    highestQualification: document.getElementById("lab_qualification").value,
+    areasOfSpecialisation: specialisations,
+    locationArea: document.getElementById("lab_location").value.trim(),
+    availabilityType: document.getElementById("lab_availability").value
+  };
+
+  const res = await onboardRequest(
+    "lab-scientist",
+    payload,
+    "Lab Scientist onboarded successfully"
+  );
+
+  if (res) closeModal("labScientistModal");
+}
+
+/* =========================================================
+PHARMACIST
+========================================================= */
+
+async function submitPharmacist() {
+
+  const payload = {
+    fullName: document.getElementById("pharmacist_full_name").value.trim(),
+    email: document.getElementById("pharmacist_email").value.trim(),
+    phoneNumber: document.getElementById("pharmacist_phone").value.trim(),
+    pcnNumber: document.getElementById("pharmacist_pcn").value.trim(),
+    branch: document.getElementById("pharmacist_branch").value.trim(),
+    yearsOfExperience: document.getElementById("pharmacist_experience").value,
+    highestQualification: document.getElementById("pharmacist_qualification").value,
+    locationArea: document.getElementById("pharmacist_location").value.trim(),
+    availabilityType: document.getElementById("pharmacist_availability").value
+  };
+
+  const res = await onboardRequest(
+    "pharmacists",
+    payload,
+    "Pharmacist onboarded successfully"
+  );
+
+  if (res) closeModal("pharmacistModal");
+}
+
+/* =========================================================
+FINANCE
+========================================================= */
+
+async function submitFinance() {
+
+  const payload = {
+    fullName: document.getElementById("finance_full_name").value.trim(),
+    email: document.getElementById("finance_email").value.trim(),
+    phoneNumber: document.getElementById("finance_phone").value.trim(),
+    department: document.getElementById("finance_department").value.trim(),
+    role: document.getElementById("finance_role").value,
+    employeeId: document.getElementById("finance_employee_id").value.trim(),
+    status: document.getElementById("finance_status").value
+  };
+
+  const res = await onboardRequest(
+    "finance",
+    payload,
+    "Finance staff onboarded successfully"
+  );
+
+  if (res) closeModal("financeModal");
+}
+
+/* =========================================================
+CUSTOMER CARE
+========================================================= */
+
+async function submitCustomerCare() {
+
+  const payload = {
+    fullName: document.getElementById("cc_full_name").value.trim(),
+    email: document.getElementById("cc_email").value.trim(),
+    phoneNumber: document.getElementById("cc_phone").value.trim(),
+    shift: document.getElementById("cc_shift").value,
+    supportLevel: document.getElementById("cc_support_level").value,
+    language: document.getElementById("cc_language").value.trim(),
+    status: document.getElementById("cc_status").value
+  };
+
+  const res = await onboardRequest(
+    "customer-care",
+    payload,
+    "Customer care staff onboarded successfully"
+  );
+
+  if (res) closeModal("customerCareModal");
+}
+
+
 
    /* =========================
     INIT
