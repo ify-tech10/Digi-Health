@@ -431,7 +431,7 @@ async function apiFetch(path, options = {}) {
 const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
 // Uncomment in production:
 // if (!user.loggedIn || !['customer_care',].includes((user.role||'').toLowerCase())) window.location.href = 'login.html';
-function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
 
 /* ── TOPBAR DATE ── */
 document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });

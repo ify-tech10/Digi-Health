@@ -1,5 +1,5 @@
  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  /*if (!user.loggedIn || user.role !== 'service-provider') window.location.href = 'login.html';
+  /*if (!user.loggedIn || (user.role !== 'SERVICE_PROVIDER' && user.role !== 'CLINICAL_PERSONNEL')) window.location.href = 'login.html';
   function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }*/
  
   // ── STATE ──

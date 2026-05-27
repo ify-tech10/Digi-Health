@@ -189,7 +189,7 @@
 
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || user.role !== 'SERVICE_PROVIDER') {
+  if (!user.loggedIn || (user.role !== 'SERVICE_PROVIDER' && user.role !== 'CLINICAL_PERSONNEL')) {
     window.location.href = 'login.html';
   }
   function logout() {
