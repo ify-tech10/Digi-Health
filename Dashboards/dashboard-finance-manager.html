@@ -789,7 +789,7 @@
 ================================================================ */
 const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
 const USE_API  = false;
-function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
 document.getElementById('topbarDate').textContent =
   new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' · Finance Systems Online';
 

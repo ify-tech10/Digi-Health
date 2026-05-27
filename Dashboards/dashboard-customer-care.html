@@ -421,7 +421,7 @@ async function apiFetch(path, options = {}) {
   const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
   const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
   const res = await fetch(API_BASE + path, { ...options, headers });
-  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
   if (!res.ok) throw new Error('HTTP ' + res.status);
   if (res.status === 204) return null;
   return res.json();
