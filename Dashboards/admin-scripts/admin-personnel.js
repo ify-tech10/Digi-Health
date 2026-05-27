@@ -275,41 +275,74 @@ const API_BASE = "https://digihealth-6uy7.onrender.com/api/admin/personnel";
 GENERIC REQUEST HELPER
 ========================================================= */
 
-async function onboardRequest(endpoint, payload, successMessage) {
+async function onboardRequest(endpoint, inputData, successMessage, modalId) {
+
+  const user = JSON.parse(localStorage.getItem("dh_user") || "{}");
+
+  let body;
+  let headers = {
+    Authorization: `Bearer ${user.token}`
+  };
+
+  // =========================
+  // FORMDATA MODE
+  // =========================
+  if (inputData instanceof FormData) {
+
+    body = inputData;
+
+  } else {
+
+    // =========================
+    // JSON MODE
+    // =========================
+    headers["Content-Type"] = "application/json";
+
+    body = JSON.stringify(inputData);
+  }
+
+  // =========================
+  // BUTTON STATE
+  // =========================
+  const btn = document.querySelector(`#${modalId} .btn-modal-primary`);
+  const originalText = btn?.innerHTML;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = "Submitting...";
+  }
 
   try {
 
     const res = await fetch(`${API_BASE}/${endpoint}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`
-      },
-      body: JSON.stringify(payload)
+      headers,
+      body
     });
 
-    const data = await res.json().catch(() => ({}));
+    const responseData = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-
-      alert(
-        data.message ||
-        data.error ||
-        "Unable to complete request"
-      );
-
-      return;
+      alert(responseData.message || responseData.error || "Unable to complete request");
+      return null;
     }
 
     alert(successMessage || "Onboarding successful");
 
-    return data;
+    return responseData;
 
   } catch (err) {
 
     console.error(err);
-
     alert("Network error. Please try again.");
+    return null;
+
+  } finally {
+
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
   }
 }
 
@@ -320,18 +353,34 @@ ADMIN
 async function submitAdmin() {
 
   const payload = {
-    fullName: document.getElementById("admin_full_name").value.trim(),
+
+    // =========================
+    // PERSONAL DETAILS
+    // =========================
+    firstName: document.getElementById("admin_first_name").value.trim(),
+
+    lastName: document.getElementById("admin_last_name").value.trim(),
+
     email: document.getElementById("admin_email").value.trim(),
+
     phoneNumber: document.getElementById("admin_phone").value.trim(),
-    department: document.getElementById("admin_department").value.trim(),
-    accessLevel: document.getElementById("admin_access_level").value,
+
+    password: document.getElementById("admin_password").value,
+
+    // =========================
+    // STATUS
+    // =========================
     status: document.getElementById("admin_status").value
   };
 
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
     "admins",
     payload,
-    "Admin onboarded successfully"
+    "Admin onboarded successfully",
+    "adminModal"
   );
 
   if (res) closeModal("adminModal");
@@ -360,7 +409,8 @@ async function submitRM() {
   const res = await onboardRequest(
     "relationship-managers",
     payload,
-    "Relationship Manager onboarded successfully"
+    "Relationship Manager onboarded successfully",
+    "rmModal"
   );
 
   if (res) closeModal("rmModal");
@@ -372,47 +422,91 @@ CLINICAL PERSONNEL
 
 async function submitClinical() {
 
-  const specialisations = [
-    ...document.querySelectorAll(
-      "#clinicalModal input[name='clinical_specialisation']:checked"
-    )
-  ].map(el => el.value);
+  const formData = new FormData();
 
-  const workingHours = [
-    ...document.querySelectorAll(
-      "#clinicalModal input[name='clinical_hours']:checked"
-    )
-  ].map(el => el.value);
+  // =========================
+  // PERSONAL DETAILS
+  // =========================
+  formData.append("fullName", document.getElementById("clinical_full_name").value.trim());
+  formData.append("email", document.getElementById("clinical_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("clinical_phone").value.trim());
+  formData.append("location", document.getElementById("clinical_location").value.trim());
+  formData.append("gender", document.getElementById("clinical_gender").value);
+  formData.append("dateOfBirth", document.getElementById("clinical_dob").value);
 
-  const payload = {
-    fullName: document.getElementById("clinical_full_name").value.trim(),
-    email: document.getElementById("clinical_email").value.trim(),
-    phoneNumber: document.getElementById("clinical_phone").value.trim(),
-    locationArea: document.getElementById("clinical_location").value.trim(),
-    gender: document.getElementById("clinical_gender").value,
-    dateOfBirth: document.getElementById("clinical_dob").value,
+  // =========================
+  // PROFESSIONAL DETAILS
+  // =========================
+  formData.append("role", document.getElementById("clinical_role").value);
+  formData.append("yearsOfExperience", document.getElementById("clinical_experience").value);
+  formData.append("highestQualification", document.getElementById("clinical_qualification").value);
+  formData.append("employmentStatus", document.getElementById("clinical_employment_status").value);
+  formData.append("licenseNumber", document.getElementById("clinical_license").value.trim());
 
-    serviceProviderType: document.getElementById("clinical_role").value,
-    yearsOfExperience: document.getElementById("clinical_experience").value,
-    highestQualification: document.getElementById("clinical_qualification").value,
-    employmentStatus: document.getElementById("clinical_employment_status").value,
+  // =========================
+  // SPECIALISATION (CHECKBOXES)
+  // =========================
+  const specialisations = Array.from(
+    document.querySelectorAll("#clinicalModal .checkbox-group input[type='checkbox']:checked")
+  ).map(cb => cb.value);
 
-    areasOfSpecialisation: specialisations,
-    professionalSummary: document.getElementById("clinical_summary").value.trim(),
+  formData.append("specialisations", JSON.stringify(specialisations));
 
-    licenseNumber: document.getElementById("clinical_license").value.trim(),
+  // =========================
+  // PROFESSIONAL SUMMARY
+  // =========================
+  formData.append("summary", document.getElementById("clinical_summary").value.trim());
 
-    availabilityType: document.getElementById("clinical_availability").value,
-    startDate: document.getElementById("clinical_start_date").value,
-    preferredWorkingHours: workingHours,
-    coverageAreas: document.getElementById("clinical_coverage").value.trim(),
-    additionalInfo: document.getElementById("clinical_additional_info").value.trim()
-  };
+  // =========================
+  // DOCUMENTS (FILES)
+  // =========================
+  const cv = document.getElementById("clinical_cv").files[0];
+  if (cv) formData.append("cv", cv);
 
+  const certificate = document.getElementById("clinical_cert").files[0];
+  if (certificate) formData.append("certificateFile", certificate);
+
+  const idFile = document.getElementById("clinical_id").files[0];
+  if (idFile) formData.append("governmentId", idFile);
+
+  const licenseFile = document.getElementById("clinical_license_file").files[0];
+  if (licenseFile) formData.append("licenseFile", licenseFile);
+
+  // =========================
+  // REFERENCES
+  // =========================
+  formData.append("reference1Name", document.getElementById("clinical_ref1_name").value.trim());
+  formData.append("reference1Relationship", document.getElementById("clinical_ref1_relationship").value.trim());
+  formData.append("reference1Phone", document.getElementById("clinical_ref1_phone").value.trim());
+  formData.append("reference1Email", document.getElementById("clinical_ref1_email").value.trim());
+
+  // =========================
+  // AVAILABILITY
+  // =========================
+  formData.append("availabilityType", document.getElementById("clinical_availability").value);
+  formData.append("startDate", document.getElementById("clinical_start_date").value);
+  formData.append("coverageAreas", document.getElementById("clinical_coverage").value.trim());
+
+  // WORK HOURS (checkboxes)
+  const workHours = Array.from(
+    document.querySelectorAll("#clinicalModal input[type='checkbox']:checked")
+  ).map(cb => cb.value);
+
+  formData.append("workHours", JSON.stringify(workHours));
+
+  // =========================
+  // ADDITIONAL INFO
+  // =========================
+  formData.append("additionalInfo", document.getElementById("clinical_additional_info").value.trim());
+
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
-    "clinical",
-    payload,
-    "Clinical personnel onboarded successfully"
+    "clinical-personnel",
+    formData,
+    "Clinical personnel onboarded successfully",
+    "clinicalModal"
   );
 
   if (res) closeModal("clinicalModal");
@@ -428,15 +522,16 @@ async function submitPatient() {
     fullName: document.getElementById("patient_full_name").value.trim(),
     email: document.getElementById("patient_email").value.trim(),
     phoneNumber: document.getElementById("patient_phone").value.trim(),
-    bloodGroup: document.getElementById("patient_blood_group").value.trim(),
-    insuranceProvider: document.getElementById("patient_insurance").value.trim(),
-    nextOfKin: document.getElementById("patient_nok").value.trim()
+    // bloodGroup: document.getElementById("patient_blood_group").value.trim(),
+    // insuranceProvider: document.getElementById("patient_insurance").value.trim(),
+    // nextOfKin: document.getElementById("patient_nok").value.trim()
   };
 
   const res = await onboardRequest(
     "patients",
     payload,
-    "Patient onboarded successfully"
+    "Patient onboarded successfully",
+    "patientModal"
   );
 
   if (res) closeModal("patientModal");
@@ -448,21 +543,78 @@ CNO / MD
 
 async function submitCNO() {
 
-  const payload = {
-    fullName: document.getElementById("cno_full_name").value.trim(),
-    email: document.getElementById("cno_email").value.trim(),
-    phoneNumber: document.getElementById("cno_phone").value.trim(),
-    hospital: document.getElementById("cno_hospital").value.trim(),
-    department: document.getElementById("cno_department").value.trim(),
-    medicalLicense: document.getElementById("cno_license").value.trim(),
-    yearsOfExperience: document.getElementById("cno_experience").value,
-    locationArea: document.getElementById("cno_location").value.trim()
-  };
+  const formData = new FormData();
 
+  // =========================
+  // PERSONAL DETAILS
+  // =========================
+  formData.append("fullName", document.getElementById("cno_full_name").value.trim());
+  formData.append("email", document.getElementById("cno_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("cno_phone").value.trim());
+  formData.append("gender", document.getElementById("cno_gender").value);
+  formData.append("dateOfBirth", document.getElementById("cno_dob").value);
+  formData.append("location", document.getElementById("cno_location").value.trim());
+
+  // =========================
+  // EXECUTIVE DETAILS
+  // =========================
+  formData.append("executiveRole", document.getElementById("cno_role").value);
+  formData.append("hospital", document.getElementById("cno_hospital").value.trim());
+  formData.append("licenseNumber", document.getElementById("cno_license").value.trim());
+  formData.append("yearsOfExperience", document.getElementById("cno_experience").value);
+  formData.append("highestQualification", document.getElementById("cno_qualification").value);
+  formData.append("department", document.getElementById("cno_department").value.trim());
+
+  // =========================
+  // SPECIALISATION (CHECKBOXES)
+  // =========================
+  const specialisations = Array.from(
+    document.querySelectorAll("#cnoModal .checkbox-group input[type='checkbox']:checked")
+  ).map(cb => cb.value);
+
+  formData.append("specialisations", JSON.stringify(specialisations));
+
+  // =========================
+  // SUMMARY
+  // =========================
+  formData.append("summary", document.getElementById("cno_summary").value.trim());
+
+  // =========================
+  // DOCUMENTS (FILES)
+  // =========================
+  const cv = document.getElementById("cno_cv").files[0];
+  if (cv) formData.append("cv", cv);
+
+  const licenseFile = document.getElementById("cno_license_file").files[0];
+  if (licenseFile) formData.append("medicalLicenseFile", licenseFile);
+
+  const certificate = document.getElementById("cno_certificate").files[0];
+  if (certificate) formData.append("certificateFile", certificate);
+
+  const idFile = document.getElementById("cno_id").files[0];
+  if (idFile) formData.append("governmentId", idFile);
+
+  // =========================
+  // REFERENCE
+  // =========================
+  formData.append("referenceName", document.getElementById("cno_ref_name").value.trim());
+  formData.append("referenceRelationship", document.getElementById("cno_ref_relationship").value.trim());
+  formData.append("referencePhone", document.getElementById("cno_ref_phone").value.trim());
+  formData.append("referenceEmail", document.getElementById("cno_ref_email").value.trim());
+
+  // =========================
+  // ADDITIONAL INFO
+  // =========================
+  formData.append("additionalInfo", document.getElementById("cno_additional_info").value.trim());
+
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
-    "executives",
-    payload,
-    "CNO / MD onboarded successfully"
+    "cno",
+    formData,
+    "Executive onboarded successfully",
+    "cnoModal"
   );
 
   if (res) closeModal("cnoModal");
@@ -474,29 +626,74 @@ LAB SCIENTIST
 
 async function submitLabScientist() {
 
-  const specialisations = [
-    ...document.querySelectorAll(
-      "#labScientistModal input[name='lab_specialisation']:checked"
-    )
-  ].map(el => el.value);
+  const formData = new FormData();
 
-  const payload = {
-    fullName: document.getElementById("lab_full_name").value.trim(),
-    email: document.getElementById("lab_email").value.trim(),
-    phoneNumber: document.getElementById("lab_phone").value.trim(),
-    certification: document.getElementById("lab_certification").value.trim(),
-    specialTests: document.getElementById("lab_tests").value.trim(),
-    yearsOfExperience: document.getElementById("lab_experience").value,
-    highestQualification: document.getElementById("lab_qualification").value,
-    areasOfSpecialisation: specialisations,
-    locationArea: document.getElementById("lab_location").value.trim(),
-    availabilityType: document.getElementById("lab_availability").value
-  };
+  // =====================
+  // PERSONAL DETAILS
+  // =====================
+  formData.append("fullName", document.getElementById("lab_full_name").value.trim());
+  formData.append("email", document.getElementById("lab_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("lab_phone").value.trim());
+  formData.append("location", document.getElementById("lab_location").value.trim());
+  formData.append("dateOfBirth", document.getElementById("lab_dob").value);
 
+  // =====================
+  // PROFESSIONAL DETAILS
+  // =====================
+  formData.append("role", document.getElementById("lab_role").value);
+  formData.append("yearsOfExperience", document.getElementById("lab_experience").value);
+  formData.append("highestQualification", document.getElementById("lab_qualification").value);
+  formData.append("licenseNumber", document.getElementById("lab_license").value.trim());
+  formData.append("specialisation", document.getElementById("lab_specialisation").value.trim());
+
+  // =====================
+  // CHECKBOX SKILLS
+  // =====================
+  const selectedTests = Array.from(
+    document.querySelectorAll(".checkbox-group input[type='checkbox']:checked")
+  ).map(cb => cb.value);
+
+  formData.append("specialTests", JSON.stringify(selectedTests));
+
+  // =====================
+  // DOCUMENTS (FILES)
+  // =====================
+  const cv = document.getElementById("lab_cv").files[0];
+  if (cv) formData.append("cv", cv);
+
+  const certification = document.getElementById("lab_certification_file").files[0];
+  if (certification) formData.append("certification", certification);
+
+  const idFile = document.getElementById("lab_id").files[0];
+  if (idFile) formData.append("governmentId", idFile);
+
+  const licenseFile = document.getElementById("lab_license_file").files[0];
+  if (licenseFile) formData.append("licenseFile", licenseFile);
+
+  // =====================
+  // REFERENCES
+  // =====================
+  formData.append("referenceName", document.getElementById("lab_ref_name").value.trim());
+  formData.append("referenceRelationship", document.getElementById("lab_ref_relationship").value.trim());
+  formData.append("referencePhone", document.getElementById("lab_ref_phone").value.trim());
+  formData.append("referenceEmail", document.getElementById("lab_ref_email").value.trim());
+
+  // =====================
+  // AVAILABILITY
+  // =====================
+  formData.append("availabilityType", document.getElementById("lab_availability").value);
+  formData.append("startDate", document.getElementById("lab_start_date").value);
+  formData.append("coverageAreas", document.getElementById("lab_coverage").value.trim());
+  formData.append("additionalInfo", document.getElementById("lab_additional_info").value.trim());
+
+  // =====================
+  // API CALL
+  // =====================
   const res = await onboardRequest(
-    "lab-scientist",
-    payload,
-    "Lab Scientist onboarded successfully"
+    "lab-scientists",
+    formData,
+    "Laboratory Scientist onboarded successfully",
+    "labScientistModal"
   );
 
   if (res) closeModal("labScientistModal");
@@ -508,22 +705,42 @@ PHARMACIST
 
 async function submitPharmacist() {
 
-  const payload = {
-    fullName: document.getElementById("pharmacist_full_name").value.trim(),
-    email: document.getElementById("pharmacist_email").value.trim(),
-    phoneNumber: document.getElementById("pharmacist_phone").value.trim(),
-    pcnNumber: document.getElementById("pharmacist_pcn").value.trim(),
-    branch: document.getElementById("pharmacist_branch").value.trim(),
-    yearsOfExperience: document.getElementById("pharmacist_experience").value,
-    highestQualification: document.getElementById("pharmacist_qualification").value,
-    locationArea: document.getElementById("pharmacist_location").value.trim(),
-    availabilityType: document.getElementById("pharmacist_availability").value
-  };
+  const formData = new FormData();
 
+  // =========================
+  // PERSONAL DETAILS
+  // =========================
+  formData.append("fullName", document.getElementById("pharmacist_full_name").value.trim());
+  formData.append("email", document.getElementById("pharmacist_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("pharmacist_phone").value.trim());
+  formData.append("branch", document.getElementById("pharmacist_branch").value.trim());
+
+  // =========================
+  // PROFESSIONAL DETAILS
+  // =========================
+  formData.append("licenseNumber", document.getElementById("pharmacist_license").value.trim());
+  formData.append("yearsOfExperience", document.getElementById("pharmacist_experience").value);
+  formData.append("specialization", document.getElementById("pharmacist_specialization").value.trim());
+
+  // OPTIONAL
+  formData.append("pcnNumber", document.getElementById("pharmacist_pcn").value.trim());
+
+  // =========================
+  // CV FILE
+  // =========================
+  const cv = document.getElementById("pharmacist_cv").files[0];
+  if (cv) {
+    formData.append("cv", cv);
+  }
+
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
     "pharmacists",
-    payload,
-    "Pharmacist onboarded successfully"
+    formData,
+    "Pharmacist onboarded successfully",
+    "pharmacistModal"
   );
 
   if (res) closeModal("pharmacistModal");
@@ -535,20 +752,39 @@ FINANCE
 
 async function submitFinance() {
 
-  const payload = {
-    fullName: document.getElementById("finance_full_name").value.trim(),
-    email: document.getElementById("finance_email").value.trim(),
-    phoneNumber: document.getElementById("finance_phone").value.trim(),
-    department: document.getElementById("finance_department").value.trim(),
-    role: document.getElementById("finance_role").value,
-    employeeId: document.getElementById("finance_employee_id").value.trim(),
-    status: document.getElementById("finance_status").value
-  };
+  const formData = new FormData();
 
+  // =========================
+  // PERSONAL DETAILS
+  // =========================
+  formData.append("fullName", document.getElementById("finance_full_name").value.trim());
+  formData.append("email", document.getElementById("finance_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("finance_phone").value.trim());
+
+  // =========================
+  // PROFESSIONAL DETAILS
+  // =========================
+  formData.append("department", document.getElementById("finance_department").value.trim());
+  formData.append("roleLevel", document.getElementById("finance_role_level").value);
+  formData.append("accessLevel", document.getElementById("finance_access").value);
+  formData.append("status", document.getElementById("finance_status").value);
+
+  // =========================
+  // CV FILE
+  // =========================
+  const cv = document.getElementById("finance_cv").files[0];
+  if (cv) {
+    formData.append("cv", cv);
+  }
+
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
-    "finance",
-    payload,
-    "Finance staff onboarded successfully"
+    "finance-managers",
+    formData,
+    "Finance Manager onboarded successfully",
+    "financeModal"
   );
 
   if (res) closeModal("financeModal");
@@ -560,20 +796,39 @@ CUSTOMER CARE
 
 async function submitCustomerCare() {
 
-  const payload = {
-    fullName: document.getElementById("cc_full_name").value.trim(),
-    email: document.getElementById("cc_email").value.trim(),
-    phoneNumber: document.getElementById("cc_phone").value.trim(),
-    shift: document.getElementById("cc_shift").value,
-    supportLevel: document.getElementById("cc_support_level").value,
-    language: document.getElementById("cc_language").value.trim(),
-    status: document.getElementById("cc_status").value
-  };
+  const formData = new FormData();
 
+  // =========================
+  // PERSONAL DETAILS
+  // =========================
+  formData.append("fullName", document.getElementById("cc_full_name").value.trim());
+  formData.append("email", document.getElementById("cc_email").value.trim());
+  formData.append("phoneNumber", document.getElementById("cc_phone").value.trim());
+
+  // =========================
+  // ROLE DETAILS
+  // =========================
+  formData.append("shift", document.getElementById("cc_shift").value);
+  formData.append("supportChannel", document.getElementById("cc_channel").value);
+  formData.append("yearsOfExperience", document.getElementById("cc_experience").value);
+  formData.append("status", document.getElementById("cc_status").value);
+
+  // =========================
+  // CV FILE
+  // =========================
+  const cv = document.getElementById("cc_cv").files[0];
+  if (cv) {
+    formData.append("cv", cv);
+  }
+
+  // =========================
+  // API CALL
+  // =========================
   const res = await onboardRequest(
     "customer-care",
-    payload,
-    "Customer care staff onboarded successfully"
+    formData,
+    "Customer Care Specialist onboarded successfully",
+    "customerCareModal"
   );
 
   if (res) closeModal("customerCareModal");

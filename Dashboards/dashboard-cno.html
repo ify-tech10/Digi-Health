@@ -477,7 +477,7 @@ async function apiFetch(path, options = {}) {
 /* ── AUTH ── */
 const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
 // Allow CNO, ADMIN, SUPER_ADMIN, NURSING_OFFICER roles
-//const ALLOWED_ROLES = ['admin','cno','nursing_officer','super_admin'];
+//const ALLOWED_ROLES = ['cno','medical_director','chief_medical_officer','head_of_clinical_operations','nursing_supervisor'].filter(Boolean);
 //if (!user.loggedIn || !ALLOWED_ROLES.includes((user.role||'').toLowerCase())) {
   // Commented out for demo — uncomment in production
   // window.location.href = 'login.html';

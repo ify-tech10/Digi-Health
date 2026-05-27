@@ -226,9 +226,15 @@ ADMIN MODAL
       <div class="form-grid">
 
         <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="admin_full_name"/>
+          <label>First Name</label>
+          <input type="text" id="admin_first_name"/>
         </div>
+
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="admin_last_name"/>
+        </div>
+        
 
         <div class="form-group">
           <label>Email</label>
@@ -245,12 +251,12 @@ ADMIN MODAL
           <input type="password" id="admin_password"/>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label>Department</label>
           <input type="text" id="admin_department"/>
         </div>
 
-        <!-- <div class="form-group">
+         <div class="form-group">
           <label>Access Level</label>
 
           <select id="admin_access_level">
@@ -881,7 +887,7 @@ PATIENT MODAL
           <input type="text" id="patient_phone"/>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label>Blood Group</label>
           <input type="text" id="patient_blood_group"/>
         </div>
@@ -894,7 +900,7 @@ PATIENT MODAL
         <div class="form-group">
           <label>Next of Kin</label>
           <input type="text" id="patient_nok"/>
-        </div>
+        </div> -->
 
       </div>
 
@@ -1019,10 +1025,10 @@ CNO / MD MODAL
 
           <select id="cno_role">
             <option value="">Select Role</option>
-            <option>Chief Nursing Officer (CNO)</option>
-            <option>Medical Director (MD)</option>
-            <option>Chief Medical Officer (CMO)</option>
-            <option>Head of Clinical Operations</option>
+            <option value="CNO">Chief Nursing Officer (CNO)</option>
+            <option value="MD">Medical Director (MD)</option>
+            <option value="CMO">Chief Medical Officer (CMO)</option>
+            <option value="Head of Clinical Operations">Head of Clinical Operations</option>
           </select>
         </div>
 
