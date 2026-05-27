@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Finance Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a2550;
+      --blue-light: #2a3f8a;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --teal: #0891b2;
+      --purple: #9333ea;
+      --white: #fff;
+      --off-white: #f8f9fc;
+      --sidebar-w: 250px;
+      --radius: 10px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 36px; height: 36px; background: #1d4ed8; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; text-align: center; line-height: 1.2; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(29,78,216,0.2); color: #93c5fd; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 14px 6px 6px; }
+    .u-avatar { width: 28px; height: 28px; background: #1d4ed8; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* ── SECTION HEADING ── */
+    .section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+    .section-heading h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--navy); }
+    .section-heading p { font-size: 12.5px; color: #8898c8; margin-top: 2px; }
+
+    /* ── WELCOME HERO ── */
+    .welcome-hero { background: linear-gradient(135deg, #0c1a3a 0%, #0a1a4a 100%); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; }
+    .welcome-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 85% 50%, rgba(29,78,216,0.22) 0%, transparent 60%); pointer-events: none; }
+    .wh-left { position: relative; }
+    .wh-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #93c5fd; margin-bottom: 6px; }
+    .wh-title { font-family: 'DM Serif Display', serif; font-size: 1.55rem; color: #fff; margin-bottom: 6px; line-height: 1.25; }
+    .wh-sub { font-size: 13px; color: #8898c8; }
+    .wh-right { display: flex; gap: 20px; position: relative; flex-wrap: wrap; }
+    .wh-stat { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px 18px; text-align: center; min-width: 100px; }
+    .wh-stat-val { font-size: 20px; font-weight: 700; color: #fff; }
+    .wh-stat-lbl { font-size: 11px; color: #8898c8; margin-top: 2px; }
+
+    /* ── BADGES ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-paid      { background: #f0fdf4; color: var(--green-dark); }    .badge-paid::before      { background: var(--green); }
+    .badge-pending   { background: #fff7ed; color: #c2410c; }              .badge-pending::before   { background: #f97316; }
+    .badge-overdue   { background: #fef2f2; color: #dc2626; }              .badge-overdue::before   { background: #ef4444; }
+    .badge-partial   { background: #eff6ff; color: #2563eb; }              .badge-partial::before   { background: #3b82f6; }
+    .badge-approved  { background: #f0fdf4; color: var(--green-dark); }    .badge-approved::before  { background: var(--green); }
+    .badge-review    { background: #faf5ff; color: var(--purple); }        .badge-review::before    { background: var(--purple); }
+    .badge-rejected  { background: #fef2f2; color: #dc2626; }              .badge-rejected::before  { background: #ef4444; }
+    .badge-active    { background: #f0fdf4; color: var(--green-dark); }    .badge-active::before    { background: var(--green); }
+    .badge-inactive  { background: #f0f2fb; color: #5a6690; }              .badge-inactive::before  { background: #8898c8; }
+    .badge-new       { background: #eff6ff; color: #2563eb; }              .badge-new::before       { background: #3b82f6; }
+
+    /* ── STATS GRID ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .sc-teal::after   { background: var(--teal); }
+    .sc-green::after  { background: var(--green); }
+    .sc-purple::after { background: var(--purple); }
+    .sc-orange::after { background: #f97316; }
+    .sc-red::after    { background: #ef4444; }
+    .sc-blue::after   { background: #3b82f6; }
+    .sc-navy::after   { background: var(--navy); }
+    .sc-indigo::after { background: #4f46e5; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sc-teal .stat-icon   { background: #ecfeff; } .sc-teal .stat-icon svg   { stroke: var(--teal); }
+    .sc-green .stat-icon  { background: #f0fdf4; } .sc-green .stat-icon svg  { stroke: var(--green-dark); }
+    .sc-purple .stat-icon { background: #faf5ff; } .sc-purple .stat-icon svg { stroke: var(--purple); }
+    .sc-orange .stat-icon { background: #fff7ed; } .sc-orange .stat-icon svg { stroke: #f97316; }
+    .sc-red .stat-icon    { background: #fef2f2; } .sc-red .stat-icon svg    { stroke: #ef4444; }
+    .sc-blue .stat-icon   { background: #eff6ff; } .sc-blue .stat-icon svg   { stroke: #3b82f6; }
+    .sc-navy .stat-icon   { background: #eef0f8; } .sc-navy .stat-icon svg   { stroke: var(--navy); }
+    .sc-indigo .stat-icon { background: #eef2ff; } .sc-indigo .stat-icon svg { stroke: #4f46e5; }
+    .stat-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #f0fdf4; color: var(--green-dark); }
+    .stat-delta.down { background: #fef2f2; color: #dc2626; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+    .stat-sub   { font-size: 11.5px; color: #b0b8d0; margin-top: 2px; }
+
+    /* ── LAYOUT ── */
+    .grid-2   { display: grid; grid-template-columns: 1fr 1fr;    gap: 20px; margin-bottom: 24px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr;    gap: 20px; margin-bottom: 24px; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr;    gap: 20px; margin-bottom: 24px; }
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .ch-sub { font-size: 12px; color: #8898c8; }
+    .ch-right { display: flex; align-items: center; gap: 8px; }
+    .chart-wrap { padding: 20px; height: 220px; position: relative; }
+
+    /* ── TABS ── */
+    .tab-row { display: flex; gap: 4px; background: #f0f2fb; padding: 4px; border-radius: 8px; width: fit-content; }
+    .tab-btn { padding: 6px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: #8898c8; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .tab-btn.active { background: #fff; color: var(--navy); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+    /* ── SEARCH ── */
+    .search-wrap { position: relative; }
+    .search-wrap input { width: 220px; padding: 8px 12px 8px 34px; border: 1.5px solid #dde0ee; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; color: var(--navy); background: #fff; transition: border-color .2s; }
+    .search-wrap input:focus { border-color: #1d4ed8; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: #8898c8; fill: none; stroke-width: 2; }
+
+    /* ── TABLES ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { padding: 9px 16px; text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; background: #fafbff; border-bottom: 1px solid #eef0f8; white-space: nowrap; }
+    .data-table td { padding: 12px 16px; font-size: 13px; color: #3a4570; border-bottom: 1px solid #f5f6fc; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafbff; }
+    .td-name { font-weight: 700; color: var(--navy); }
+    .td-sub  { font-size: 11.5px; color: #8898c8; margin-top: 1px; }
+    .td-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .act-btn { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .act-approve { background: #f0fdf4; color: var(--green-dark); border-color: #bbf7d0; }
+    .act-approve:hover { background: #dcfce7; }
+    .act-view    { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; }
+    .act-view:hover    { background: #e8eaf4; }
+    .act-reject  { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .act-reject:hover  { background: #fee2e2; }
+    .act-remind  { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .act-remind:hover  { background: #ffedd5; }
+    .act-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .act-primary:hover { background: var(--blue-light); }
+
+    /* ── KPI CARD ── */
+    .kpi-list { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .kpi-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f8f9fc; border-radius: 9px; border: 1px solid #eef0f8; }
+    .kpi-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .kpi-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .kpi-info { flex: 1; }
+    .kpi-info h4 { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .kpi-info p  { font-size: 11.5px; color: #8898c8; }
+    .kpi-val  { font-size: 15px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin-top: 5px; }
+    .progress-bar  { height: 4px; background: #eef0f8; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; }
+
+    /* ── ACTIVITY ── */
+    .activity-list { padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .activity-item { display: flex; align-items: flex-start; gap: 10px; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .activity-text { font-size: 13px; color: #3a4570; line-height: 1.55; flex: 1; }
+    .activity-text strong { color: var(--navy); font-weight: 700; }
+    .activity-time { font-size: 11.5px; color: #b0b8d0; white-space: nowrap; }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+    .qa-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f8f9fc; border: 1.5px solid #eef0f8; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .qa-btn:hover { border-color: #1d4ed8; background: #eff6ff; }
+    .qa-icon { width: 32px; height: 32px; background: #eff6ff; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qa-icon svg { width: 15px; height: 15px; stroke: #1d4ed8; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .qa-label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .qa-sub   { font-size: 11px; color: #8898c8; }
+
+    /* ── VIEW ALL BTN ── */
+    .view-all-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 12.5px; font-weight: 600; color: #1d4ed8; cursor: pointer; border: none; background: none; width: 100%; border-top: 1px solid #f0f2fb; font-family: 'DM Sans', sans-serif; transition: color .15s; }
+    .view-all-btn:hover { color: #1e40af; }
+    .view-all-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── ADD BUTTON ── */
+    .btn-add { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; background: var(--navy); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-add:hover { background: var(--blue-light); }
+    .btn-add svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-add-blue { background: #1d4ed8; }
+    .btn-add-blue:hover { background: #1e40af; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 18px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 160px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-close    { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-approve  { background: #f0fdf4; color: var(--green-dark); border: 1.5px solid #bbf7d0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-approve:hover { background: #dcfce7; }
+    .btn-modal-reject   { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-reject:hover  { background: #fee2e2; }
+    .btn-modal-primary  { background: #1d4ed8; color: #fff; border: 1.5px solid #1d4ed8; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-primary:hover { background: #1e40af; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .req { color: #ef4444; }
+    .form-group input, .form-group select, .form-group textarea { border: 1.5px solid #dde0ee; border-radius: 7px; padding: 9px 12px; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); outline: none; transition: border-color .18s; background: #fff; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29,78,216,0.08); }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+
+    /* ── DONUT ── */
+    .donut-wrap { padding: 16px 20px; display: flex; align-items: center; gap: 24px; }
+    .donut-canvas { width: 130px !important; height: 130px !important; flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .dl-item { display: flex; align-items: center; gap: 8px; }
+    .dl-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .dl-label { font-size: 12.5px; color: #5a6690; flex: 1; }
+    .dl-val { font-size: 13px; font-weight: 700; color: var(--navy); }
+
+    /* ── AMOUNT ── */
+    .amount-positive { color: var(--green-dark); font-weight: 700; }
+    .amount-negative { color: #dc2626; font-weight: 700; }
+    .amount-neutral  { color: var(--navy); font-weight: 700; }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1200px) { .stats-row { grid-template-columns: 1fr 1fr 1fr; } .grid-3-1 { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .stats-row { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 768px)  { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .welcome-hero { flex-direction: column; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="#">
+    <div class="s-logo">FM</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Finance Manager</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="showSection('dashboard', this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </div>
+
+    <div class="nav-section-label">Revenue</div>
+    <div class="nav-item" onclick="showSection('invoices', this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Invoices <span class="nav-badge" id="invBadge">6</span>
+    </div>
+    <div class="nav-item" onclick="showSection('payments', this)">
+      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Payments
+    </div>
+    <div class="nav-item" onclick="showSection('hmo', this)">
+      <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      HMO Billing <span class="nav-badge" id="hmoBadge">3</span>
+    </div>
+
+    <div class="nav-section-label">Expenses</div>
+    <div class="nav-item" onclick="showSection('expenses', this)">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Expense Claims <span class="nav-badge" id="expBadge">4</span>
+    </div>
+    <div class="nav-item" onclick="showSection('payroll', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Payroll
+    </div>
+
+    <div class="nav-section-label">Analysis</div>
+    <div class="nav-item" onclick="showSection('budget', this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Budget vs Actual
+    </div>
+    <div class="nav-item" onclick="showSection('reports', this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Financial Reports
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="topbarTitle">Finance Dashboard</h1>
+      <p id="topbarDate">Loading...</p>
+    </div>
+    <div class="topbar-right">
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+      <div class="user-chip"><div class="u-avatar">FM</div><span>Finance Manager</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════════════════════════
+         SECTION: DASHBOARD
+    ══════════════════════════════ -->
+    <section id="section-dashboard">
+
+      <div class="welcome-hero">
+        <div class="wh-left">
+          <div class="wh-tag">Finance Portal</div>
+          <div class="wh-title">Good morning, Chidi Okonkwo</div>
+          <div class="wh-sub">6 invoices outstanding · 4 expense claims awaiting approval · 3 HMO claims pending.</div>
+        </div>
+        <div class="wh-right">
+          <div class="wh-stat"><div class="wh-stat-val" id="heroRevenue">₦4.2M</div><div class="wh-stat-lbl">Revenue (Apr)</div></div>
+          <div class="wh-stat"><div class="wh-stat-val" id="heroOutstanding">₦860K</div><div class="wh-stat-lbl">Outstanding</div></div>
+          <div class="wh-stat"><div class="wh-stat-val" id="heroExpenses">₦1.1M</div><div class="wh-stat-lbl">Expenses (Apr)</div></div>
+          <div class="wh-stat"><div class="wh-stat-val" id="heroProfit">₦3.1M</div><div class="wh-stat-lbl">Net Profit</div></div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card sc-green">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><span class="stat-delta">+12% vs Mar</span></div>
+          <div class="stat-value">₦4.2M</div><div class="stat-label">Total Revenue (Apr)</div><div class="stat-sub">Across all services</div>
+        </div>
+        <div class="stat-card sc-red">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span class="stat-delta down">6 invoices</span></div>
+          <div class="stat-value" id="statOutstanding">₦860K</div><div class="stat-label">Outstanding Invoices</div><div class="stat-sub">Awaiting payment</div>
+        </div>
+        <div class="stat-card sc-blue">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><span class="stat-delta down">3 pending</span></div>
+          <div class="stat-value">₦540K</div><div class="stat-label">HMO Claims Pending</div><div class="stat-sub">Awaiting insurer payout</div>
+        </div>
+        <div class="stat-card sc-orange">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="stat-delta down">4 pending</span></div>
+          <div class="stat-value">₦186K</div><div class="stat-label">Expense Claims</div><div class="stat-sub">Awaiting approval</div>
+        </div>
+        <div class="stat-card sc-indigo">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="stat-delta">On time</span></div>
+          <div class="stat-value">₦2.4M</div><div class="stat-label">Payroll (Apr)</div><div class="stat-sub">17 staff processed</div>
+        </div>
+        <div class="stat-card sc-teal">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span class="stat-delta">+8 this month</span></div>
+          <div class="stat-value">₦3.3M</div><div class="stat-label">Payments Received</div><div class="stat-sub">This month</div>
+        </div>
+        <div class="stat-card sc-green">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="stat-delta">74%</span></div>
+          <div class="stat-value">74%</div><div class="stat-label">Budget Utilised</div><div class="stat-sub">April budget</div>
+        </div>
+        <div class="stat-card sc-purple">
+          <div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div></div>
+          <div class="stat-value">₦3.1M</div><div class="stat-label">Net Profit (Apr)</div><div class="stat-sub">Revenue minus expenses</div>
+        </div>
+      </div>
+
+      <!-- Invoices + Quick Actions -->
+      <div class="grid-3-1">
+        <div class="card">
+          <div class="card-header"><h3>Outstanding Invoices</h3><span class="ch-sub">Requires follow-up</span></div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Invoice</th><th>Client</th><th>Service</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="dashInvBody"></tbody>
+            </table>
+          </div>
+          <button class="view-all-btn" onclick="showSection('invoices', document.querySelector('[onclick*=invoices]'))">View All Invoices <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Quick Actions</h3></div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="openNewInvoiceModal()">
+              <div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+              <div><div class="qa-label">New Invoice</div><div class="qa-sub">Create & send</div></div>
+            </button>
+            <button class="qa-btn" onclick="showSection('expenses', document.querySelector('[onclick*=expenses]'))">
+              <div class="qa-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div><div class="qa-label">Expense Claims</div><div class="qa-sub">Review pending</div></div>
+            </button>
+            <button class="qa-btn" onclick="showSection('hmo', document.querySelector('[onclick*=hmo]'))">
+              <div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+              <div><div class="qa-label">HMO Claims</div><div class="qa-sub">Follow up claims</div></div>
+            </button>
+            <button class="qa-btn" onclick="showToast('Generating financial report...')">
+              <div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg></div>
+              <div><div class="qa-label">Export Report</div><div class="qa-sub">Monthly summary</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Revenue vs Expenses — 2026</h3><span class="ch-sub">Monthly comparison</span></div>
+          <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Revenue by Service</h3><span class="ch-sub">This month</span></div>
+          <div class="donut-wrap">
+            <canvas class="donut-canvas" id="revenueDonut"></canvas>
+            <div class="donut-legend" id="revenueDonutLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="grid-3-1">
+        <div class="card">
+          <div class="card-header"><h3>Recent Payments Received</h3><span class="ch-sub">This month</span></div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>From</th><th>Method</th><th>Reference</th><th>Amount</th></tr></thead>
+              <tbody id="dashPaymentsBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Finance Activity</h3><span class="ch-sub">Live feed</span></div>
+          <div class="activity-list" id="activityList"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: INVOICES
+    ══════════════════════════════ -->
+    <section id="section-invoices" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Invoices</h2><p>All issued invoices and their status</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="tab-row" id="invTabRow">
+            <button class="tab-btn active" onclick="filterInvoices('ALL',this)">All</button>
+            <button class="tab-btn" onclick="filterInvoices('PENDING',this)">Pending</button>
+            <button class="tab-btn" onclick="filterInvoices('OVERDUE',this)">Overdue</button>
+            <button class="tab-btn" onclick="filterInvoices('PAID',this)">Paid</button>
+          </div>
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search invoices..." oninput="searchInvoices(this.value)"/>
+          </div>
+          <button class="btn-add btn-add-blue" onclick="openNewInvoiceModal()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Invoice
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Invoice #</th><th>Client</th><th>Service</th><th>Issued</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="invoicesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: PAYMENTS
+    ══════════════════════════════ -->
+    <section id="section-payments" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Payments</h2><p>All received and recorded payments</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search payments..." oninput="searchPayments(this.value)"/>
+          </div>
+          <button class="btn-add btn-add-blue" onclick="openRecordPaymentModal()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Record Payment
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>From</th><th>Invoice Ref</th><th>Method</th><th>Reference No.</th><th>Amount</th><th>Recorded By</th></tr></thead>
+            <tbody id="paymentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: HMO BILLING
+    ══════════════════════════════ -->
+    <section id="section-hmo" style="display:none;">
+      <div class="section-heading">
+        <div><h2>HMO Billing</h2><p>Insurance claims and reimbursements</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="tab-row" id="hmoTabRow">
+            <button class="tab-btn active" onclick="filterHMO('ALL',this)">All</button>
+            <button class="tab-btn" onclick="filterHMO('PENDING',this)">Pending</button>
+            <button class="tab-btn" onclick="filterHMO('PAID',this)">Paid</button>
+          </div>
+          <button class="btn-add btn-add-blue" onclick="openNewClaimModal()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Claim
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Claim ID</th><th>Organisation</th><th>HMO Provider</th><th>Service Period</th><th>Members</th><th>Amount Claimed</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="hmoBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: EXPENSES
+    ══════════════════════════════ -->
+    <section id="section-expenses" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Expense Claims</h2><p>Staff expense submissions awaiting approval</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="tab-row" id="expTabRow">
+            <button class="tab-btn active" onclick="filterExpenses('ALL',this)">All</button>
+            <button class="tab-btn" onclick="filterExpenses('PENDING',this)">Pending</button>
+            <button class="tab-btn" onclick="filterExpenses('APPROVED',this)">Approved</button>
+            <button class="tab-btn" onclick="filterExpenses('REJECTED',this)">Rejected</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Claim ID</th><th>Staff</th><th>Category</th><th>Description</th><th>Submitted</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="expensesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: PAYROLL
+    ══════════════════════════════ -->
+    <section id="section-payroll" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Payroll</h2><p>Staff salary records — April 2026</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search staff..." oninput="searchPayroll(this.value)"/>
+          </div>
+          <button class="btn-add btn-add-blue" onclick="showToast('Running payroll processing...')">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Process Payroll
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Staff</th><th>Role</th><th>Base Salary</th><th>Allowances</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="payrollBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: BUDGET vs ACTUAL
+    ══════════════════════════════ -->
+    <section id="section-budget" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Budget vs Actual</h2><p>April 2026 performance against targets</p></div>
+        <button class="btn-add btn-add-blue" onclick="showToast('Downloading budget report...')">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>Export
+        </button>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card">
+          <div class="card-header"><h3>Budget Utilisation by Department</h3></div>
+          <div class="chart-wrap"><canvas id="budgetChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>KPI Overview</h3><span class="ch-sub">April 2026</span></div>
+          <div class="kpi-list" id="kpiList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Line-by-Line Budget Breakdown</h3></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Category</th><th>Budgeted</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Status</th></tr></thead>
+            <tbody id="budgetBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════
+         SECTION: REPORTS
+    ══════════════════════════════ -->
+    <section id="section-reports" style="display:none;">
+      <div class="section-heading">
+        <div><h2>Financial Reports</h2><p>Generate and export financial statements</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Generate Report</h3></div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group"><label>Report Type</label>
+              <select id="reportType">
+                <option>Profit & Loss Statement</option>
+                <option>Revenue Summary</option>
+                <option>Expense Report</option>
+                <option>Invoice Ageing Report</option>
+                <option>HMO Claims Report</option>
+                <option>Payroll Summary</option>
+                <option>Budget vs Actual</option>
+                <option>Cash Flow Statement</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Period</label>
+              <select id="reportPeriod">
+                <option>April 2026</option><option>March 2026</option>
+                <option>Q1 2026 (Jan–Mar)</option><option>Q2 2026 (Apr–Jun)</option>
+                <option>Full Year 2025</option><option>Custom Range</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Format</label>
+              <select id="reportFormat"><option>PDF</option><option>Excel (CSV)</option></select>
+            </div>
+            <button class="btn-add btn-add-blue" style="width:100%;justify-content:center;" onclick="showToast('Generating report...')">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>Generate & Download
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Revenue Trend — 2026</h3></div>
+          <div class="chart-wrap"><canvas id="reportTrendChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ══════════════════════
+     MODALS
+══════════════════════ -->
+
+<!-- INVOICE DETAIL MODAL -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="invModalTitle">Invoice Details</h2><button class="modal-close" onclick="closeModal('invoiceModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="invModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('invoiceModal')">Close</button>
+      <button class="btn-modal-reject" id="invRemindBtn">Send Reminder</button>
+      <button class="btn-modal-approve" id="invMarkPaidBtn">Mark as Paid</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW INVOICE MODAL -->
+<div class="modal-overlay" id="newInvoiceModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Create New Invoice</h2><button class="modal-close" onclick="closeModal('newInvoiceModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Client / Organisation <span class="req">*</span></label><input type="text" id="ni_client" placeholder="e.g. Acme Corp Ltd"/></div>
+        <div class="form-group full"><label>Service Description <span class="req">*</span></label><input type="text" id="ni_service" placeholder="e.g. Home Nursing Care — April 2026"/></div>
+        <div class="form-group"><label>Amount (₦) <span class="req">*</span></label><input type="number" id="ni_amount" placeholder="e.g. 150000"/></div>
+        <div class="form-group"><label>Due Date <span class="req">*</span></label><input type="date" id="ni_due"/></div>
+        <div class="form-group"><label>Service Category</label>
+          <select id="ni_category">
+            <option>Home Nursing Care</option><option>HMO Subscription</option>
+            <option>Physiotherapy</option><option>Lab Services</option>
+            <option>Telemedicine</option><option>Postnatal Care</option>
+            <option>Elderly Care</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tax (VAT %)</label><input type="number" id="ni_tax" value="7.5" placeholder="7.5"/></div>
+        <div class="form-group full"><label>Notes</label><textarea id="ni_notes" placeholder="Payment terms, bank details, or additional notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('newInvoiceModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="submitNewInvoice()">Create Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="modal-overlay" id="recordPaymentModal">
+  <div class="modal">
+    <div class="modal-header"><h2>Record Payment</h2><button class="modal-close" onclick="closeModal('recordPaymentModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Paying Client <span class="req">*</span></label><input type="text" id="rp_client" placeholder="Client name"/></div>
+        <div class="form-group"><label>Invoice Reference</label><input type="text" id="rp_invref" placeholder="e.g. INV-2026-012"/></div>
+        <div class="form-group"><label>Amount Paid (₦) <span class="req">*</span></label><input type="number" id="rp_amount" placeholder="e.g. 150000"/></div>
+        <div class="form-group"><label>Payment Date <span class="req">*</span></label><input type="date" id="rp_date"/></div>
+        <div class="form-group"><label>Payment Method <span class="req">*</span></label>
+          <select id="rp_method">
+            <option>Bank Transfer</option><option>Cash</option>
+            <option>Card (POS)</option><option>Cheque</option><option>USSD</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Bank Reference No.</label><input type="text" id="rp_ref" placeholder="e.g. TRF/240428/001"/></div>
+        <div class="form-group full"><label>Notes</label><textarea id="rp_notes" placeholder="Any additional notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('recordPaymentModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="submitRecordPayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE DETAIL MODAL -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="expModalTitle">Expense Claim</h2><button class="modal-close" onclick="closeModal('expenseModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="expModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('expenseModal')">Close</button>
+      <button class="btn-modal-reject" id="expRejectBtn">Reject</button>
+      <button class="btn-modal-approve" id="expApproveBtn">Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- HMO CLAIM MODAL -->
+<div class="modal-overlay" id="newClaimModal">
+  <div class="modal">
+    <div class="modal-header"><h2>New HMO Claim</h2><button class="modal-close" onclick="closeModal('newClaimModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Organisation <span class="req">*</span></label><input type="text" id="nc_org" placeholder="e.g. Acme Corp Ltd"/></div>
+        <div class="form-group"><label>HMO Provider <span class="req">*</span></label><input type="text" id="nc_hmo" placeholder="e.g. Hygeia HMO"/></div>
+        <div class="form-group"><label>Service Period <span class="req">*</span></label><input type="text" id="nc_period" placeholder="e.g. April 2026"/></div>
+        <div class="form-group"><label>No. of Members</label><input type="number" id="nc_members" placeholder="e.g. 25"/></div>
+        <div class="form-group"><label>Amount Claimed (₦) <span class="req">*</span></label><input type="number" id="nc_amount" placeholder="e.g. 200000"/></div>
+        <div class="form-group"><label>Date Submitted</label><input type="date" id="nc_date"/></div>
+        <div class="form-group full"><label>Notes</label><textarea id="nc_notes" placeholder="Claim reference, supporting documents..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('newClaimModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="submitNewClaim()">Submit Claim</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ================================================================
+   CONFIG
+================================================================ */
+const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
+const USE_API  = false;
+function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+document.getElementById('topbarDate').textContent =
+  new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' · Finance Systems Online';
+
+/* ================================================================
+   SECTION SWITCHING
+================================================================ */
+const SECTIONS = ['dashboard','invoices','payments','hmo','expenses','payroll','budget','reports'];
+const TITLES   = { dashboard:'Finance Dashboard', invoices:'Invoices', payments:'Payments', hmo:'HMO Billing', expenses:'Expense Claims', payroll:'Payroll', budget:'Budget vs Actual', reports:'Financial Reports' };
+
+let budgetChartInit = false;
+let reportChartInit = false;
+
+function showSection(name, el) {
+  SECTIONS.forEach(s => { const sec = document.getElementById('section-'+s); if(sec) sec.style.display='none'; });
+  const active = document.getElementById('section-'+name);
+  if (active) active.style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = TITLES[name] || 'Finance Dashboard';
+
+  if (name === 'invoices')  renderInvoicesTable(invoicesData);
+  if (name === 'payments')  renderPaymentsTable(paymentsData);
+  if (name === 'hmo')       renderHMOTable(hmoData);
+  if (name === 'expenses')  renderExpensesTable(expensesData);
+  if (name === 'payroll')   renderPayrollTable(payrollData);
+  if (name === 'budget')    { renderBudgetTable(); initBudgetChart(); renderKPIs(); }
+  if (name === 'reports')   initReportTrendChart();
+}
+
+/* ================================================================
+   MOCK DATA
+================================================================ */
+const invoicesData = [
+  { id:'INV-2026-001', client:'Acme Corp Ltd',          service:'HMO Subscription — Apr',       issued:'01 Apr', due:'30 Apr', amount:450000, status:'PENDING' },
+  { id:'INV-2026-002', client:'Adaeze Onyekwere',       service:'Post-Discharge Nursing Care',   issued:'05 Apr', due:'19 Apr', amount:85000,  status:'OVERDUE' },
+  { id:'INV-2026-003', client:'Stanbic IBTC',           service:'Corporate Wellness Package',    issued:'10 Apr', due:'25 Apr', amount:320000, status:'PAID' },
+  { id:'INV-2026-004', client:'Kunle Adesanya',         service:'Physiotherapy — 8 sessions',   issued:'12 Apr', due:'26 Apr', amount:64000,  status:'PENDING' },
+  { id:'INV-2026-005', client:'Dangote Industries',     service:'HMO Subscription — Apr',       issued:'01 Apr', due:'30 Apr', amount:880000, status:'PAID' },
+  { id:'INV-2026-006', client:'Mrs. Ngozi Ameh',        service:'Postnatal Care Package',        issued:'15 Apr', due:'29 Apr', amount:55000,  status:'PENDING' },
+  { id:'INV-2026-007', client:'United Bank for Africa', service:'Employee Health Check',         issued:'18 Apr', due:'02 May', amount:175000, status:'PENDING' },
+  { id:'INV-2026-008', client:'Rotimi Fadahunsi',       service:'Elderly Care — Monthly',        issued:'01 Apr', due:'15 Apr', amount:120000, status:'OVERDUE' },
+  { id:'INV-2026-009', client:'MTN Nigeria',            service:'Telemedicine Subscription',     issued:'01 Apr', due:'30 Apr', amount:650000, status:'PAID' },
+];
+
+const paymentsData = [
+  { date:'28 Apr 2026', client:'Dangote Industries',     invRef:'INV-2026-005', method:'Bank Transfer', ref:'TRF/240428/001', amount:880000 },
+  { date:'25 Apr 2026', client:'MTN Nigeria',            invRef:'INV-2026-009', method:'Bank Transfer', ref:'TRF/240425/003', amount:650000 },
+  { date:'22 Apr 2026', client:'Stanbic IBTC',           invRef:'INV-2026-003', method:'Cheque',        ref:'CHQ/240422/018', amount:320000 },
+  { date:'18 Apr 2026', client:'Bisi Oladipo',           invRef:'INV-2026-010', method:'Cash',          ref:'CSH/240418/002', amount:45000  },
+  { date:'14 Apr 2026', client:'Fatima Bello',           invRef:'INV-2026-011', method:'Card (POS)',    ref:'POS/240414/009', amount:38000  },
+  { date:'10 Apr 2026', client:'Emeka Nwachukwu',        invRef:'INV-2026-012', method:'Bank Transfer', ref:'TRF/240410/007', amount:95000  },
+];
+
+const hmoData = [
+  { id:'HMO-001', org:'Acme Corp Ltd',          hmo:'Hygeia HMO',     period:'April 2026',  members:42, amount:504000, status:'PENDING' },
+  { id:'HMO-002', org:'Dangote Industries',     hmo:'Leadway Health', period:'April 2026',  members:87, amount:1044000,status:'PENDING' },
+  { id:'HMO-003', org:'Stanbic IBTC',           hmo:'AXA Mansard',    period:'April 2026',  members:35, amount:385000, status:'PENDING' },
+  { id:'HMO-004', org:'MTN Nigeria',            hmo:'Hygeia HMO',     period:'March 2026',  members:65, amount:715000, status:'PAID' },
+  { id:'HMO-005', org:'United Bank for Africa', hmo:'Reliance HMO',   period:'March 2026',  members:28, amount:280000, status:'PAID' },
+];
+
+const expensesData = [
+  { id:'EXP-001', staff:'Nurse Blessing Adeyemi', category:'Transport',      desc:'Fuel & logistics — Lekki home visits', submitted:'28 Apr', amount:18500,  status:'PENDING' },
+  { id:'EXP-002', staff:'Physio Tunde Afolabi',   category:'Equipment',      desc:'Physiotherapy bands & supplies',       submitted:'27 Apr', amount:42000,  status:'PENDING' },
+  { id:'EXP-003', staff:'Pharm. Adaeze Eze',      category:'Supplies',       desc:'Pharmacy consumables restock',         submitted:'26 Apr', amount:65000,  status:'PENDING' },
+  { id:'EXP-004', staff:'Dr. Damilola Osei',      category:'Telecoms',       desc:'Internet & data — telemedicine setup', submitted:'25 Apr', amount:28000,  status:'PENDING' },
+  { id:'EXP-005', staff:'Nurse Kemi Ojo',         category:'Transport',      desc:'Community health visit — Gbagada zone',submitted:'22 Apr', amount:12000,  status:'APPROVED' },
+  { id:'EXP-006', staff:'Nurse Amina Eze',        category:'Training',       desc:'Postnatal care refresher course',      submitted:'18 Apr', amount:35000,  status:'APPROVED' },
+  { id:'EXP-007', staff:'Lab Tech Emeka Okafor',  category:'Lab Supplies',   desc:'Sample collection kits',              submitted:'14 Apr', amount:22000,  status:'REJECTED' },
+];
+
+const payrollData = [
+  { id:1, staff:'Dr. Damilola Osei',      role:'Telemedicine Doctor',   base:350000, allowances:50000, deductions:42000, net:358000, status:'PAID' },
+  { id:2, staff:'Nurse Blessing Adeyemi', role:'Registered Nurse',      base:180000, allowances:25000, deductions:20500, net:184500, status:'PAID' },
+  { id:3, staff:'Physio Tunde Afolabi',   role:'Physiotherapist',       base:200000, allowances:30000, deductions:23000, net:207000, status:'PAID' },
+  { id:4, staff:'Pharm. Adaeze Eze',      role:'Pharmacist',            base:220000, allowances:35000, deductions:25500, net:229500, status:'PAID' },
+  { id:5, staff:'Nurse Kemi Ojo',         role:'Community Health Nurse',base:160000, allowances:20000, deductions:18000, net:162000, status:'PAID' },
+  { id:6, staff:'Nurse Amina Eze',        role:'Postnatal Specialist',  base:175000, allowances:22000, deductions:19500, net:177500, status:'PAID' },
+  { id:7, staff:'Lab Tech Emeka Okafor',  role:'Lab Scientist',         base:155000, allowances:18000, deductions:17000, net:156000, status:'PAID' },
+];
+
+const budgetData = [
+  { category:'Staff Salaries',        budgeted:2500000, actual:2400000 },
+  { category:'Medical Supplies',      budgeted:400000,  actual:388000  },
+  { category:'Lab & Diagnostics',     budgeted:200000,  actual:214000  },
+  { category:'Transport & Logistics', budgeted:150000,  actual:132000  },
+  { category:'IT & Telecom',          budgeted:120000,  actual:115000  },
+  { category:'Training & Dev.',       budgeted:100000,  actual:70000   },
+  { category:'Marketing',             budgeted:80000,   actual:91000   },
+  { category:'Admin & Office',        budgeted:90000,   actual:85000   },
+];
+
+const activityData = [
+  { text:'Payment received — <strong>Dangote Industries</strong> ₦880,000',          time:'2 hrs ago',  color:'#22c55e' },
+  { text:'Invoice overdue — <strong>Adaeze Onyekwere</strong> INV-2026-002',          time:'3 hrs ago',  color:'#ef4444' },
+  { text:'Expense approved — <strong>Nurse Kemi Ojo</strong> ₦12,000 transport',      time:'4 hrs ago',  color:'#3b82f6' },
+  { text:'HMO claim submitted — <strong>Acme Corp</strong> Hygeia HMO ₦504,000',     time:'5 hrs ago',  color:'#9333ea' },
+  { text:'Payroll processed — <strong>April 2026</strong> ₦2.4M for 17 staff',       time:'Yesterday',  color:'#0891b2' },
+  { text:'New invoice created — <strong>UBA Employee Health Check</strong> ₦175,000', time:'Yesterday',  color:'#22c55e' },
+];
+
+let invFilter = 'ALL', hmoFilter = 'ALL', expFilter = 'ALL';
+
+/* ================================================================
+   RENDER FUNCTIONS
+================================================================ */
+function fmt(n) { return '₦' + Number(n).toLocaleString('en-NG'); }
+
+function invStatusBadge(s) {
+  if (s==='PAID')    return `<span class="badge badge-paid">Paid</span>`;
+  if (s==='PENDING') return `<span class="badge badge-pending">Pending</span>`;
+  if (s==='OVERDUE') return `<span class="badge badge-overdue">Overdue</span>`;
+  if (s==='PARTIAL') return `<span class="badge badge-partial">Partial</span>`;
+  return `<span class="badge">${s}</span>`;
+}
+function expStatusBadge(s) {
+  if (s==='APPROVED') return `<span class="badge badge-approved">Approved</span>`;
+  if (s==='PENDING')  return `<span class="badge badge-pending">Pending</span>`;
+  if (s==='REJECTED') return `<span class="badge badge-rejected">Rejected</span>`;
+  return `<span class="badge">${s}</span>`;
+}
+
+/* Dashboard invoice summary */
+function renderDashInvoices() {
+  const outstanding = invoicesData.filter(i => i.status !== 'PAID');
+  document.getElementById('invBadge').textContent = outstanding.length;
+  const tbody = document.getElementById('dashInvBody');
+  tbody.innerHTML = outstanding.slice(0,5).map(i => `
+    <tr>
+      <td style="font-family:monospace;font-size:12.5px;">${i.id}</td>
+      <td><div class="td-name">${i.client}</div></td>
+      <td style="font-size:12.5px;">${i.service}</td>
+      <td><span class="amount-${i.status==='OVERDUE'?'negative':'neutral'}">${fmt(i.amount)}</span></td>
+      <td style="font-size:12.5px;${i.status==='OVERDUE'?'color:#dc2626;font-weight:600;':''}">${i.due}</td>
+      <td>${invStatusBadge(i.status)}</td>
+      <td><div class="td-actions">
+        <button class="act-btn act-remind" onclick="showToast('Reminder sent to ${i.client}')">Remind</button>
+        <button class="act-btn act-view" onclick="viewInvoice('${i.id}')">View</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+/* Dashboard recent payments */
+function renderDashPayments() {
+  const tbody = document.getElementById('dashPaymentsBody');
+  tbody.innerHTML = paymentsData.slice(0,5).map(p => `
+    <tr>
+      <td style="font-size:12px;color:#8898c8;">${p.date}</td>
+      <td><div class="td-name">${p.client}</div></td>
+      <td style="font-size:12.5px;">${p.method}</td>
+      <td style="font-family:monospace;font-size:12px;color:#8898c8;">${p.ref}</td>
+      <td><span class="amount-positive">${fmt(p.amount)}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* Activity */
+function renderActivity() {
+  const list = document.getElementById('activityList');
+  list.innerHTML = activityData.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color};"></div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+/* Full invoices table */
+function renderInvoicesTable(data) {
+  const filtered = invFilter === 'ALL' ? data : data.filter(i => i.status === invFilter);
+  document.getElementById('invoicesBody').innerHTML = filtered.map(i => `
+    <tr>
+      <td style="font-family:monospace;font-size:12.5px;">${i.id}</td>
+      <td><div class="td-name">${i.client}</div></td>
+      <td style="font-size:12.5px;">${i.service}</td>
+      <td style="font-size:12px;color:#8898c8;">${i.issued}</td>
+      <td style="font-size:12.5px;${i.status==='OVERDUE'?'color:#dc2626;font-weight:600;':''}">${i.due}</td>
+      <td><span class="amount-${i.status==='PAID'?'positive':i.status==='OVERDUE'?'negative':'neutral'}">${fmt(i.amount)}</span></td>
+      <td>${invStatusBadge(i.status)}</td>
+      <td><div class="td-actions">
+        ${i.status!=='PAID'?`<button class="act-btn act-approve" onclick="markInvoicePaid('${i.id}')">Mark Paid</button>`:''}
+        ${i.status!=='PAID'?`<button class="act-btn act-remind" onclick="showToast('Reminder sent to ${i.client}')">Remind</button>`:''}
+        <button class="act-btn act-view" onclick="viewInvoice('${i.id}')">View</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+function filterInvoices(val,el) { invFilter=val; document.querySelectorAll('#invTabRow .tab-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderInvoicesTable(invoicesData); }
+function searchInvoices(q) { renderInvoicesTable(invoicesData.filter(i=>i.client.toLowerCase().includes(q.toLowerCase())||i.id.toLowerCase().includes(q.toLowerCase()))); }
+
+/* Payments table */
+function renderPaymentsTable(data) {
+  document.getElementById('paymentsBody').innerHTML = data.map(p=>`
+    <tr>
+      <td style="font-size:12px;color:#8898c8;">${p.date}</td>
+      <td><div class="td-name">${p.client}</div></td>
+      <td style="font-family:monospace;font-size:12.5px;">${p.invRef}</td>
+      <td style="font-size:12.5px;">${p.method}</td>
+      <td style="font-family:monospace;font-size:12px;color:#8898c8;">${p.ref}</td>
+      <td><span class="amount-positive">${fmt(p.amount)}</span></td>
+      <td style="font-size:12.5px;">Finance Manager</td>
+    </tr>
+  `).join('');
+}
+function searchPayments(q) { renderPaymentsTable(paymentsData.filter(p=>p.client.toLowerCase().includes(q.toLowerCase()))); }
+
+/* HMO table */
+function renderHMOTable(data) {
+  const pending = data.filter(h=>h.status==='PENDING').length;
+  document.getElementById('hmoBadge').textContent = pending;
+  const filtered = hmoFilter==='ALL'?data:data.filter(h=>h.status===hmoFilter);
+  document.getElementById('hmoBody').innerHTML = filtered.map(h=>`
+    <tr>
+      <td style="font-family:monospace;font-size:12.5px;">${h.id}</td>
+      <td><div class="td-name">${h.org}</div></td>
+      <td style="font-size:12.5px;">${h.hmo}</td>
+      <td style="font-size:12.5px;">${h.period}</td>
+      <td style="font-weight:700;">${h.members}</td>
+      <td><span class="amount-neutral">${fmt(h.amount)}</span></td>
+      <td>${h.status==='PAID'?`<span class="badge badge-paid">Paid</span>`:`<span class="badge badge-pending">Pending</span>`}</td>
+      <td><div class="td-actions">
+        ${h.status!=='PAID'?`<button class="act-btn act-remind" onclick="showToast('Following up on ${h.id} with ${h.hmo}')">Follow Up</button>`:''}
+        <button class="act-btn act-view" onclick="showToast('Viewing ${h.id}...')">View</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+function filterHMO(val,el) { hmoFilter=val; document.querySelectorAll('#hmoTabRow .tab-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderHMOTable(hmoData); }
+
+/* Expenses table */
+function renderExpensesTable(data) {
+  const pending = data.filter(e=>e.status==='PENDING').length;
+  document.getElementById('expBadge').textContent = pending;
+  const filtered = expFilter==='ALL'?data:data.filter(e=>e.status===expFilter);
+  document.getElementById('expensesBody').innerHTML = filtered.map(e=>`
+    <tr>
+      <td style="font-family:monospace;font-size:12.5px;">${e.id}</td>
+      <td><div class="td-name">${e.staff}</div></td>
+      <td style="font-size:12.5px;">${e.category}</td>
+      <td style="font-size:12.5px;max-width:160px;">${e.desc}</td>
+      <td style="font-size:12px;color:#8898c8;">${e.submitted}</td>
+      <td><span class="amount-neutral">${fmt(e.amount)}</span></td>
+      <td>${expStatusBadge(e.status)}</td>
+      <td><div class="td-actions">
+        ${e.status==='PENDING'?`<button class="act-btn act-approve" onclick="approveExpense('${e.id}')">Approve</button><button class="act-btn act-reject" onclick="rejectExpense('${e.id}')">Reject</button>`:''}
+        <button class="act-btn act-view" onclick="viewExpense('${e.id}')">View</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+function filterExpenses(val,el) { expFilter=val; document.querySelectorAll('#expTabRow .tab-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderExpensesTable(expensesData); }
+
+/* Payroll table */
+function renderPayrollTable(data) {
+  document.getElementById('payrollBody').innerHTML = data.map(p=>`
+    <tr>
+      <td><div class="td-name">${p.staff}</div></td>
+      <td style="font-size:12.5px;">${p.role}</td>
+      <td>${fmt(p.base)}</td>
+      <td><span class="amount-positive">+${fmt(p.allowances)}</span></td>
+      <td><span class="amount-negative">-${fmt(p.deductions)}</span></td>
+      <td><span style="font-size:14px;font-weight:700;color:var(--navy);">${fmt(p.net)}</span></td>
+      <td><span class="badge badge-paid">Paid</span></td>
+      <td><button class="act-btn act-view" onclick="showToast('Viewing payslip for ${p.staff}...')">Payslip</button></td>
+    </tr>
+  `).join('');
+}
+function searchPayroll(q) { renderPayrollTable(payrollData.filter(p=>p.staff.toLowerCase().includes(q.toLowerCase()))); }
+
+/* Budget table */
+function renderBudgetTable() {
+  document.getElementById('budgetBody').innerHTML = budgetData.map(b=>{
+    const variance = b.actual - b.budgeted;
+    const pct = Math.round((b.actual/b.budgeted)*100);
+    const over = variance > 0;
+    return `<tr>
+      <td><div class="td-name">${b.category}</div></td>
+      <td>${fmt(b.budgeted)}</td>
+      <td>${fmt(b.actual)}</td>
+      <td><span class="${over?'amount-negative':'amount-positive'}">${over?'+':''}${fmt(variance)}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar" style="width:80px;height:6px;"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${pct>100?'#ef4444':pct>85?'#f97316':'#22c55e'};"></div></div>
+          <span style="font-size:12px;font-weight:600;color:var(--navy);">${pct}%</span>
+        </div>
+      </td>
+      <td>${pct>100?`<span class="badge badge-overdue">Over Budget</span>`:pct>85?`<span class="badge badge-pending">Near Limit</span>`:`<span class="badge badge-paid">On Track</span>`}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* KPIs */
+function renderKPIs() {
+  const kpis = [
+    { label:'Collection Rate',    value:'78%',   sub:'Invoices paid on time',   color:'#16a34a', icon:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>' },
+    { label:'Expense Ratio',      value:'26%',   sub:'Expenses vs Revenue',     color:'#f97316', icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+    { label:'HMO Recovery Rate',  value:'62%',   sub:'Claims paid by insurers', color:'#1d4ed8', icon:'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>' },
+    { label:'Net Profit Margin',  value:'73.8%', sub:'Net profit / Revenue',    color:'#9333ea', icon:'<path d="M12 2L2 7l10 5 10-5-10-5z"/>'},
+  ];
+  document.getElementById('kpiList').innerHTML = kpis.map(k=>`
+    <div class="kpi-item">
+      <div class="kpi-icon" style="background:${k.color}18;"><svg viewBox="0 0 24 24" style="stroke:${k.color};fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px;">${k.icon}</svg></div>
+      <div class="kpi-info"><h4>${k.label}</h4><p>${k.sub}</p></div>
+      <div class="kpi-val" style="color:${k.color};">${k.value}</div>
+    </div>
+  `).join('');
+}
+
+/* ================================================================
+   MODAL ACTIONS
+================================================================ */
+function viewInvoice(id) {
+  const inv = invoicesData.find(i=>i.id===id);
+  if(!inv) return;
+  document.getElementById('invModalTitle').textContent = inv.id + ' — ' + inv.client;
+  document.getElementById('invModalBody').innerHTML = `
+    <div class="modal-section"><h4>Invoice Details</h4>
+      <div class="detail-row"><span class="detail-label">Invoice #</span><span class="detail-value" style="font-family:monospace;">${inv.id}</span></div>
+      <div class="detail-row"><span class="detail-label">Client</span><span class="detail-value">${inv.client}</span></div>
+      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${inv.service}</span></div>
+      <div class="detail-row"><span class="detail-label">Date Issued</span><span class="detail-value">${inv.issued}</span></div>
+      <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value" style="${inv.status==='OVERDUE'?'color:#dc2626;font-weight:600;':''}">${inv.due}</span></div>
+      <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="font-size:16px;font-weight:700;">${fmt(inv.amount)}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${invStatusBadge(inv.status)}</span></div>
+    </div>`;
+  document.getElementById('invMarkPaidBtn').onclick = () => { markInvoicePaid(id); closeModal('invoiceModal'); };
+  document.getElementById('invRemindBtn').onclick = () => { showToast('Reminder sent to ' + inv.client, true); closeModal('invoiceModal'); };
+  if (inv.status === 'PAID') document.getElementById('invMarkPaidBtn').style.display = 'none';
+  else document.getElementById('invMarkPaidBtn').style.display = '';
+  openModal('invoiceModal');
+}
+
+function markInvoicePaid(id) {
+  const inv = invoicesData.find(i=>i.id===id);
+  if (!inv) return;
+  inv.status = 'PAID';
+  renderDashInvoices();
+  renderInvoicesTable(invoicesData);
+  showToast('✅ ' + inv.id + ' marked as Paid');
+}
+
+function viewExpense(id) {
+  const exp = expensesData.find(e=>e.id===id);
+  if (!exp) return;
+  document.getElementById('expModalTitle').textContent = exp.id + ' — ' + exp.staff;
+  document.getElementById('expModalBody').innerHTML = `
+    <div class="modal-section"><h4>Claim Details</h4>
+      <div class="detail-row"><span class="detail-label">Staff</span><span class="detail-value">${exp.staff}</span></div>
+      <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value">${exp.category}</span></div>
+      <div class="detail-row"><span class="detail-label">Description</span><span class="detail-value">${exp.desc}</span></div>
+      <div class="detail-row"><span class="detail-label">Date Submitted</span><span class="detail-value">${exp.submitted}</span></div>
+      <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="font-size:16px;font-weight:700;">${fmt(exp.amount)}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${expStatusBadge(exp.status)}</span></div>
+    </div>`;
+  document.getElementById('expApproveBtn').onclick = () => { approveExpense(id); closeModal('expenseModal'); };
+  document.getElementById('expRejectBtn').onclick  = () => { rejectExpense(id); closeModal('expenseModal'); };
+  if (exp.status !== 'PENDING') { document.getElementById('expApproveBtn').style.display='none'; document.getElementById('expRejectBtn').style.display='none'; }
+  else { document.getElementById('expApproveBtn').style.display=''; document.getElementById('expRejectBtn').style.display=''; }
+  openModal('expenseModal');
+}
+
+function approveExpense(id) {
+  const exp = expensesData.find(e=>e.id===id);
+  if (!exp) return;
+  exp.status = 'APPROVED';
+  renderExpensesTable(expensesData);
+  showToast('✅ Expense approved for ' + exp.staff);
+}
+
+function rejectExpense(id) {
+  const exp = expensesData.find(e=>e.id===id);
+  if (!exp) return;
+  exp.status = 'REJECTED';
+  renderExpensesTable(expensesData);
+  showToast('Expense claim rejected for ' + exp.staff);
+}
+
+function openNewInvoiceModal() { openModal('newInvoiceModal'); }
+
+function submitNewInvoice() {
+  const client  = document.getElementById('ni_client').value.trim();
+  const service = document.getElementById('ni_service').value.trim();
+  const amount  = document.getElementById('ni_amount').value;
+  const due     = document.getElementById('ni_due').value;
+  if (!client || !service || !amount || !due) { showToast('Please fill all required fields.', false); return; }
+  const id = 'INV-2026-0' + (invoicesData.length + 10);
+  invoicesData.unshift({ id, client, service, issued: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), due: new Date(due).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), amount: parseInt(amount), status:'PENDING' });
+  closeModal('newInvoiceModal');
+  renderDashInvoices();
+  showToast('✅ Invoice ' + id + ' created for ' + client);
+}
+
+function openRecordPaymentModal() { openModal('recordPaymentModal'); }
+
+function submitRecordPayment() {
+  const client = document.getElementById('rp_client').value.trim();
+  const amount = document.getElementById('rp_amount').value;
+  const date   = document.getElementById('rp_date').value;
+  if (!client || !amount || !date) { showToast('Please fill all required fields.', false); return; }
+  paymentsData.unshift({ date: new Date(date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}), client, invRef: document.getElementById('rp_invref').value||'—', method: document.getElementById('rp_method').value, ref: document.getElementById('rp_ref').value||'—', amount: parseInt(amount) });
+  closeModal('recordPaymentModal');
+  renderPaymentsTable(paymentsData);
+  showToast('✅ Payment of ' + fmt(parseInt(amount)) + ' recorded from ' + client);
+}
+
+function openNewClaimModal() { openModal('newClaimModal'); }
+
+function submitNewClaim() {
+  const org    = document.getElementById('nc_org').value.trim();
+  const hmo    = document.getElementById('nc_hmo').value.trim();
+  const amount = document.getElementById('nc_amount').value;
+  if (!org || !hmo || !amount) { showToast('Please fill all required fields.', false); return; }
+  const id = 'HMO-00' + (hmoData.length + 1);
+  hmoData.unshift({ id, org, hmo, period: document.getElementById('nc_period').value||'Apr 2026', members: parseInt(document.getElementById('nc_members').value)||0, amount: parseInt(amount), status:'PENDING' });
+  closeModal('newClaimModal');
+  renderHMOTable(hmoData);
+  showToast('✅ HMO claim ' + id + ' submitted for ' + org);
+}
+
+/* ================================================================
+   CHARTS
+================================================================ */
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#8898c8';
+
+function initDashboardCharts() {
+  // Revenue vs Expenses line chart
+  const ctx1 = document.getElementById('revenueChart').getContext('2d');
+  new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr'],
+      datasets: [
+        { label:'Revenue', data:[3200000,3600000,3750000,4200000], borderColor:'#1d4ed8', backgroundColor:'rgba(29,78,216,0.07)', tension:0.4, fill:true, pointRadius:4, pointBackgroundColor:'#1d4ed8' },
+        { label:'Expenses', data:[900000,980000,1050000,1100000], borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.05)', tension:0.4, fill:true, pointRadius:4, pointBackgroundColor:'#ef4444' },
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ font:{size:11}, boxWidth:10, padding:14 } } }, scales:{ x:{ grid:{display:false}, ticks:{font:{size:11}} }, y:{ grid:{color:'#f0f2fb'}, ticks:{ font:{size:11}, callback: v => '₦'+(v/1000000).toFixed(1)+'M' }, beginAtZero:false } } }
+  });
+
+  // Revenue donut
+  const ctx2 = document.getElementById('revenueDonut').getContext('2d');
+  const cats = [
+    { label:'HMO Subscriptions', value:1800000, color:'#1d4ed8' },
+    { label:'Home Nursing',      value:850000,  color:'#0891b2' },
+    { label:'Physiotherapy',     value:420000,  color:'#9333ea' },
+    { label:'Lab Services',      value:380000,  color:'#16a34a' },
+    { label:'Telemedicine',      value:750000,  color:'#f97316' },
+  ];
+  new Chart(ctx2, { type:'doughnut', data:{ labels:cats.map(c=>c.label), datasets:[{ data:cats.map(c=>c.value), backgroundColor:cats.map(c=>c.color), borderWidth:0, hoverOffset:4 }] }, options:{ responsive:false, cutout:'72%', plugins:{ legend:{display:false} } } });
+  document.getElementById('revenueDonutLegend').innerHTML = cats.map(c=>`
+    <div class="dl-item"><div class="dl-dot" style="background:${c.color};"></div><span class="dl-label">${c.label}</span><span class="dl-val">₦${(c.value/1000).toFixed(0)}K</span></div>
+  `).join('');
+}
+
+function initBudgetChart() {
+  if (budgetChartInit) return; budgetChartInit = true;
+  const ctx = document.getElementById('budgetChart').getContext('2d');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: budgetData.map(b=>b.category),
+      datasets:[
+        { label:'Budgeted', data:budgetData.map(b=>b.budgeted), backgroundColor:'#dbeafe', borderRadius:4, borderSkipped:false },
+        { label:'Actual',   data:budgetData.map(b=>b.actual),   backgroundColor:'#1d4ed8', borderRadius:4, borderSkipped:false },
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{ legend:{ position:'top', labels:{font:{size:11},boxWidth:10,padding:14} } }, scales:{ x:{ grid:{color:'#f0f2fb'}, ticks:{ font:{size:10}, callback:v=>'₦'+(v/1000)+'K' } }, y:{ grid:{display:false}, ticks:{font:{size:10}} } } }
+  });
+}
+
+function initReportTrendChart() {
+  if (reportChartInit) return; reportChartInit = true;
+  const ctx = document.getElementById('reportTrendChart').getContext('2d');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Jan','Feb','Mar','Apr'],
+      datasets:[
+        { label:'Revenue',  data:[3200000,3600000,3750000,4200000], backgroundColor:'#1d4ed8', borderRadius:5, borderSkipped:false },
+        { label:'Expenses', data:[900000,980000,1050000,1100000],   backgroundColor:'#fecaca', borderRadius:5, borderSkipped:false },
+        { label:'Profit',   data:[2300000,2620000,2700000,3100000], backgroundColor:'#bbf7d0', borderRadius:5, borderSkipped:false },
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{font:{size:11},boxWidth:10,padding:14} } }, scales:{ x:{ grid:{display:false}, ticks:{font:{size:11}} }, y:{ grid:{color:'#f0f2fb'}, ticks:{ font:{size:11}, callback:v=>'₦'+(v/1000000).toFixed(1)+'M' }, beginAtZero:true } } }
+  });
+}
+
+/* ── UTILS ── */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function showToast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.querySelector('svg').style.display = ok ? 'block' : 'none';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── INIT ── */
+renderDashInvoices();
+renderDashPayments();
+renderActivity();
+initDashboardCharts();
+</script>
+</body>
+</html>
