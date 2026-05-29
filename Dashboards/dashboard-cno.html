@@ -105,7 +105,7 @@
  
     /* ── LAYOUT ── */
     .grid-2   { display: grid; grid-template-columns: 1fr 1fr;    gap: 20px; margin-bottom: 24px; }
-    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr;    gap: 20px; margin-bottom: 24px; }
+    .grid-3-1 { display: grid; grid-template-columns: 3fr 1fr;    gap: 10px; margin-bottom: 24px; }
     .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr;    gap: 20px; margin-bottom: 24px; }
     .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
     .card-header { padding: 14px 20px; border-bottom: 1px solid #f0f2fb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
@@ -326,7 +326,7 @@
                 <th>Role</th>
                 <th>Experience</th>
                 <th>Coverage</th>
-                <th>Applied</th>
+                <!-- <th>Applied</th> -->
                 <th>Actions</th>
               </tr>
             </thead>
@@ -463,7 +463,7 @@
    API CONFIG — update API_BASE + set USE_API = true when ready
 ================================================================ */
 const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
-const USE_API  = false; // 🔧 Set true when backend is ready
+const USE_API  = true; // 🔧 Set true when backend is ready
  
 async function apiFetch(path, options = {}) {
   const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
@@ -538,28 +538,69 @@ let selectedRequestId = null;
 async function loadDashboard() {
   try {
     if (USE_API) {
-      const [stats, apps, reqs, nurses, activity] = await Promise.all([
+      const results = await Promise.allSettled([
         apiFetch('/cno/dashboard/stats'),
-        apiFetch('/admin/providers?status=PENDING&limit=5'),
-        apiFetch('/admin/care-requests?limit=7'),
-        apiFetch('/caregivers?status=active'),
+        apiFetch('/admin/providers?status=PENDING'),
+        apiFetch('/admin/care-requests?status=PENDING'),
+        apiFetch('/admin/providers?status=ACTIVE'),
         apiFetch('/cno/activity?limit=6'),
       ]);
-      renderStats(stats);
-      renderApplications(apps);
-      renderRequests(reqs);
-      renderNurses(nurses);
-      renderActivity(activity);
+
+      const [statsRes, appsRes, reqsRes, nursesRes, activityRes] = results;
+
+      // Stats (critical - optional fallback if needed)
+      if (statsRes.status === 'fulfilled') {
+        renderStats(statsRes.value);
+      } else {
+        console.warn('Stats failed, using fallback');
+        renderStats(MOCK.stats || {});
+      }
+
+      // Applications
+      if (appsRes.status === 'fulfilled') {
+        renderApplications(appsRes.value);
+      } else {
+        console.warn('Applications failed');
+        renderApplications(MOCK.applications);
+      }
+
+      // Requests
+      if (reqsRes.status === 'fulfilled') {
+        renderRequests(reqsRes.value);
+      } else {
+        console.warn('Requests failed');
+        renderRequests(MOCK.requests);
+      }
+
+      // Nurses
+      if (nursesRes.status === 'fulfilled') {
+        renderNurses(nursesRes.value);
+      } else {
+        console.warn('Nurses failed');
+        renderNurses(MOCK.nurses);
+      }
+
+      // Activity
+      if (activityRes.status === 'fulfilled') {
+        renderActivity(activityRes.value);
+      } else {
+        console.warn('Activity failed');
+        renderActivity(MOCK.activity);
+      }
+
     } else {
       renderApplications(MOCK.applications);
       renderRequests(MOCK.requests);
       renderNurses(MOCK.nurses);
       renderActivity(MOCK.activity);
     }
+
     initChart();
+
   } catch (err) {
-    console.error('Dashboard load error:', err);
-    // Fall back to mock
+    console.error('Dashboard load error (unexpected global failure):', err);
+
+    // final safety fallback
     renderApplications(MOCK.applications);
     renderRequests(MOCK.requests);
     renderNurses(MOCK.nurses);
@@ -595,11 +636,11 @@ function renderApplications(data) {
  
   tbody.innerHTML = data.map(a => `
     <tr>
-      <td><div class="td-name">${a.name}</div><div class="td-sub">${a.email}</div></td>
-      <td>${a.role}</td>
-      <td>${a.experience}</td>
-      <td>${a.coverage}</td>
-      <td style="font-size:12px;color:#8898c8;">${a.applied}</td>
+      <td><div class="td-name">${a.fullName}</div><div class="td-sub">${a.email}</div></td>
+      <td>${a.serviceProviderType}</td>
+      <td>${a.yearsOfExperience}</td>
+      <td>${a.locationArea}</td>
+      <!-- <td style="font-size:12px;color:#8898c8;">${a.applied}</td> -->
       <td><div class="td-actions">
         <button class="act-btn act-approve" onclick="approveApp(${a.id})">Approve</button>
         <button class="act-btn act-view"    onclick="openApp(${a.id})">View</button>
@@ -628,10 +669,10 @@ function renderRequests(data) {
  
   tbody.innerHTML = data.map(r => `
     <tr>
-      <td><div class="td-name">${r.patient}</div></td>
-      <td style="font-size:12.5px;">${r.service}</td>
-      <td style="font-size:12.5px;">${r.location}</td>
-      <td style="font-size:12px;color:#8898c8;">${r.received}</td>
+      <td><div class="td-name">${r.fullName}</div></td>
+      <td style="font-size:12.5px;">${r.serviceNeeded}</td>
+      <td style="font-size:12.5px;">${r.locationArea}</td>
+      <td style="font-size:12px;color:#8898c8;">${r.submittedAt}</td>
       <td>${statusBadge(r.status)}</td>
       <td><div class="td-actions">
         ${r.status !== 'ASSIGNED' ? `<button class="act-btn act-assign" onclick="openAssign(${r.id})">Assign</button>` : ''}
@@ -751,12 +792,64 @@ function openApp(id) {
 }
  
 /* ── ASSIGN REQUEST ── */
-function openAssign(id) {
-  selectedRequestId = id;
-  const r = requestsData.find(x => x.id === id);
-  document.getElementById('assignModalTitle').textContent = 'Assign — ' + r.patient;
-  document.getElementById('assignSelect').selectedIndex = 0;
-  document.getElementById('assignModal').classList.add('open');
+async function openAssign(id) {
+  try {
+    selectedRequestId = id;
+
+    const r = requestsData.find(x => x.id === id);
+
+    if (!r) {
+      console.error('Request not found');
+      return;
+    }
+
+    document.getElementById('assignModalTitle').textContent =
+      'Assign — ' + r.patient;
+
+    const select = document.getElementById('assignSelect');
+
+    // Loading state
+    select.innerHTML = `
+      <option>Loading providers...</option>
+    `;
+
+    // Open modal immediately
+    document.getElementById('assignModal').classList.add('open');
+
+    // Fetch providers from backend
+    const providers = await apiFetch(
+      `/admin/providers?role=SERVICE_PROVIDER && CLINICAL_PERSONNEL}`
+    );
+
+    // Empty current options
+    select.innerHTML = `
+      <option value="">Select Provider</option>
+    `;
+
+    // Populate dropdown
+    providers.forEach(provider => {
+
+      const option = document.createElement('option');
+
+      option.value = provider.id;
+
+      // Adjust fields based on your backend response
+      option.textContent =
+        `${provider.fullName} - ${provider.specialization || 'Caregiver'}`;
+
+      select.appendChild(option);
+    });
+
+  } catch (err) {
+
+    console.error('Failed to load providers:', err);
+
+    document.getElementById('assignSelect').innerHTML = `
+      <option value="">
+        Failed to load providers
+      </option>
+    `;
+  }
 }
  
 async function confirmAssign() {
@@ -811,11 +904,12 @@ function showToast(msg, ok = true) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
  
 /* ── INIT ── */
 loadDashboard();
 // Auto-refresh every 60 seconds
-setInterval(loadDashboard, 60000);
+//setInterval(loadDashboard, 60000);
 </script>
 </body>
 </html>
