@@ -818,7 +818,7 @@ async function openAssign(id) {
 
     // Fetch providers from backend
     const providers = await apiFetch(
-      `/admin/providers?role=SERVICE_PROVIDER && CLINICAL_PERSONNEL}`
+      `/admin/providers`
     );
 
     // Empty current options
