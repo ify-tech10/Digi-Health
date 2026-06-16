@@ -48,6 +48,10 @@ function showFieldError(fieldId, message) {
   field.parentNode.appendChild(error);
 }
 
+function calert()
+{
+  alert("Application submitted successfully!");
+}
 // ── Submit handler ──
 async function handleApply() {
   clearErrors();
@@ -101,7 +105,7 @@ async function handleApply() {
 
   try {
     const response = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/auth/provider/apply",
+      "https://digihealth-2795.onrender.com/api/auth/provider/apply",
       {
         method: "POST",
         body: formData

@@ -53,7 +53,7 @@ async function loadCareRequests() {
     if (!auth) return;
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/care-requests",
+      "https://digihealth-2795.onrender.com/api/admin/care-requests",
       {
         headers: {
           Authorization: `Bearer ${auth.token}`

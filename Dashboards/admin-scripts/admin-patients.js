@@ -18,7 +18,7 @@ const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
     }
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=ASSIGNED",
+      "https://digihealth-2795.onrender.com/api/admin/care-requests?status=ASSIGNED",
       {
         headers: {
           Authorization: `Bearer ${user.token}`

@@ -318,8 +318,8 @@ async function loadCareRequests() {
     if (!auth) return;
 
     const url = currentStatus === "ALL"
-      ? "https://digihealth-6uy7.onrender.com/api/admin/care-requests"
-      : "https://digihealth-6uy7.onrender.com/api/admin/care-requests?status=PENDING";
+      ? "https://digihealth-2795.onrender.com/api/admin/care-requests"
+      : "https://digihealth-2795.onrender.com/api/admin/care-requests?status=PENDING";
 
     const res = await fetch(url, {
       headers: { "Authorization": `Bearer ${auth.token}` }
@@ -413,7 +413,7 @@ async function loadProviders() {
     if (!auth) return;
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/providers",
+      "https://digihealth-2795.onrender.com/api/admin/providers",
       { headers: { "Authorization": `Bearer ${auth.token}` } }
     );
 
@@ -459,7 +459,7 @@ async function loadApplications() {
     if (!auth) return;
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/providers?status=PENDING",
+      "https://digihealth-2795.onrender.com/api/admin/providers?status=PENDING",
       { headers: { "Authorization": `Bearer ${auth.token}` } }
     );
 
@@ -581,7 +581,7 @@ document.addEventListener("click", async (e) => {
       e.target.textContent = "Approving...";
 
       const res = await fetch(
-        `https://digihealth-6uy7.onrender.com/api/admin/providers/${id}/approve`,
+        `https://digihealth-2795.onrender.com/api/admin/providers/${id}/approve`,
         {
           method: "PUT",
           headers: { "Authorization": `Bearer ${auth.token}` }
@@ -635,7 +635,7 @@ async function confirmAssign() {
 
   try {
     const res = await fetch(
-      `https://digihealth-6uy7.onrender.com/api/admin/care-requests/${selectedRequestId}/assign`,
+      `https://digihealth-2795.onrender.com/api/admin/care-requests/${selectedRequestId}/assign`,
       {
         method: "PUT",
         headers: {

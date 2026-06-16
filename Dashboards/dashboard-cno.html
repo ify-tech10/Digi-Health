@@ -264,7 +264,7 @@
     <div class="welcome-hero">
       <div class="wh-left">
         <div class="wh-tag">Chief Nursing Officer Portal</div>
-        <div class="wh-title">Good morning, Dr. Ngozi Adeyemi</div>
+        <div class="wh-title">Welcome, Dr. Ngozi Adeyemi</div>
         <div class="wh-sub">You have 5 provider applications and 7 service requests awaiting your review.</div>
       </div>
       <div class="wh-right">
@@ -462,7 +462,7 @@
 /* ================================================================
    API CONFIG — update API_BASE + set USE_API = true when ready
 ================================================================ */
-const API_BASE = 'https://digihealth-6uy7.onrender.com/api';
+const API_BASE = 'https://digihealth-2795.onrender.com/api';
 const USE_API  = true; // 🔧 Set true when backend is ready
  
 async function apiFetch(path, options = {}) {
@@ -482,6 +482,8 @@ const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   // Commented out for demo — uncomment in production
   // window.location.href = 'login.html';
 //}
+document.querySelector('.wh-title').textContent = 
+  `Welcome, ${user.fullName || user.name || 'Dr. Adeyemi'}`;
 function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
  
 /* ── SET TOPBAR DATE ── */

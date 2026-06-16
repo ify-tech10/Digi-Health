@@ -32,7 +32,7 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
   btn.disabled = true;
 
   try {
-    const response = await fetch("https://digihealth-6uy7.onrender.com/api/care-requests", {
+    const response = await fetch("https://digihealth-2795.onrender.com/api/care-requests", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -19,7 +19,7 @@
     }
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/providers?status=APPROVED",
+      "https://digihealth-2795.onrender.com/api/admin/providers?status=APPROVED",
       {
         headers: {
           Authorization: `Bearer ${user.token}`
@@ -269,7 +269,7 @@ function openFinanceModal() {
 BASE API
 ========================================================= */
 
-const API_BASE = "https://digihealth-6uy7.onrender.com/api/admin/personnel";
+const API_BASE = "https://digihealth-2795.onrender.com/api/admin/personnel";
 
 /* =========================================================
 GENERIC REQUEST HELPER
@@ -485,7 +485,7 @@ async function submitClinical() {
   // =========================
   formData.append("availabilityType", document.getElementById("clinical_availability").value);
   formData.append("startDate", document.getElementById("clinical_start_date").value);
-  formData.append("coverageAreas", document.getElementById("clinical_coverage").value.trim());
+  formData.append("coverageAreas", document.getElementById("clinical_coverage").value);
 
   // WORK HOURS (checkboxes)
   const workHours = Array.from(
