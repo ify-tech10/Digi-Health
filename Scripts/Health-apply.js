@@ -54,6 +54,7 @@ function calert()
 }
 // ── Submit handler ──
 async function handleApply() {
+  console.log("handleApply started");
   clearErrors();
 
   const formData = new FormData();
@@ -93,7 +94,7 @@ async function handleApply() {
 
   formData.append("availabilityType", document.getElementById('availability_type').value);
   formData.append("preferredHours", getChecked('hours_'));
-  formData.append("locationArea", document.getElementById('coverage_areas').value || 'Not specified');
+  formData.append("locationArea", document.getElementById('clinical_coverage').value || 'Not specified');
   formData.append("start_date", document.getElementById('start_date').value || 'Not specified');
   formData.append("additional_info", document.getElementById('additional_info').value || 'None');
 
