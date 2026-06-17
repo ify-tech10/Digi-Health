@@ -18,14 +18,15 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
 
 
   const payload = {
-    fullName: name,
-    email: email,
-    phoneNumber: phone,
-    locationArea: document.getElementById('location').value.trim(),
-    serviceNeeded: service,
-    description: document.getElementById('description').value.trim(),
-    contactTime: document.getElementById('contact-time').value
-  };
+  fullName: name,
+  email: email,
+  phoneNumber: phone,
+  address: document.getElementById('location').value.trim(),
+  locationArea: document.getElementById('serviceArea').value,
+  serviceNeeded: service,
+  description: document.getElementById('description').value.trim(),
+  preferredContactTime: document.getElementById('contact-time').value
+};
 
   const btn = document.querySelector('.btn-submit');
   btn.textContent = 'Sending...';
@@ -53,9 +54,9 @@ emailjs.init('L1aziile6j91l0MqB'); // paste your public key here
             email: "email",
             phoneNumber: "phone",
             serviceNeeded: "service",
-            locationArea: "location",
+            locationArea: "serviceArea",
             description: "description",
-            contactTime: "contact-time"
+            preferredContactTime: "contact-time"
           };
 
           const fieldId = map[field];
