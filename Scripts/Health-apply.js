@@ -71,7 +71,7 @@ async function handleApply() {
   formData.append("serviceProviderType", serviceProviderType);
 
   // Other fields
-  formData.append("locationArea", document.getElementById('location').value.trim());
+  formData.append("address", document.getElementById('location').value.trim());
   formData.append("applicant_gender", document.getElementById('gender').value);
   formData.append("YearsOfExperience", document.getElementById('experience').value);
   formData.append("qualification", document.getElementById('qualification').value);
@@ -94,7 +94,7 @@ async function handleApply() {
 
   formData.append("availabilityType", document.getElementById('availability_type').value);
   formData.append("preferredHours", getChecked('hours_'));
-  formData.append("coverageAreas", document.getElementById('clinical_coverage').value || 'Not specified');
+  formData.append("locationArea", document.getElementById('clinical_coverage').value || 'Not specified');
   formData.append("start_date", document.getElementById('start_date').value || 'Not specified');
   formData.append("additional_info", document.getElementById('additional_info').value || 'None');
 

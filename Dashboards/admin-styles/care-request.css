@@ -125,3 +125,35 @@
       .stats-row { grid-template-columns: 1fr 1fr; }
       .data-table th:nth-child(4), .data-table td:nth-child(4) { display: none; }
     }
+          #assignModal select,
+#assignModal textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 520px;
+    max-width: 92%;
+    border-radius: 16px;
+    padding: 24px 26px;
+    position: relative;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: all 0.25s ease;
+  }
+
+#assignModal textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* show modal */
+  .show {
+    opacity: 1;
+    visibility: visible;
+  }

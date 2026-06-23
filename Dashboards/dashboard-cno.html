@@ -458,38 +458,35 @@
  
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
  
-<script>
-/* ================================================================
-   API CONFIG — update API_BASE + set USE_API = true when ready
+<script>/* ================================================================
+   API CONFIG
 ================================================================ */
 const API_BASE = 'https://digihealth-2795.onrender.com/api';
-const USE_API  = true; // 🔧 Set true when backend is ready
- 
+const USE_API  = true;
+
 async function apiFetch(path, options = {}) {
   const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}),
+    ...options.headers
+  };
   const res = await fetch(API_BASE + path, { ...options, headers });
   if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
- 
+
 /* ── AUTH ── */
 const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-// Allow CNO, ADMIN, SUPER_ADMIN, NURSING_OFFICER roles
-//const ALLOWED_ROLES = ['cno','medical_director','chief_medical_officer','head_of_clinical_operations','nursing_supervisor'].filter(Boolean);
-//if (!user.loggedIn || !ALLOWED_ROLES.includes((user.role||'').toLowerCase())) {
-  // Commented out for demo — uncomment in production
-  // window.location.href = 'login.html';
-//}
-document.querySelector('.wh-title').textContent = 
+document.querySelector('.wh-title').textContent =
   `Welcome, ${user.fullName || user.name || 'Dr. Adeyemi'}`;
 function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
- 
+
 /* ── SET TOPBAR DATE ── */
 document.getElementById('topbarDate').textContent =
   new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' · All systems operational';
- 
+
 /* ================================================================
    MOCK DATA
 ================================================================ */
@@ -501,7 +498,6 @@ const MOCK = {
     { id:4, name:'Adaora Okafor',     email:'adaora@email.com',   role:'Postnatal Specialist',       experience:'5 years', coverage:'Surulere, Mushin',    applied:'22 Apr',           status:'PENDING', qualification:'Diploma Midwifery', specialisations:'Postnatal, Newborn, Breastfeeding', ref:'Dr. Amaka Nwosu' },
     { id:5, name:'Taiwo Adeyinka',    email:'taiwo@email.com',    role:'Community Health Nurse',     experience:'2 years', coverage:'Magodo, Ojodu',       applied:'20 Apr',           status:'PENDING', qualification:'Diploma Community Health', specialisations:'Community Health, Medication', ref:'Nurse Kunle Adesanya' },
   ],
- 
   requests: [
     { id:1, patient:'Adaeze Onyekwere', service:'Post-Discharge Recovery',  location:'Lekki, Lagos',           received:'Today, 7:42 AM',    status:'URGENT' },
     { id:2, patient:'Rotimi Fadahunsi', service:'Elderly Care Support',     location:'Ikeja, Lagos',           received:'Today, 6:18 AM',    status:'NEW' },
@@ -511,7 +507,6 @@ const MOCK = {
     { id:6, patient:'Ibrahim Musa',     service:'Lab & Diagnostic Services',location:'Gbagada, Lagos',         received:'26 Apr, 9:00 AM',   status:'PENDING' },
     { id:7, patient:'Ngozi Obiechina',  service:'Physiotherapy & Rehab',   location:'Magodo, Lagos',          received:'26 Apr, 8:15 AM',   status:'PENDING' },
   ],
- 
   nurses: [
     { id:1, name:'Nurse Blessing Adeyemi', role:'RN',                   color:'#1a2550', patients:8,  capacity:10, rating:4.9 },
     { id:2, name:'Nurse Kemi Ojo',         role:'Community Health',      color:'#0891b2', patients:6,  capacity:10, rating:4.7 },
@@ -519,21 +514,24 @@ const MOCK = {
     { id:4, name:'Nurse Amina Eze',        role:'Postnatal Specialist',  color:'#059669', patients:4,  capacity:10, rating:5.0 },
     { id:5, name:'Dr. Damilola Osei',      role:'Telemedicine Doctor',   color:'#b45309', patients:12, capacity:12, rating:4.9 },
   ],
- 
   activity: [
-    { type:'APPROVAL',   text:'Visit completed — <strong>Amara Osei</strong> by Nurse Blessing',       time:'8 min ago',  color:'#22c55e' },
-    { type:'REQUEST',    text:'New care request from <strong>Adaeze Onyekwere</strong> — Urgent',       time:'15 min ago', color:'#ef4444' },
-    { type:'APPLICATION',text:'New application from <strong>Chiamaka Nwosu</strong> — RN',              time:'1 hr ago',   color:'#9333ea' },
-    { type:'ASSIGNED',   text:'Request assigned — <strong>Kunle Adesanya</strong> → Nurse Kemi Ojo',   time:'2 hrs ago',  color:'#3b82f6' },
-    { type:'REPORT',     text:'Visit report submitted — <strong>Emeka Nwachukwu</strong>',              time:'3 hrs ago',  color:'#0891b2' },
-    { type:'REQUEST',    text:'New request — <strong>Rotimi Fadahunsi</strong> — Elderly Care',         time:'4 hrs ago',  color:'#f97316' },
+    { type:'APPROVAL',    text:'Visit completed — <strong>Amara Osei</strong> by Nurse Blessing',       time:'8 min ago',  color:'#22c55e' },
+    { type:'REQUEST',     text:'New care request from <strong>Adaeze Onyekwere</strong> — Urgent',       time:'15 min ago', color:'#ef4444' },
+    { type:'APPLICATION', text:'New application from <strong>Chiamaka Nwosu</strong> — RN',              time:'1 hr ago',   color:'#9333ea' },
+    { type:'ASSIGNED',    text:'Request assigned — <strong>Kunle Adesanya</strong> → Nurse Kemi Ojo',   time:'2 hrs ago',  color:'#3b82f6' },
+    { type:'REPORT',      text:'Visit report submitted — <strong>Emeka Nwachukwu</strong>',              time:'3 hrs ago',  color:'#0891b2' },
+    { type:'REQUEST',     text:'New request — <strong>Rotimi Fadahunsi</strong> — Elderly Care',         time:'4 hrs ago',  color:'#f97316' },
   ],
 };
- 
-let applicationsData = [];
-let requestsData = [];
+
+/* ================================================================
+   STATE
+================================================================ */
+let applicationsData  = [];
+let requestsData      = [];
 let selectedRequestId = null;
- 
+let selectedLocation  = null;
+
 /* ================================================================
    LOAD FUNCTIONS
 ================================================================ */
@@ -544,51 +542,26 @@ async function loadDashboard() {
         apiFetch('/cno/dashboard/stats'),
         apiFetch('/admin/providers?status=PENDING'),
         apiFetch('/admin/care-requests?status=PENDING'),
-        apiFetch('/admin/providers?status=ACTIVE'),
+        apiFetch('/admin/providers?status=PENDING'),
         apiFetch('/cno/activity?limit=6'),
       ]);
 
       const [statsRes, appsRes, reqsRes, nursesRes, activityRes] = results;
 
-      // Stats (critical - optional fallback if needed)
-      if (statsRes.status === 'fulfilled') {
-        renderStats(statsRes.value);
-      } else {
-        console.warn('Stats failed, using fallback');
-        renderStats(MOCK.stats || {});
-      }
+      if (statsRes.status    === 'fulfilled') renderStats(statsRes.value);
+      else { console.warn('Stats failed'); renderStats(MOCK.stats || {}); }
 
-      // Applications
-      if (appsRes.status === 'fulfilled') {
-        renderApplications(appsRes.value);
-      } else {
-        console.warn('Applications failed');
-        renderApplications(MOCK.applications);
-      }
+      if (appsRes.status     === 'fulfilled') renderApplications(appsRes.value);
+      else { console.warn('Applications failed'); renderApplications(MOCK.applications); }
 
-      // Requests
-      if (reqsRes.status === 'fulfilled') {
-        renderRequests(reqsRes.value);
-      } else {
-        console.warn('Requests failed');
-        renderRequests(MOCK.requests);
-      }
+      if (reqsRes.status     === 'fulfilled') renderRequests(reqsRes.value);
+      else { console.warn('Requests failed'); renderRequests(MOCK.requests); }
 
-      // Nurses
-      if (nursesRes.status === 'fulfilled') {
-        renderNurses(nursesRes.value);
-      } else {
-        console.warn('Nurses failed');
-        renderNurses(MOCK.nurses);
-      }
+      if (nursesRes.status   === 'fulfilled') renderNurses(nursesRes.value);
+      else { console.warn('Nurses failed'); renderNurses(MOCK.nurses); }
 
-      // Activity
-      if (activityRes.status === 'fulfilled') {
-        renderActivity(activityRes.value);
-      } else {
-        console.warn('Activity failed');
-        renderActivity(MOCK.activity);
-      }
+      if (activityRes.status === 'fulfilled') renderActivity(activityRes.value);
+      else { console.warn('Activity failed'); renderActivity(MOCK.activity); }
 
     } else {
       renderApplications(MOCK.applications);
@@ -600,9 +573,7 @@ async function loadDashboard() {
     initChart();
 
   } catch (err) {
-    console.error('Dashboard load error (unexpected global failure):', err);
-
-    // final safety fallback
+    console.error('Dashboard load error:', err);
     renderApplications(MOCK.applications);
     renderRequests(MOCK.requests);
     renderNurses(MOCK.nurses);
@@ -610,39 +581,38 @@ async function loadDashboard() {
     initChart();
   }
 }
- 
-/* ── RENDER STATS (from API) ── */
+
+/* ── RENDER STATS ── */
 function renderStats(stats) {
   if (!stats) return;
-  if (stats.activeNurses)    document.getElementById('statNurses').textContent    = stats.activeNurses;
-  if (stats.visitsToday)     document.getElementById('statVisits').textContent     = stats.visitsToday;
-  if (stats.pendingApps)     document.getElementById('statPending').textContent    = stats.pendingApps;
-  if (stats.openRequests)    document.getElementById('statRequests').textContent   = stats.openRequests;
-  if (stats.activePatients)  document.getElementById('statPatients').textContent   = stats.activePatients;
-  if (stats.urgentRequests)  document.getElementById('statUrgent').textContent     = stats.urgentRequests;
-  if (stats.completionRate)  document.getElementById('statCompletion').textContent = stats.completionRate + '%';
-  if (stats.avgRating)       document.getElementById('statRating').textContent     = stats.avgRating + '★';
-  if (stats.heroNurses)      document.getElementById('heroNurses').textContent     = stats.heroNurses;
-  if (stats.heroVisits)      document.getElementById('heroVisits').textContent     = stats.heroVisits;
-  if (stats.heroPending)     document.getElementById('heroPending').textContent    = stats.heroPending;
+  if (stats.activeNurses)   document.getElementById('statNurses').textContent     = stats.activeNurses;
+  if (stats.visitsToday)    document.getElementById('statVisits').textContent      = stats.visitsToday;
+  if (stats.pendingApps)    document.getElementById('statPending').textContent     = stats.pendingApps;
+  if (stats.openRequests)   document.getElementById('statRequests').textContent    = stats.openRequests;
+  if (stats.activePatients) document.getElementById('statPatients').textContent    = stats.activePatients;
+  if (stats.urgentRequests) document.getElementById('statUrgent').textContent      = stats.urgentRequests;
+  if (stats.completionRate) document.getElementById('statCompletion').textContent  = stats.completionRate + '%';
+  if (stats.avgRating)      document.getElementById('statRating').textContent      = stats.avgRating + '★';
+  if (stats.heroNurses)     document.getElementById('heroNurses').textContent      = stats.heroNurses;
+  if (stats.heroVisits)     document.getElementById('heroVisits').textContent      = stats.heroVisits;
+  if (stats.heroPending)    document.getElementById('heroPending').textContent     = stats.heroPending;
 }
- 
+
 /* ── RENDER APPLICATIONS ── */
 function renderApplications(data) {
   applicationsData = data;
   const tbody = document.getElementById('applicationsBody');
-  document.getElementById('appCount').textContent = data.length + ' pending';
-  document.getElementById('appBadge').textContent = data.filter(a => a.status === 'PENDING').length;
+  document.getElementById('appCount').textContent   = data.length + ' pending';
+  document.getElementById('appBadge').textContent   = data.filter(a => a.status === 'PENDING').length;
   document.getElementById('statPending').textContent = data.filter(a => a.status === 'PENDING').length;
   document.getElementById('heroPending').textContent = data.filter(a => a.status === 'PENDING').length;
- 
+
   tbody.innerHTML = data.map(a => `
     <tr>
-      <td><div class="td-name">${a.fullName}</div><div class="td-sub">${a.email}</div></td>
-      <td>${a.serviceProviderType}</td>
-      <td>${a.yearsOfExperience}</td>
-      <td>${a.locationArea}</td>
-      <!-- <td style="font-size:12px;color:#8898c8;">${a.applied}</td> -->
+      <td><div class="td-name">${a.fullName || a.name}</div><div class="td-sub">${a.email}</div></td>
+      <td>${a.serviceProviderType || a.role}</td>
+      <td>${a.yearsOfExperience   || a.experience}</td>
+      <td>${a.locationArea        || a.coverage}</td>
       <td><div class="td-actions">
         <button class="act-btn act-approve" onclick="approveApp(${a.id})">Approve</button>
         <button class="act-btn act-view"    onclick="openApp(${a.id})">View</button>
@@ -651,16 +621,16 @@ function renderApplications(data) {
     </tr>
   `).join('');
 }
- 
+
 /* ── RENDER REQUESTS ── */
 function renderRequests(data) {
   requestsData = data;
   const tbody = document.getElementById('requestsBody');
-  const open = data.filter(r => r.status !== 'ASSIGNED').length;
-  document.getElementById('reqCount').textContent   = open + ' open';
-  document.getElementById('reqBadge').textContent   = open;
+  const open  = data.filter(r => r.status !== 'ASSIGNED').length;
+  document.getElementById('reqCount').textContent    = open + ' open';
+  document.getElementById('reqBadge').textContent    = open;
   document.getElementById('statRequests').textContent = open;
- 
+
   const statusBadge = s => {
     if (s === 'URGENT')   return `<span class="badge badge-rejected">Urgent</span>`;
     if (s === 'NEW')      return `<span class="badge badge-new">New</span>`;
@@ -668,22 +638,24 @@ function renderRequests(data) {
     if (s === 'ASSIGNED') return `<span class="badge badge-approved">Assigned</span>`;
     return `<span class="badge">${s}</span>`;
   };
- 
+
   tbody.innerHTML = data.map(r => `
     <tr>
-      <td><div class="td-name">${r.fullName}</div></td>
-      <td style="font-size:12.5px;">${r.serviceNeeded}</td>
-      <td style="font-size:12.5px;">${r.locationArea}</td>
-      <td style="font-size:12px;color:#8898c8;">${r.submittedAt}</td>
+      <td><div class="td-name">${r.fullName || r.patient}</div></td>
+      <td style="font-size:12.5px;">${r.serviceNeeded || r.service}</td>
+      <td style="font-size:12.5px;">${r.locationArea  || r.location}</td>
+      <td style="font-size:12px;color:#8898c8;">${r.submittedAt || r.received}</td>
       <td>${statusBadge(r.status)}</td>
       <td><div class="td-actions">
-        ${r.status !== 'ASSIGNED' ? `<button class="act-btn act-assign" onclick="openAssign(${r.id})">Assign</button>` : ''}
+        ${r.status === 'PENDING'
+          ? `<button class="act-btn act-assign" onclick="openAssign(${r.id})">Assign</button>`
+          : ''}
         <button class="act-btn act-view" onclick="openRequest(${r.id})">View</button>
       </div></td>
     </tr>
   `).join('');
 }
- 
+
 /* ── RENDER NURSES ── */
 function renderNurses(data) {
   const list = document.getElementById('nursesList');
@@ -708,7 +680,7 @@ function renderNurses(data) {
     </div>`;
   }).join('');
 }
- 
+
 /* ── RENDER ACTIVITY ── */
 function renderActivity(data) {
   const list = document.getElementById('activityList');
@@ -720,7 +692,7 @@ function renderActivity(data) {
     </div>
   `).join('');
 }
- 
+
 /* ── CHART ── */
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color = '#8898c8';
@@ -734,21 +706,21 @@ function initChart() {
     data: {
       labels: ['1 Apr','5 Apr','10 Apr','15 Apr','20 Apr','25 Apr','28 Apr'],
       datasets: [
-        { label:'Completed', data:[12,18,15,22,20,19,18], backgroundColor: '#0891b2', borderRadius:5, borderSkipped:false },
-        { label:'Scheduled', data:[14,20,17,24,22,21,20], backgroundColor: '#ecfeff', borderRadius:5, borderSkipped:false },
+        { label:'Completed', data:[12,18,15,22,20,19,18], backgroundColor:'#0891b2', borderRadius:5, borderSkipped:false },
+        { label:'Scheduled', data:[14,20,17,24,22,21,20], backgroundColor:'#ecfeff', borderRadius:5, borderSkipped:false },
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ position:'top', labels:{ font:{ size:11 }, boxWidth:10, padding:14 } } },
       scales:{
-        x:{ grid:{ display:false }, ticks:{ font:{ size:11 } }, stacked:false },
+        x:{ grid:{ display:false }, ticks:{ font:{ size:11 } } },
         y:{ grid:{ color:'#f0f2fb' }, ticks:{ font:{ size:11 }, stepSize:5 }, beginAtZero:true }
       }
     }
   });
 }
- 
+
 /* ================================================================
    APPROVE / REJECT APPLICATIONS
 ================================================================ */
@@ -761,7 +733,7 @@ async function approveApp(id) {
   renderApplications(applicationsData);
   showToast('✅ Provider application approved!');
 }
- 
+
 async function rejectApp(id) {
   if (!confirm('Reject this application?')) return;
   if (USE_API) {
@@ -772,133 +744,171 @@ async function rejectApp(id) {
   renderApplications(applicationsData);
   showToast('Application rejected.');
 }
- 
+
 function openApp(id) {
   const a = applicationsData.find(x => x.id === id);
-  document.getElementById('appModalTitle').textContent = a.name + ' — Application';
+  if (!a) return;
+
+  // Support both API field names and mock field names
+  const name            = a.fullName            || a.name;
+  const role            = a.serviceProviderType || a.role;
+  const experience      = a.yearsOfExperience   || a.experience;
+  const coverage        = a.locationArea         || a.coverage;
+  const qualification   = a.qualification        || '—';
+  const specialisations = a.specialisations      || '—';
+  const ref             = a.ref                  || '—';
+  const applied         = a.applied              || '—';
+
+  document.getElementById('appModalTitle').textContent = name + ' — Application';
   document.getElementById('appModalBody').innerHTML = `
     <div class="modal-section"><h4>Personal Details</h4>
-      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${a.name}</span></div>
+      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${name}</span></div>
       <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${a.email}</span></div>
-      <div class="detail-row"><span class="detail-label">Role Applied</span><span class="detail-value">${a.role}</span></div>
-      <div class="detail-row"><span class="detail-label">Experience</span><span class="detail-value">${a.experience}</span></div>
-      <div class="detail-row"><span class="detail-label">Qualification</span><span class="detail-value">${a.qualification || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${a.specialisations || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${a.coverage}</span></div>
-      <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">${a.ref || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Applied</span><span class="detail-value">${a.applied}</span></div>
+      <div class="detail-row"><span class="detail-label">Role Applied</span><span class="detail-value">${role}</span></div>
+      <div class="detail-row"><span class="detail-label">Experience</span><span class="detail-value">${experience}</span></div>
+      <div class="detail-row"><span class="detail-label">Qualification</span><span class="detail-value">${qualification}</span></div>
+      <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${specialisations}</span></div>
+      <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${coverage}</span></div>
+      <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value">${ref}</span></div>
+      <div class="detail-row"><span class="detail-label">Applied</span><span class="detail-value">${applied}</span></div>
     </div>`;
   document.getElementById('appApproveBtn').onclick = () => { closeModal('appModal'); approveApp(id); };
   document.getElementById('appRejectBtn').onclick  = () => { closeModal('appModal'); rejectApp(id); };
+  document.getElementById('appRejectBtn').style.display = '';
   document.getElementById('appModal').classList.add('open');
 }
- 
-/* ── ASSIGN REQUEST ── */
+
+/* ================================================================
+   ASSIGN REQUEST
+================================================================ */
 async function openAssign(id) {
+  const r = requestsData.find(x => x.id === id);
+  if (!r) { console.error('Request not found'); return; }
+
+  selectedRequestId = id;
+  selectedLocation  = r.locationArea || r.location || null;
+
+  document.getElementById('assignModalTitle').textContent =
+    'Assign — ' + (r.fullName || r.patient);
+
+  const select = document.getElementById('assignSelect');
+  select.innerHTML = `<option>Loading providers...</option>`;
+
+  document.getElementById('assignModal').classList.add('open');
+
   try {
-    selectedRequestId = id;
+    const url = new URL(`${API_BASE}/admin/providers/available`);
+    url.searchParams.set('careRequestId', selectedRequestId);
+    if (selectedLocation) url.searchParams.set('location', selectedLocation);
 
-    const r = requestsData.find(x => x.id === id);
+    const u   = JSON.parse(localStorage.getItem('dh_user') || '{}');
+    const res = await fetch(url.toString(), {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(u.token ? { Authorization: `Bearer ${u.token}` } : {})
+      }
+    });
 
-    if (!r) {
-      console.error('Request not found');
+    if (res.status === 404) {
+      select.innerHTML = `<option value="">No providers available in this area</option>`;
       return;
     }
 
-    document.getElementById('assignModalTitle').textContent =
-      'Assign — ' + r.patient;
+    if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    const select = document.getElementById('assignSelect');
+    const data      = await res.json();
+    const providers = data.content || data || [];
 
-    // Loading state
-    select.innerHTML = `
-      <option>Loading providers...</option>
-    `;
+    if (providers.length === 0) {
+      select.innerHTML = `<option value="">No providers available</option>`;
+      return;
+    }
 
-    // Open modal immediately
-    document.getElementById('assignModal').classList.add('open');
-
-    // Fetch providers from backend
-    const providers = await apiFetch(
-      `/admin/providers`
-    );
-
-    // Empty current options
-    select.innerHTML = `
-      <option value="">Select Provider</option>
-    `;
-
-    // Populate dropdown
-    providers.forEach(provider => {
-
+    select.innerHTML = `<option value="">Select Provider</option>`;
+    providers.forEach(p => {
       const option = document.createElement('option');
-
-      option.value = provider.id;
-
-      // Adjust fields based on your backend response
-      option.textContent =
-        `${provider.fullName} - ${provider.specialization || 'Caregiver'}`;
-
+      option.value = p.id;
+      option.textContent = `${p.fullName} (${p.serviceProviderType || 'General'})`;
       select.appendChild(option);
     });
 
   } catch (err) {
-
     console.error('Failed to load providers:', err);
-
-    document.getElementById('assignSelect').innerHTML = `
-      <option value="">
-        Failed to load providers
-      </option>
-    `;
+    select.innerHTML = `<option value="">Error loading providers</option>`;
   }
 }
- 
+
 async function confirmAssign() {
-  const sel = document.getElementById('assignSelect').value;
-  if (!sel) { showToast('Please select a caregiver.', false); return; }
+  const providerId = document.getElementById('assignSelect').value;
+  if (!providerId) { showToast('Please select a provider.', false); return; }
+
   const r = requestsData.find(x => x.id === selectedRequestId);
- 
+  if (!r) return;
+
   if (USE_API) {
     try {
       await apiFetch(`/admin/care-requests/${selectedRequestId}/assign`, {
-        method: 'PUT', body: JSON.stringify({ caregiverName: sel })
+        method: 'POST',
+        body: JSON.stringify({ providerId })
       });
     } catch { showToast('Assignment failed. Try again.', false); return; }
   }
- 
+
   r.status = 'ASSIGNED';
   renderRequests(requestsData);
   closeModal('assignModal');
-  showToast('✅ ' + r.patient + ' assigned to ' + sel.split(' —')[0]);
+  selectedRequestId = null;
+  selectedLocation  = null;
+  showToast('✅ ' + (r.fullName || r.patient) + ' assigned successfully!');
 }
- 
+
+/* ── VIEW REQUEST ── */
 function openRequest(id) {
   const r = requestsData.find(x => x.id === id);
-  const modal = document.getElementById('appModal');
-  document.getElementById('appModalTitle').textContent = r.patient + ' — Care Request';
+  if (!r) return;
+
+  const name     = r.fullName    || r.patient;
+  const service  = r.serviceNeeded || r.service;
+  const location = r.locationArea  || r.location;
+  const received = r.submittedAt   || r.received;
+
+  document.getElementById('appModalTitle').textContent = name + ' — Care Request';
   document.getElementById('appModalBody').innerHTML = `
     <div class="modal-section"><h4>Request Details</h4>
-      <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${r.patient}</span></div>
-      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${r.service}</span></div>
-      <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${r.location}</span></div>
-      <div class="detail-row"><span class="detail-label">Received</span><span class="detail-value">${r.received}</span></div>
+      <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${name}</span></div>
+      <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${service}</span></div>
+      <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${location}</span></div>
+      <div class="detail-row"><span class="detail-label">Received</span><span class="detail-value">${received}</span></div>
       <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${r.status}</span></div>
     </div>`;
-  document.getElementById('appApproveBtn').textContent = 'Assign Caregiver';
-  document.getElementById('appApproveBtn').onclick = () => { closeModal('appModal'); openAssign(id); };
-  document.getElementById('appRejectBtn').style.display = 'none';
-  modal.classList.add('open');
+
+  // Show Assign button only for PENDING requests
+  const approveBtn = document.getElementById('appApproveBtn');
+  const rejectBtn  = document.getElementById('appRejectBtn');
+
+  if (r.status === 'PENDING') {
+    approveBtn.textContent = 'Assign Provider';
+    approveBtn.style.display = '';
+    approveBtn.onclick = () => { closeModal('appModal'); openAssign(id); };
+  } else {
+    approveBtn.style.display = 'none';
+  }
+
+  rejectBtn.style.display = 'none';
+
+  document.getElementById('appModal').classList.add('open');
 }
- 
+
 /* ── UTILS ── */
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
- 
+document.querySelectorAll('.modal-overlay').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); })
+);
+
 function showSection(id) {
   document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
- 
+
 function showToast(msg, ok = true) {
   const t = document.getElementById('toast');
   t.querySelector('svg').style.display = ok ? 'block' : 'none';
@@ -907,11 +917,8 @@ function showToast(msg, ok = true) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
- 
 /* ── INIT ── */
 loadDashboard();
-// Auto-refresh every 60 seconds
-//setInterval(loadDashboard, 60000);
 </script>
 </body>
 </html>

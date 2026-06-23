@@ -405,17 +405,20 @@ function updateCarePagination() {
 /* =========================
    LOAD PROVIDERS
 ========================= */
-async function loadProviders() {
+async function loadProviders(location) {
   const select = document.getElementById("providerSelect");
 
   try {
     const auth = getAuth();
     if (!auth) return;
 
-    const res = await fetch(
-      "https://digihealth-2795.onrender.com/api/admin/providers",
-      { headers: { "Authorization": `Bearer ${auth.token}` } }
-    );
+    const url = new URL("https://digihealth-2795.onrender.com/api/admin/providers/available");
+    url.searchParams.set("careRequestId", selectedRequestId);
+    if (location) url.searchParams.set("location", location);
+
+    const res = await fetch(url.toString(), {
+      headers: { "Authorization": `Bearer ${auth.token}` }
+    });
 
     if (res.status === 401) {
       localStorage.removeItem("dh_user");
@@ -423,23 +426,33 @@ async function loadProviders() {
       return;
     }
 
-    if (!res.ok) throw new Error("Failed");
+    if (res.status === 404) {
+      select.innerHTML = `<option value="">No providers available in this area</option>`;
+      return;
+    }
+
+    if (!res.ok) throw new Error("Failed to load providers");
 
     const data = await res.json();
-    providersCache = data;
+    const providers = data.content || [];
+    providersCache = providers;
+
+    if (providers.length === 0) {
+      select.innerHTML = `<option value="">No providers available</option>`;
+      return;
+    }
 
     select.innerHTML = `<option value="">Select provider</option>`;
-
-    data.forEach(p => {
+    providers.forEach(p => {
       const option = document.createElement("option");
       option.value = p.id;
-      option.textContent = `${p.fullName} (${p.specialty || "General"})`;
+      option.textContent = `${p.fullName} (${p.serviceProviderType || "General"})`;
       select.appendChild(option);
     });
 
   } catch (err) {
     console.error(err);
-    select.innerHTML = `<option>Error loading providers</option>`;
+    select.innerHTML = `<option value="">Error loading providers</option>`;
   }
 }
 
@@ -562,13 +575,14 @@ document.addEventListener("click", async (e) => {
 
   /* ===== OPEN ASSIGN MODAL ===== */
   const assignBtn = e.target.closest(".act-assign");
-  if (assignBtn) {
-    const row = assignBtn.closest("tr");
-    selectedRequestId = row.dataset.id;
-    document.getElementById("assignModal").classList.add("show");
-    loadProviders();
-    return;
-  }
+if (assignBtn) {
+  const row = assignBtn.closest("tr");
+  selectedRequestId = row.dataset.id;
+  const location = row.dataset.location; // grab location from row
+  document.getElementById("assignModal").classList.add("show");
+  loadProviders(location); // pass it in
+  return;
+}
 
   /* ===== APPROVE APPLICATION ===== */
   if (e.target.classList.contains("act-approve")) {

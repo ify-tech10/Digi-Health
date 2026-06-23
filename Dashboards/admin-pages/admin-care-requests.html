@@ -132,20 +132,12 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr data-status="urgent" data-service="Post-Discharge Recovery">
-              <td><div class="td-name"></div><div class="td-sub"></div></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td><span class="badge badge-urgent"></span></td>
-              <td><div class="td-actions"><button class="act-btn act-assign" onclick="openAssign('Adaeze Onyekwere')">Assign</button><button class="act-btn act-view" onclick="openView(0)">View</button></div></td>
-            </tr>
-           
+            <!-- Rows populated dynamically by JS -->
           </tbody>
         </table>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -154,12 +146,14 @@
   <div class="modal">
     <div class="modal-header">
       <h2>Request Details</h2>
-      <button class="modal-close" onclick="closeModal('viewModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" onclick="closeModal('viewModal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body" id="viewModalBody"></div>
     <div class="modal-footer">
       <button class="btn-modal-close" onclick="closeModal('viewModal')">Close</button>
-      <button class="btn-modal-assign" onclick="closeModal('viewModal')">Assign Service provider</button>
+      <button class="btn-modal-assign" onclick="openAssign(selectedRequestId, selectedLocation)">Assign Service Provider</button>
     </div>
   </div>
 </div>
@@ -168,23 +162,23 @@
 <div class="modal-overlay" id="assignModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="assignTitle">Assign Service provider</h2>
-      <button class="modal-close" onclick="closeModal('assignModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <h2 id="assignTitle">Assign Service Provider</h2>
+      <button class="modal-close" onclick="closeModal('assignModal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13.5px;color:#5a6690;margin-bottom:4px;">Select a Service provider to assign to this request.</p>
-      <select class="assign-select" id="caregiverSelect">
-        <option value="" disabled selected>Choose a Service provider</option>
-        <option>Nurse Blessing Adeyemi — RN (8 patients)</option>
-        <option>Nurse Kemi Ojo — Community Health (6 patients)</option>
-        <option>Physio Tunde Afolabi — Physiotherapist (5 patients)</option>
-        <option>Nurse Amina Eze — Postnatal Specialist (4 patients)</option>
-        <option>Dr. Damilola Osei — Telemedicine (12 patients)</option>
+      <p style="font-size:13.5px;color:#5a6690;margin-bottom:12px;">Select a Service Provider to assign to this request.</p>
+      <label>Select Provider</label>
+      <select class="assign-select" id="providerSelect">
+        <option value="">Loading providers...</option>
       </select>
+      <label style="margin-top:12px;display:block;">Admin Note</label>
+      <textarea id="adminNoteInput" placeholder="Optional note..."></textarea>
     </div>
     <div class="modal-footer">
       <button class="btn-modal-close" onclick="closeModal('assignModal')">Cancel</button>
-      <button class="btn-modal-assign" onclick="confirmAssign()">Confirm Assignment</button>
+      <button class="btn-modal-assign" id="confirmAssignBtn">Confirm Assignment</button>
     </div>
   </div>
 </div>
