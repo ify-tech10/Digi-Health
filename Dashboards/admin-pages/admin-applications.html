@@ -169,7 +169,7 @@
 <script>
   const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
   if (!user.loggedIn || user.role !== 'ADMIN') window.location.href = 'login.html';
-  function logout() { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
 
   
   let personnelCache = [];
@@ -188,7 +188,7 @@
     }
 
     const res = await fetch(
-      "https://digihealth-6uy7.onrender.com/api/admin/providers",
+      "https://digihealth-2795.onrender.com/api/admin/providers",
       {
         headers: {
           Authorization: `Bearer ${user.token}`

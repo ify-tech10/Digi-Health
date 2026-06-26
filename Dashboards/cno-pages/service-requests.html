@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Service Requests</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --teal: #0891b2; --purple: #9333ea; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 250px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; text-align: center; line-height: 1.2; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(8,145,178,0.18); color: #67e8f9; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 14px 6px 6px; }
+    .u-avatar { width: 28px; height: 28px; background: var(--teal); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-urgent   { background: #fef2f2; color: #dc2626; } .badge-urgent::before   { background: #ef4444; }
+    .badge-new      { background: #faf5ff; color: var(--purple); } .badge-new::before      { background: var(--purple); }
+    .badge-pending  { background: #fff7ed; color: #c2410c; } .badge-pending::before  { background: #f97316; }
+    .badge-assigned { background: #f0fdf4; color: var(--green-dark); } .badge-assigned::before { background: var(--green); }
+    .badge-progress { background: #eff6ff; color: #2563eb; } .badge-progress::before { background: #3b82f6; }
+    .badge-closed   { background: #f0f2fb; color: #5a6690; } .badge-closed::before   { background: #8898c8; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .sc-red::after    { background: #ef4444; }
+    .sc-purple::after { background: var(--purple); }
+    .sc-orange::after { background: #f97316; }
+    .sc-green::after  { background: var(--green); }
+    .sc-blue::after   { background: #3b82f6; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sc-red .stat-icon    { background: #fef2f2; } .sc-red .stat-icon svg    { stroke: #ef4444; }
+    .sc-purple .stat-icon { background: #faf5ff; } .sc-purple .stat-icon svg { stroke: var(--purple); }
+    .sc-orange .stat-icon { background: #fff7ed; } .sc-orange .stat-icon svg { stroke: #f97316; }
+    .sc-green .stat-icon  { background: #f0fdf4; } .sc-green .stat-icon svg  { stroke: var(--green-dark); }
+    .sc-blue .stat-icon   { background: #eff6ff; } .sc-blue .stat-icon svg   { stroke: #3b82f6; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; background: #f0f2fb; border-radius: 9px; padding: 4px; margin-bottom: 20px; width: fit-content; flex-wrap: wrap; }
+    .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #8898c8; cursor: pointer; border: none; background: none; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+    .tab.active { background: var(--white); color: var(--navy); font-weight: 700; box-shadow: 0 1px 4px rgba(26,37,80,0.08); }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 14px; flex: 1; min-width: 200px; }
+    .search-box svg { width: 15px; height: 15px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .search-box input { border: none; outline: none; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .search-box input::placeholder { color: #b0b8d0; }
+    .filter-select { border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 32px 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .btn-export { display: flex; align-items: center; gap: 7px; background: var(--white); border: 1.5px solid #dde0ee; color: var(--navy); padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+    .btn-export:hover { border-color: var(--navy); background: #f0f2fb; }
+    .btn-export svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* TABLE */
+    .card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; }
+    .req-table { width: 100%; border-collapse: collapse; }
+    .req-table th { padding: 11px 18px; text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8898c8; background: #fafbff; border-bottom: 1px solid #eef0f8; white-space: nowrap; }
+    .req-table td { padding: 14px 18px; font-size: 13px; color: #3a4570; border-bottom: 1px solid #f5f6fc; vertical-align: middle; }
+    .req-table tr:last-child td { border-bottom: none; }
+    .req-table tr:hover td { background: #fafbff; }
+    .td-bold { font-weight: 700; color: var(--navy); }
+    .td-sub  { font-size: 11.5px; color: #8898c8; margin-top: 1px; }
+    .td-actions { display: flex; gap: 6px; }
+    .act-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all .15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+    .act-view   { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; } .act-view:hover   { background: #e8eaf4; }
+    .act-assign { background: var(--navy); color: #fff; border-color: var(--navy); } .act-assign:hover { background: var(--blue-light); }
+    .act-close  { background: #f0fdf4; color: var(--green-dark); border-color: #bbf7d0; } .act-close:hover { background: #dcfce7; }
+
+    .nurse-pill { display: flex; align-items: center; gap: 6px; }
+    .nurse-av { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; font-weight: 700; flex-shrink: 0; }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 56px 24px; }
+    .empty-state svg { stroke: #c8d6e8; fill: none; stroke-width: 1.5; margin-bottom: 14px; }
+    .empty-state h4 { font-size: 15px; font-weight: 700; color: #8898c8; margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: #b0b8d0; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 20px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 9px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 150px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-modal-close { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-primary { background: var(--navy); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-primary:hover { background: var(--blue-light); }
+
+    /* Assign select */
+    .assign-select-wrap select { width: 100%; border: 1.5px solid #dde0ee; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; }
+    textarea.assign-note { width: 100%; border: 1.5px solid #dde0ee; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); outline: none; resize: vertical; min-height: 70px; margin-top: 10px; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .stats-row { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-cno.html">
+    <div class="s-logo">CNO</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Chief Nursing Officer</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-cno.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Approvals</div>
+    <a class="nav-item" href="provider-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Provider Applications <span class="nav-badge" id="appBadge">5</span></a>
+    <a class="nav-item active" href="service-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Requests <span class="nav-badge" id="reqBadge">7</span></a>
+    <div class="nav-section-label">Team</div>
+    <a class="nav-item" href="nurses-caregivers.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Nurses & Caregivers</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Team Schedule</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance</a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Reports</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Service Requests</h1><p>Review, assign and track all incoming care requests</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">CN</div><span>Chief Nursing Officer</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card sc-red"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div><div class="stat-value" id="statUrgent">2</div><div class="stat-label">Urgent</div></div>
+      <div class="stat-card sc-purple"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div></div><div class="stat-value" id="statNew">2</div><div class="stat-label">New</div></div>
+      <div class="stat-card sc-orange"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div><div class="stat-value" id="statPending">2</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card sc-green"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="stat-value" id="statAssigned">2</div><div class="stat-label">Assigned</div></div>
+      <div class="stat-card sc-blue"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div></div><div class="stat-value" id="statTotal">7</div><div class="stat-label">Total Open</div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search by patient name, service or location..." oninput="filterReqs(this.value)" /></div>
+      <select class="filter-select" onchange="filterByService(this.value)">
+        <option value="">All Services</option>
+        <option value="Post-Discharge Recovery">Post-Discharge Recovery</option>
+        <option value="Elderly Care Support">Elderly Care Support</option>
+        <option value="Postnatal Mother & Baby">Postnatal Mother & Baby</option>
+        <option value="Chronic Care Management">Chronic Care Management</option>
+        <option value="Home Nursing Care">Home Nursing Care</option>
+        <option value="Lab & Diagnostic Services">Lab & Diagnostic Services</option>
+        <option value="Physiotherapy & Rehab">Physiotherapy & Rehab</option>
+      </select>
+      <button class="btn-export" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(this,'all')">All Open</button>
+      <button class="tab" onclick="setTab(this,'urgent')">Urgent</button>
+      <button class="tab" onclick="setTab(this,'new')">New</button>
+      <button class="tab" onclick="setTab(this,'pending')">Pending</button>
+      <button class="tab" onclick="setTab(this,'assigned')">Assigned</button>
+      <button class="tab" onclick="setTab(this,'closed')">Closed</button>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="req-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Service</th>
+              <th>Location</th>
+              <th>Received</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reqBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="viewTitle">Request Details</h2><button class="modal-close" onclick="closeModal('viewModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="viewBody"></div>
+    <div class="modal-footer" id="viewFooter"></div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal" style="width:460px;">
+    <div class="modal-header"><h2 id="assignTitle">Assign Caregiver</h2><button class="modal-close" onclick="closeModal('assignModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:#5a6690;margin-bottom:12px;">Select a caregiver to assign to this request.</p>
+      <div class="assign-select-wrap">
+        <select id="assignSelect">
+          <option value="" disabled selected>Choose a caregiver</option>
+          <option value="Nurse Blessing Adeyemi">Nurse Blessing Adeyemi — RN (8 patients)</option>
+          <option value="Nurse Kemi Ojo">Nurse Kemi Ojo — Community Health (6 patients)</option>
+          <option value="Physio Tunde Afolabi">Physio Tunde Afolabi — Physiotherapist (5 patients)</option>
+          <option value="Nurse Amina Eze">Nurse Amina Eze — Postnatal Specialist (4 patients)</option>
+          <option value="Dr. Damilola Osei">Dr. Damilola Osei — Telemedicine (12 patients)</option>
+        </select>
+      </div>
+      <textarea class="assign-note" id="assignNote" placeholder="Optional note for the caregiver..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="confirmAssign()">Confirm Assignment</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ================================================================
+   API CONFIG — update API_BASE + set USE_API = true when ready
+================================================================ */
+const API_BASE = 'https://digihealth-2795.onrender.com/api';
+const USE_API  = true; // 🔧 Set true when backend is ready
+
+async function apiFetch(path, options = {}) {
+  const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+/* ── AUTH ── */
+const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
+
+const avatarColors = ['#1a2550','#0891b2','#9333ea','#059669','#b45309'];
+function nameColor(name) { return avatarColors[name.charCodeAt(0) % avatarColors.length]; }
+function initials(name) { return name.split(' ').slice(-2).map(w=>w[0]).join(''); }
+
+/* ── MOCK DATA — field names match backend shape ── */
+const MOCK_REQUESTS = [
+  { id:1, fullName:'Adaeze Onyekwere', serviceNeeded:'Post-Discharge Recovery',  locationArea:'Lekki, Lagos',           submittedAt:'2026-04-28T07:42:00', status:'URGENT',   assignedTo:null,                         phone:'+234 801 111 2222', email:'adaeze@email.com',  notes:'Patient discharged 2 days ago with surgical wound. Family requesting urgent care visit.' },
+  { id:2, fullName:'Rotimi Fadahunsi', serviceNeeded:'Elderly Care Support',     locationArea:'Ikeja, Lagos',           submittedAt:'2026-04-28T06:18:00', status:'NEW',      assignedTo:null,                         phone:'+234 802 222 3333', email:'rotimi@email.com',  notes:'Elderly patient (78yrs) needs daily monitoring and medication support.' },
+  { id:3, fullName:'Chidinma Okafor',  serviceNeeded:'Postnatal Mother & Baby',  locationArea:'Surulere, Lagos',        submittedAt:'2026-04-27T23:55:00', status:'NEW',      assignedTo:null,                         phone:'+234 803 333 4444', email:'chidinma@email.com',notes:'New mother, 5 days postpartum. Requesting newborn care guidance and breastfeeding support.' },
+  { id:4, fullName:'Kunle Adesanya',   serviceNeeded:'Chronic Care Management',  locationArea:'Yaba, Lagos',            submittedAt:'2026-04-27T16:30:00', status:'ASSIGNED', assignedTo:'Nurse Kemi Ojo',             phone:'+234 804 444 5555', email:'kunle@email.com',   notes:'Diabetes and hypertension management. Monthly monitoring plan.' },
+  { id:5, fullName:'Sade Coker',       serviceNeeded:'Home Nursing Care',        locationArea:'Victoria Island, Lagos', submittedAt:'2026-04-27T14:10:00', status:'ASSIGNED', assignedTo:'Physio Tunde Afolabi',       phone:'+234 805 555 6666', email:'sade@email.com',    notes:'Post-stroke rehabilitation. Weekly physiotherapy sessions required.' },
+  { id:6, fullName:'Ibrahim Musa',     serviceNeeded:'Lab & Diagnostic Services',locationArea:'Gbagada, Lagos',         submittedAt:'2026-04-26T09:00:00', status:'PENDING',  assignedTo:null,                         phone:'+234 806 666 7777', email:'ibrahim@email.com', notes:'Routine blood work and diagnostic panel requested by referring physician.' },
+  { id:7, fullName:'Ngozi Obiechina',  serviceNeeded:'Physiotherapy & Rehab',   locationArea:'Magodo, Lagos',          submittedAt:'2026-04-26T08:15:00', status:'PENDING',  assignedTo:null,                         phone:'+234 807 777 8888', email:'ngozi@email.com',   notes:'Post-knee surgery rehabilitation. 6-week programme requested.' },
+  { id:8, fullName:'Emeka Nwachukwu',  serviceNeeded:'Chronic Care Management',  locationArea:'Surulere, Lagos',        submittedAt:'2026-04-20T10:00:00', status:'CLOSED',   assignedTo:'Nurse Blessing Adeyemi',     phone:'+234 808 888 9999', email:'emeka@email.com',   notes:'Care plan completed successfully. Patient stable.' },
+];
+
+let requests = [];
+let currentTab = 'all';
+let searchFilter = '';
+let serviceFilter = '';
+let selectedRequestId = null;
+
+/* ── LOAD ── */
+async function loadRequests() {
+  try {
+    if (USE_API) {
+      requests = await apiFetch('/admin/care-requests');
+    } else {
+      requests = MOCK_REQUESTS;
+    }
+  } catch (err) {
+    console.error('Load error:', err);
+    requests = MOCK_REQUESTS;
+  }
+  updateStats();
+  renderTable();
+}
+
+/* ── STATS ── */
+function updateStats() {
+  document.getElementById('statUrgent').textContent   = requests.filter(r => r.status === 'URGENT').length;
+  document.getElementById('statNew').textContent       = requests.filter(r => r.status === 'NEW').length;
+  document.getElementById('statPending').textContent   = requests.filter(r => r.status === 'PENDING').length;
+  document.getElementById('statAssigned').textContent  = requests.filter(r => r.status === 'ASSIGNED').length;
+  const open = requests.filter(r => r.status !== 'CLOSED').length;
+  document.getElementById('statTotal').textContent = open;
+  document.getElementById('reqBadge').textContent   = open;
+}
+
+/* ── FILTER ── */
+function getFiltered() {
+  return requests.filter(r => {
+    const mt = currentTab === 'all' ? r.status !== 'CLOSED' : r.status.toLowerCase() === currentTab;
+    const ms = !searchFilter || r.fullName.toLowerCase().includes(searchFilter) || r.serviceNeeded.toLowerCase().includes(searchFilter) || r.locationArea.toLowerCase().includes(searchFilter);
+    const msvc = !serviceFilter || r.serviceNeeded === serviceFilter;
+    return mt && ms && msvc;
+  });
+}
+
+function setTab(el, tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+function filterReqs(val) { searchFilter = val.toLowerCase(); renderTable(); }
+function filterByService(val) { serviceFilter = val; renderTable(); }
+
+/* ── RENDER ── */
+function statusBadge(s) {
+  const map = { URGENT:'badge-urgent', NEW:'badge-new', PENDING:'badge-pending', ASSIGNED:'badge-assigned', CLOSED:'badge-closed' };
+  return `<span class="badge ${map[s] || 'badge-pending'}">${s.charAt(0) + s.slice(1).toLowerCase()}</span>`;
+}
+
+function renderTable() {
+  const data = getFiltered();
+  const tbody = document.getElementById('reqBody');
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><h4>No requests found</h4><p>Try adjusting your filters.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
+    const received = new Date(r.submittedAt).toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    const assignedCell = r.assignedProviderName
+      ? `<div class="nurse-pill"><div class="nurse-av" style="background:${nameColor(r.assignedProviderName)};">${initials(r.assignedProviderName)}</div>${r.assignedProviderName}</div>`
+      : `<span style="color:#b0b8d0;">Unassigned</span>`;
+
+    let actions = `<button class="act-btn act-view" onclick="openView(${r.id})">View</button>`;
+    if (r.status !== 'ASSIGNED' && r.status !== 'CLOSED') actions += `<button class="act-btn act-assign" onclick="openAssign(${r.id})">Assign</button>`;
+    if (r.status === 'ASSIGNED') actions += `<button class="act-btn act-close" onclick="closeRequest(${r.id})">Close</button>`;
+
+    return `
+    <tr>
+      <td><div class="td-bold">${r.fullName}</div><div class="td-sub">${r.email}</div></td>
+      <td style="font-size:12.5px;">${r.serviceNeeded}</td>
+      <td style="font-size:12.5px;">${r.locationArea}</td>
+      <td style="font-size:12px;color:#8898c8;">${received}</td>
+      <td style="font-size:12.5px;">${assignedCell}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td><div class="td-actions">${actions}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── VIEW DETAIL ── */
+function openView(id) {
+  const r = requests.find(x => x.id === id);
+  const received = new Date(r.submittedAt).toLocaleString('en-GB');
+  document.getElementById('viewTitle').textContent = r.fullName + ' — Care Request';
+  document.getElementById('viewBody').innerHTML = `
+    <div class="modal-section"><h4>Patient Details</h4>
+      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${r.fullName}</span></div>
+      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${r.phone}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${r.email}</span></div>
+      <div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${r.locationArea}</span></div>
+    </div>
+    <div class="modal-section"><h4>Request Details</h4>
+      <div class="detail-row"><span class="detail-label">Service Needed</span><span class="detail-value">${r.serviceNeeded}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${statusBadge(r.status)}</span></div>
+      <div class="detail-row"><span class="detail-label">Assigned To</span><span class="detail-value">${r.assignedTo || 'Unassigned'}</span></div>
+      <div class="detail-row"><span class="detail-label">Submitted</span><span class="detail-value">${received}</span></div>
+    </div>
+    <div class="modal-section"><h4>Notes</h4><p style="font-size:13px;color:#5a6690;line-height:1.65;">${r.notes}</p></div>
+  `;
+
+  const footer = document.getElementById('viewFooter');
+  if (r.status !== 'ASSIGNED' && r.status !== 'CLOSED') {
+    footer.innerHTML = `<button class="btn-modal-close" onclick="closeModal('viewModal')">Close</button><button class="btn-modal-primary" onclick="closeModal('viewModal'); openAssign(${r.id})">Assign Caregiver</button>`;
+  } else {
+    footer.innerHTML = `<button class="btn-modal-close" onclick="closeModal('viewModal')">Close</button>`;
+  }
+  document.getElementById('viewModal').classList.add('open');
+}
+
+/* ── ASSIGN ── */
+async function openAssign(id) {
+  const r = requests.find(x => x.id === id);
+
+  if (!r) {
+    console.error('Request not found');
+    return;
+  }
+
+  selectedRequestId = id;
+  selectedLocation = r.locationArea || r.location || null;
+
+  document.getElementById('assignTitle').textContent =
+    'Assign — ' + (r.fullName || r.patient);
+
+  const select = document.getElementById('assignSelect');
+  select.innerHTML = '<option>Loading providers...</option>';
+
+  document.getElementById('assignNote').value = '';
+  document.getElementById('assignModal').classList.add('open');
+
+  try {
+    const url = new URL(`${API_BASE}/admin/providers/available`);
+    url.searchParams.set('careRequestId', selectedRequestId);
+
+    if (selectedLocation) {
+      url.searchParams.set('location', selectedLocation);
+    }
+
+    const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(user.token
+          ? { Authorization: `Bearer ${user.token}` }
+          : {})
+      }
+    });
+
+    if (response.status === 404) {
+      select.innerHTML =
+        '<option value="">No providers available in this area</option>';
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const providers = data.content || data || [];
+
+    if (providers.length === 0) {
+      select.innerHTML =
+        '<option value="">No providers available</option>';
+      return;
+    }
+
+    select.innerHTML =
+      '<option value="">Select Provider</option>';
+
+    providers.forEach(provider => {
+      const option = document.createElement('option');
+      option.value = provider.id;
+      option.textContent =
+        `${provider.fullName} (${provider.serviceProviderType || 'General'})`;
+
+      select.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error('Failed to load providers:', error);
+
+    select.innerHTML =
+      '<option value="">Error loading providers</option>';
+  }
+}
+
+async function confirmAssign() {
+  const select = document.getElementById('assignSelect');
+  const providerId = select.value;
+  const providerName = select.options[select.selectedIndex].text;
+  const note = document.getElementById('assignNote').value;
+
+  if (!providerId) {
+    showToast('Please select a provider.', false);
+    return;
+  }
+
+  const r = requests.find(x => x.id === selectedRequestId);
+
+  if (USE_API) {
+    try {
+      await apiFetch(`/admin/care-requests/${selectedRequestId}/assign`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          providerId,
+          adminNote: note
+        })
+      });
+    } catch (err) {
+      console.error(err);
+      showToast('Assignment failed. Try again.', false);
+      return;
+    }
+  }
+
+  // Update local data
+  r.status = 'ASSIGNED';
+  r.assignedTo = providerName;
+
+  updateStats();
+  renderTable();
+  closeModal('assignModal');
+
+  showToast(`✅ ${r.fullName} assigned to ${providerName}`);
+}
+
+/* ── CLOSE REQUEST ── */
+async function closeRequest(id) {
+  if (!confirm('Mark this request as closed? This should only be done after the care plan is complete.')) return;
+  const r = requests.find(x => x.id === id);
+
+  if (USE_API) {
+    try { await apiFetch(`/admin/care-requests/${id}/close`, { method: 'PUT' }); }
+    catch { showToast('Failed to close request.', false); return; }
+  }
+
+  r.status = 'CLOSED';
+  updateStats();
+  renderTable();
+  showToast(r.fullName + '\'s request closed.');
+}
+
+/* ── EXPORT ── */
+function exportCSV() {
+  const rows = [['Patient','Email','Phone','Service','Location','Status','Assigned To','Submitted']];
+  requests.forEach(r => rows.push([r.fullName, r.email, r.phone, r.serviceNeeded, r.locationArea, r.status, r.assignedTo || '—', r.submittedAt]));
+  const csv = rows.map(row => row.map(c => `"${c}"`).join(',')).join('\n');
+  const link = document.createElement('a');
+  link.href = 'data:text/csv,' + encodeURIComponent(csv);
+  link.download = 'service-requests.csv';
+  link.click();
+}
+
+/* ── UTILS ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.querySelector('svg').style.display = ok ? 'block' : 'none';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ── INIT ── */
+loadRequests();
+
+/* ================================================================
+   SPRING BOOT ENDPOINT CONTRACT
+================================================================
+   GET /api/admin/care-requests              → all requests array
+   GET /api/admin/care-requests?status=X     → filtered
+   PUT /api/admin/care-requests/:id/assign   → { caregiverName, adminNote }
+   PUT /api/admin/care-requests/:id/close    → 200 OK
+================================================================ */
+</script>
+</body>
+</html>

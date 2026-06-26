@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DiGi Health — Nurses & Caregivers</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --navy: #1a2550; --blue-light: #2a3f8a; --green: #22c55e; --green-dark: #16a34a; --teal: #0891b2; --purple: #9333ea; --white: #fff; --off-white: #f8f9fc; --sidebar-w: 250px; --radius: 10px; }
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--navy); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); text-decoration: none; }
+    .s-logo { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 10px; text-align: center; line-height: 1.2; }
+    .s-brand-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+    .s-brand-text span { font-size: 11px; color: #7888b8; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4a5880; padding: 0 8px; margin: 16px 0 6px; }
+    .nav-section-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #c5cde8; }
+    .nav-item.active { background: rgba(8,145,178,0.18); color: #67e8f9; }
+    .nav-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 7px; color: #8898c8; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+    .logout-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--white); border-bottom: 1px solid #eef0f8; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--navy); }
+    .topbar-left p { font-size: 12.5px; color: #8898c8; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .notif-btn { width: 36px; height: 36px; background: #f0f2fb; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .notif-btn svg { width: 16px; height: 16px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 7px; right: 7px; border: 1.5px solid #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: #f0f2fb; border-radius: 8px; padding: 6px 14px 6px 6px; }
+    .u-avatar { width: 28px; height: 28px; background: var(--teal); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+    .user-chip span { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-active  { background: #f0fdf4; color: var(--green-dark); } .badge-active::before  { background: var(--green); }
+    .badge-onleave { background: #fff7ed; color: #c2410c; }           .badge-onleave::before { background: #f97316; }
+    .badge-inactive{ background: #f0f2fb; color: #5a6690; }           .badge-inactive::before{ background: #8898c8; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
+    .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+    .sc-teal::after   { background: var(--teal); }
+    .sc-green::after  { background: var(--green); }
+    .sc-purple::after { background: var(--purple); }
+    .sc-orange::after { background: #f97316; }
+    .sc-blue::after   { background: #3b82f6; }
+    .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .stat-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sc-teal .stat-icon   { background: #ecfeff; } .sc-teal .stat-icon svg   { stroke: var(--teal); }
+    .sc-green .stat-icon  { background: #f0fdf4; } .sc-green .stat-icon svg  { stroke: var(--green-dark); }
+    .sc-purple .stat-icon { background: #faf5ff; } .sc-purple .stat-icon svg { stroke: var(--purple); }
+    .sc-orange .stat-icon { background: #fff7ed; } .sc-orange .stat-icon svg { stroke: #f97316; }
+    .sc-blue .stat-icon   { background: #eff6ff; } .sc-blue .stat-icon svg   { stroke: #3b82f6; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898c8; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 14px; flex: 1; min-width: 200px; }
+    .search-box svg { width: 15px; height: 15px; stroke: #8898c8; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .search-box input { border: none; outline: none; font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy); width: 100%; background: transparent; }
+    .search-box input::placeholder { color: #b0b8d0; }
+    .filter-select { border: 1.5px solid #dde0ee; border-radius: 8px; padding: 9px 32px 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+    .btn-onboard { display: flex; align-items: center; gap: 7px; background: var(--navy); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; white-space: nowrap; }
+    .btn-onboard:hover { background: var(--blue-light); }
+    .btn-onboard svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; background: #f0f2fb; border-radius: 9px; padding: 4px; margin-bottom: 20px; width: fit-content; flex-wrap: wrap; }
+    .tab { padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #8898c8; cursor: pointer; border: none; background: none; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+    .tab.active { background: var(--white); color: var(--navy); font-weight: 700; box-shadow: 0 1px 4px rgba(26,37,80,0.08); }
+
+    /* PERSONNEL CARDS */
+    .personnel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .person-card { background: var(--white); border: 1px solid #e8eaf4; border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s, transform .15s; }
+    .person-card:hover { box-shadow: 0 6px 24px rgba(26,37,80,0.08); transform: translateY(-1px); }
+    .person-top { padding: 18px 18px 14px; display: flex; gap: 12px; align-items: flex-start; border-bottom: 1px solid #f0f2fb; }
+    .person-av { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .person-info { flex: 1; }
+    .person-info h3 { font-size: 14.5px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .person-role { font-size: 12px; color: #8898c8; margin-bottom: 6px; }
+    .person-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .person-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: #7a84a8; }
+    .person-meta-item svg { width: 11px; height: 11px; stroke: #b0b8d0; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .person-body { padding: 14px 18px; }
+    .workload-wrap { margin-bottom: 12px; }
+    .workload-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+    .workload-label span { font-weight: 600; color: var(--navy); }
+    .workload-bar { height: 6px; background: #eef0f8; border-radius: 3px; overflow: hidden; }
+    .workload-fill { height: 100%; border-radius: 3px; }
+    .person-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .person-tag { background: #f0f2fb; color: #5a6690; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+
+    .person-footer { padding: 12px 18px; border-top: 1px solid #f0f2fb; display: flex; gap: 8px; align-items: center; }
+    .act-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all .15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+    .act-view { background: #f0f2fb; color: var(--navy); border-color: #e0e4f0; } .act-view:hover { background: #e8eaf4; }
+    .act-msg  { background: #ecfeff; color: var(--teal); border-color: #a5f3fc; } .act-msg:hover  { background: #cffafe; }
+    .rating-pill { margin-left: auto; font-size: 12px; font-weight: 700; color: #fbbf24; }
+
+    /* EMPTY */
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 56px 24px; }
+    .empty-state svg { stroke: #c8d6e8; fill: none; stroke-width: 1.5; margin-bottom: 14px; }
+    .empty-state h4 { font-size: 15px; font-weight: 700; color: #8898c8; margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: #b0b8d0; }
+
+    /* MODALS */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,15,40,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 14px; width: 640px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(10,15,40,0.2); }
+    .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #eef0f8; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 5; }
+    .modal-header h2 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .modal-header p { font-size: 12px; color: #8898c8; margin-top: 2px; }
+    .modal-close { width: 28px; height: 28px; border: none; background: #f0f2fb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .modal-close svg { width: 14px; height: 14px; stroke: var(--navy); fill: none; stroke-width: 2; }
+    .modal-body { padding: 20px 24px 24px; }
+    .modal-section { margin-bottom: 20px; }
+    .modal-section h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .detail-row { display: flex; gap: 8px; padding: 9px 0; border-bottom: 1px solid #f5f6fc; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 150px; flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: #8898c8; }
+    .detail-value { font-size: 13px; color: var(--navy); line-height: 1.5; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eef0f8; display: flex; gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: var(--white); }
+    .btn-modal-close { background: #f0f2fb; color: var(--navy); border: 1.5px solid #e0e4f0; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-modal-primary { background: var(--navy); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-modal-primary:hover { background: var(--blue-light); }
+
+    /* ONBOARD FORM */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1/-1; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+    .req { color: #ef4444; }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 1.5px solid #dde0ee; border-radius: 7px; padding: 10px 12px;
+      font-size: 13.5px; font-family: 'DM Sans', sans-serif; color: var(--navy);
+      outline: none; transition: border-color .18s; background: #fff; appearance: none;
+    }
+    .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238898c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,37,80,0.07); }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+    .form-section-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8898c8; margin: 18px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #f0f2fb; }
+    .form-section-label:first-child { margin-top: 0; }
+
+    /* STEP INDICATOR */
+    .step-indicator { display: flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; background: #f0f2fb; color: #8898c8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all .2s; }
+    .step-dot.active { background: var(--navy); color: #fff; }
+    .step-dot.done { background: var(--green); color: #fff; }
+    .step-line { flex: 1; height: 2px; background: #eef0f8; }
+    .step-line.done { background: var(--green); }
+    .step-label { font-size: 11px; color: #8898c8; text-align: center; margin-top: 4px; }
+
+    .onboard-step { display: none; }
+    .onboard-step.active { display: block; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .toast svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(3, 1fr); } .personnel-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main { margin-left: 0; } .topbar, .content { padding-left: 16px; padding-right: 16px; } .stats-row { grid-template-columns: 1fr 1fr; } .personnel-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="../dashboard-cno.html">
+    <div class="s-logo">CNO</div>
+    <div class="s-brand-text"><strong>DiGi Health</strong><span>Chief Nursing Officer</span></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item" href="../dashboard-cno.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section-label">Approvals</div>
+    <a class="nav-item" href="provider-applications.html"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Provider Applications <span class="nav-badge">5</span></a>
+    <a class="nav-item" href="service-requests.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Requests <span class="nav-badge">7</span></a>
+    <div class="nav-section-label">Team</div>
+    <a class="nav-item active" href="nurses-caregivers.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Nurses & Caregivers</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Team Schedule</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance</a>
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Visit Reports</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Reports</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left"><h1>Nurses & Caregivers</h1><p>Manage your nursing and caregiving team</p></div>
+    <div class="topbar-right">
+      <button class="notif-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="notif-dot"></div></button>
+      <div class="user-chip"><div class="u-avatar">CN</div><span>Chief Nursing Officer</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card sc-teal"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="stat-value" id="statTotal">12</div><div class="stat-label">Total Personnel</div></div>
+      <div class="stat-card sc-green"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="stat-value" id="statActive">10</div><div class="stat-label">Active</div></div>
+      <div class="stat-card sc-orange"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div><div class="stat-value" id="statLeave">1</div><div class="stat-label">On Leave</div></div>
+      <div class="stat-card sc-purple"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div></div><div class="stat-value" id="statRating">4.8★</div><div class="stat-label">Avg. Team Rating</div></div>
+      <div class="stat-card sc-blue"><div class="stat-top"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div></div><div class="stat-value" id="statCapacity">82%</div><div class="stat-label">Avg. Workload</div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search by name, role or coverage area..." oninput="filterPersonnel(this.value)" /></div>
+      <select class="filter-select" onchange="filterByRole(this.value)">
+        <option value="">All Roles</option>
+        <option value="Registered Nurse">Registered Nurse</option>
+        <option value="Community Health Nurse">Community Health Nurse</option>
+        <option value="Physiotherapist">Physiotherapist</option>
+        <option value="Postnatal Specialist">Postnatal Specialist</option>
+        <option value="Telemedicine Doctor">Telemedicine Doctor</option>
+      </select>
+      <button class="btn-onboard" onclick="openOnboard()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Onboard Personnel</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(this,'all')">All</button>
+      <button class="tab" onclick="setTab(this,'active')">Active</button>
+      <button class="tab" onclick="setTab(this,'onleave')">On Leave</button>
+      <button class="tab" onclick="setTab(this,'inactive')">Inactive</button>
+    </div>
+
+    <!-- Personnel Grid -->
+    <div class="personnel-grid" id="personnelGrid"></div>
+
+  </div>
+</div>
+
+<!-- VIEW PROFILE MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="viewTitle">Personnel Profile</h2><button class="modal-close" onclick="closeModal('viewModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body" id="viewBody"></div>
+    <div class="modal-footer"><button class="btn-modal-close" onclick="closeModal('viewModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- ONBOARD MODAL -->
+<div class="modal-overlay" id="onboardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h2>Onboard New Personnel</h2><p>Add a nurse, caregiver, doctor or other service provider</p></div>
+      <button class="modal-close" onclick="closeModal('onboardModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div style="text-align:center;"><div class="step-dot active" id="dot1">1</div><div class="step-label">Personal</div></div>
+        <div class="step-line" id="line1"></div>
+        <div style="text-align:center;"><div class="step-dot" id="dot2">2</div><div class="step-label">Professional</div></div>
+        <div class="step-line" id="line2"></div>
+        <div style="text-align:center;"><div class="step-dot" id="dot3">3</div><div class="step-label">Account</div></div>
+      </div>
+
+      <!-- STEP 1: Personal -->
+      <div class="onboard-step active" id="step1">
+        <div class="form-grid">
+          <div class="form-group"><label>First Name <span class="req">*</span></label><input type="text" id="ob_first" placeholder="e.g. Chiamaka" /></div>
+          <div class="form-group"><label>Last Name <span class="req">*</span></label><input type="text" id="ob_last" placeholder="e.g. Nwosu" /></div>
+          <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="ob_email" placeholder="email@digihealth.com" /></div>
+          <div class="form-group"><label>Phone <span class="req">*</span></label><input type="tel" id="ob_phone" placeholder="+234 XXX XXX XXXX" /></div>
+          <div class="form-group"><label>Date of Birth</label><input type="date" id="ob_dob" /></div>
+          <div class="form-group"><label>Gender</label>
+            <select id="ob_gender"><option value="" disabled selected>Select</option><option>Female</option><option>Male</option><option>Other</option></select>
+          </div>
+          <div class="form-group full"><label>Home Address</label><input type="text" id="ob_address" placeholder="Full residential address" /></div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Professional -->
+      <div class="onboard-step" id="step2">
+        <div class="form-grid">
+          <div class="form-group"><label>Role <span class="req">*</span></label>
+            <select id="ob_role">
+              <option value="" disabled selected>Select role</option>
+              <option>Registered Nurse</option>
+              <option>Community Health Nurse</option>
+              <option>Physiotherapist</option>
+              <option>Postnatal Specialist</option>
+              <option>Lab Technician</option>
+              <option>Telemedicine Doctor</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Years of Experience <span class="req">*</span></label>
+            <select id="ob_exp"><option value="" disabled selected>Select</option><option>0–1 years</option><option>2–3 years</option><option>4–5 years</option><option>6–10 years</option><option>10+ years</option></select>
+          </div>
+          <div class="form-group full"><label>Highest Qualification <span class="req">*</span></label><input type="text" id="ob_qual" placeholder="e.g. B.Sc Nursing — University of Lagos" /></div>
+          <div class="form-group"><label>Council Registration No.</label><input type="text" id="ob_reg" placeholder="e.g. NMCN/2022/008812" /></div>
+          <div class="form-group"><label>Patient Capacity</label><input type="number" id="ob_capacity" placeholder="e.g. 10" value="10" /></div>
+          <div class="form-group full"><label>Specialisations</label><input type="text" id="ob_specs" placeholder="e.g. Wound Care, Post-Discharge (comma separated)" /></div>
+          <div class="form-group full"><label>Coverage Areas <span class="req">*</span></label><input type="text" id="ob_areas" placeholder="e.g. Lekki, Victoria Island (comma separated)" /></div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Account -->
+      <div class="onboard-step" id="step3">
+        <div class="form-grid">
+          <div class="form-group"><label>Employment Type</label>
+            <select id="ob_emptype"><option selected>Freelance / Contract</option><option>Full-time</option><option>Part-time</option></select>
+          </div>
+          <div class="form-group"><label>Status</label>
+            <select id="ob_status"><option value="ACTIVE" selected>Active</option><option value="INACTIVE">Inactive</option></select>
+          </div>
+          <div class="form-group full"><label>Temporary Password</label><input type="text" id="ob_password" placeholder="Auto-generated or set manually" value="DigiHealth@2026" /></div>
+          <div class="form-group full"><label>Onboarding Notes</label><textarea id="ob_notes" placeholder="Any additional notes about this provider..."></textarea></div>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#1e40af;line-height:1.6;">
+          ℹ️ Login credentials will be sent to the email address provided in Step 1. The new provider will be required to change their password on first login.
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" id="onboardBackBtn" onclick="onboardBack()" style="display:none;">Back</button>
+      <button class="btn-modal-close" onclick="closeModal('onboardModal')">Cancel</button>
+      <button class="btn-modal-primary" id="onboardNextBtn" onclick="onboardNext()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ================================================================
+   API CONFIG — update API_BASE + set USE_API = true when ready
+================================================================ */
+const API_BASE = 'https://digihealth-2795.onrender.com/api';
+const USE_API  = true; // 🔧 Set true when backend is ready
+
+async function apiFetch(path, options = {}) {
+  const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  const headers = { 'Content-Type': 'application/json', ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}), ...options.headers };
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = 'login.html'; }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+/* ── AUTH ── */
+const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+function logout() { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
+
+const avatarColors = ['#1a2550','#0891b2','#9333ea','#059669','#b45309','#7c3aed'];
+function nameColor(name) { return avatarColors[name.charCodeAt(0) % avatarColors.length]; }
+function initials(name) { return name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase(); }
+
+/* ── MOCK DATA ── */
+const MOCK_PERSONNEL = [
+  { id:1,  fullName:'Nurse Blessing Adeyemi', email:'blessing@digihealth.com', phone:'+234 811 111 2222', role:'Registered Nurse',       experience:'5 years',  qualification:'B.Sc Nursing — University of Lagos',        regNumber:'NMCN/2019/004521', specialisations:'Post-Discharge, Wound Care, Elderly Care', coverageAreas:'Egbeda, Surulere, Yaba, Agege', patients:8,  capacity:10, rating:4.9, status:'ACTIVE',  joinedAt:'2025-01-10' },
+  { id:2,  fullName:'Nurse Kemi Ojo',          email:'kemi@digihealth.com',    phone:'+234 812 222 3333', role:'Community Health Nurse', experience:'3 years',  qualification:'Diploma in Community Health',                regNumber:'NMCN/2022/007734', specialisations:'Community Health, Medication',              coverageAreas:'Yaba, Mushin',                  patients:6,  capacity:10, rating:4.7, status:'ACTIVE',  joinedAt:'2025-03-02' },
+  { id:3,  fullName:'Physio Tunde Afolabi',    email:'tunde@digihealth.com',   phone:'+234 813 333 4444', role:'Physiotherapist',        experience:'6 years',  qualification:'B.Sc Physiotherapy — UNILAG',                regNumber:'MRTB/2018/004521', specialisations:'Physiotherapy, Stroke Rehab',               coverageAreas:'Ikeja, Gbagada',                patients:5,  capacity:10, rating:4.8, status:'ACTIVE',  joinedAt:'2024-11-15' },
+  { id:4,  fullName:'Nurse Amina Eze',         email:'amina@digihealth.com',   phone:'+234 814 444 5555', role:'Postnatal Specialist',   experience:'5 years',  qualification:'Diploma in Midwifery',                       regNumber:'NMCN/2019/003321', specialisations:'Postnatal, Newborn, Breastfeeding',         coverageAreas:'Surulere, Mushin',              patients:4,  capacity:10, rating:5.0, status:'ACTIVE',  joinedAt:'2025-02-20' },
+  { id:5,  fullName:'Dr. Damilola Osei',       email:'damilola@digihealth.com',phone:'+234 815 555 6666', role:'Telemedicine Doctor',    experience:'10 years', qualification:'MBBS — University of Ibadan',                regNumber:'MDCN/2014/001122', specialisations:'Telemedicine, General Practice',            coverageAreas:'All Zones',                     patients:12, capacity:12, rating:4.9, status:'ACTIVE',  joinedAt:'2024-08-01' },
+  { id:6,  fullName:'Nurse Funke Abiodun',     email:'funke@digihealth.com',   phone:'+234 816 666 7777', role:'Registered Nurse',       experience:'7 years',  qualification:'B.Sc Nursing — Obafemi Awolowo University', regNumber:'NMCN/2017/002211', specialisations:'Elderly Care, Chronic Disease',             coverageAreas:'Victoria Island, Ikoyi',        patients:9,  capacity:10, rating:4.8, status:'ACTIVE',  joinedAt:'2024-06-10' },
+  { id:7,  fullName:'Nurse Taiwo Adeyinka',    email:'taiwo@digihealth.com',   phone:'+234 817 777 8888', role:'Community Health Nurse', experience:'2 years',  qualification:'Diploma in Community Health',                regNumber:'NMCN/2024/009987', specialisations:'Community Health, Medication',              coverageAreas:'Magodo, Ojodu',                 patients:3,  capacity:10, rating:4.6, status:'ACTIVE',  joinedAt:'2025-04-05' },
+  { id:8,  fullName:'Physio Grace Nwankwo',    email:'grace@digihealth.com',   phone:'+234 818 888 9999', role:'Physiotherapist',        experience:'4 years',  qualification:'B.Sc Physiotherapy — UNN',                   regNumber:'MRTB/2020/005512', specialisations:'Sports Injury, Rehabilitation',             coverageAreas:'Lekki, Ajah',                   patients:7,  capacity:10, rating:4.7, status:'ONLEAVE', joinedAt:'2024-12-01' },
+  { id:9,  fullName:'Nurse Hauwa Suleiman',    email:'hauwa@digihealth.com',   phone:'+234 819 999 0000', role:'Registered Nurse',       experience:'8 years',  qualification:'B.Sc Nursing — Ahmadu Bello University',     regNumber:'NMCN/2016/001998', specialisations:'ICU Care, Critical Care',                   coverageAreas:'Gbagada, Bariga',               patients:10, capacity:10, rating:4.9, status:'ACTIVE',  joinedAt:'2024-05-18' },
+  { id:10, fullName:'Nurse Chiamaka Eze',      email:'chiamaka.eze@digihealth.com',phone:'+234 820 000 1111', role:'Postnatal Specialist', experience:'3 years', qualification:'Diploma in Midwifery',                       regNumber:'NMCN/2023/008441', specialisations:'Postnatal, Lactation Support',              coverageAreas:'Ikeja, Maryland',               patients:5,  capacity:10, rating:4.8, status:'ACTIVE',  joinedAt:'2025-05-12' },
+  { id:11, fullName:'Dr. Ngozi Adeyemi',       email:'ngozi.adeyemi@digihealth.com',phone:'+234 821 111 2222', role:'Telemedicine Doctor', experience:'12 years', qualification:'MBBS — University of Lagos',                regNumber:'MDCN/2012/000789', specialisations:'Internal Medicine, Telemedicine',           coverageAreas:'All Zones',                     patients:11, capacity:15, rating:4.9, status:'ACTIVE',  joinedAt:'2024-03-22' },
+  { id:12, fullName:'Nurse Kunle Bakare',      email:'kunle@digihealth.com',   phone:'+234 822 222 3333', role:'Registered Nurse',       experience:'1 year',  qualification:'B.Sc Nursing — Lagos State University',      regNumber:'NMCN/2025/011023', specialisations:'General Nursing',                           coverageAreas:'Ajah, Lekki',                   patients:0,  capacity:10, rating:0,   status:'INACTIVE',joinedAt:'2026-04-15' },
+];
+
+let personnel = [];
+let currentTab = 'all';
+let searchFilter = '';
+let roleFilter = '';
+let onboardStep = 1;
+
+/* ── LOAD ── */
+async function loadPersonnel() {
+  try {
+    if (USE_API) {
+      personnel = await apiFetch('/admin/providers');
+    } else {
+      personnel = MOCK_PERSONNEL;
+    }
+  } catch (err) {
+    console.error('Load error:', err);
+    personnel = MOCK_PERSONNEL;
+  }
+  updateStats();
+  renderPersonnel();
+}
+
+/* ── STATS ── */
+function updateStats() {
+  document.getElementById('statTotal').textContent  = personnel.length;
+  document.getElementById('statActive').textContent = personnel.filter(p => p.status === 'ACTIVE').length;
+  document.getElementById('statLeave').textContent  = personnel.filter(p => p.status === 'ONLEAVE').length;
+  const rated = personnel.filter(p => p.rating > 0);
+  const avgRating = rated.length ? (rated.reduce((s,p) => s + p.rating, 0) / rated.length).toFixed(1) : '0.0';
+  document.getElementById('statRating').textContent = avgRating + '★';
+  const avgCap = Math.round(personnel.reduce((s,p) => s + (p.patients / p.capacity), 0) / personnel.length * 100);
+  document.getElementById('statCapacity').textContent = avgCap + '%';
+}
+
+/* ── FILTER ── */
+function getFiltered() {
+  return personnel.filter(p => {
+    const mt = currentTab === 'all' || p.status.toLowerCase() === currentTab;
+    const ms = !searchFilter || p.fullName.toLowerCase().includes(searchFilter) || p.role.toLowerCase().includes(searchFilter) || p.coverageAreas.toLowerCase().includes(searchFilter);
+    const mr = !roleFilter || p.role === roleFilter;
+    return mt && ms && mr;
+  });
+}
+
+function setTab(el, tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPersonnel();
+}
+function filterPersonnel(val) { searchFilter = val.toLowerCase(); renderPersonnel(); }
+function filterByRole(val) { roleFilter = val; renderPersonnel(); }
+
+/* ── RENDER ── */
+function statusBadge(s) {
+  const map = { ACTIVE:'badge-active', ONLEAVE:'badge-onleave', INACTIVE:'badge-inactive' };
+  const labels = { ACTIVE:'Active', ONLEAVE:'On Leave', INACTIVE:'Inactive' };
+  return `<span class="badge ${map[s]}">${labels[s]}</span>`;
+}
+function renderPersonnel() {
+  const data = getFiltered();
+  const grid = document.getElementById('personnelGrid');
+
+  if (!data.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg width="44" height="44" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+        <h4>No personnel found</h4>
+        <p>Try adjusting your filters or onboard new personnel.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(p => {
+
+    // Safe values
+    const patients = p.patients ?? 0;
+    const capacity = p.capacity ?? 1;
+
+    const pct = Math.round((patients / capacity) * 100);
+    const fill = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f97316' : '#22c55e';
+
+    // FIX: backend field is areasOfSpecialisation (can be null)
+    const specs = Array.isArray(p.areasOfSpecialisation)
+      ? p.areasOfSpecialisation.map(s =>
+          `<span class="person-tag">${s}</span>`
+        ).join('')
+      : (p.areasOfSpecialisation
+          ? `<span class="person-tag">${p.areasOfSpecialisation}</span>`
+          : `<span class="person-tag">N/A</span>`);
+
+    // FIX: safe coverage
+    const coverage = p.locationAreaLabel || p.locationArea || "N/A";
+
+    // FIX: initials + color safety
+    const initialsValue = initials(p.fullName || "");
+    const avatarColor = nameColor(p.fullName || "");
+
+    const rating = p.rating ?? 0;
+
+    return `
+    <div class="person-card">
+      <div class="person-top">
+
+        <div class="person-av" style="background:${avatarColor};">
+          ${initialsValue}
+        </div>
+
+        <div class="person-info">
+          <h3>${p.fullName || "Unknown"}</h3>
+          <div class="person-role">${p.serviceProviderType || "N/A"}</div>
+
+          <div class="person-meta">
+
+            <div class="person-meta-item">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              ${coverage}
+            </div>
+
+            <div class="person-meta-item">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              ${p.yearsOfExperience || p.experience || "N/A"}
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="person-body">
+
+        <div class="workload-wrap">
+          <div class="workload-label">
+            <span>${patients}/${capacity} patients</span>
+            <span style="color:#8898c8;font-weight:500;">${pct}%</span>
+          </div>
+
+          <div class="workload-bar">
+            <div class="workload-fill"
+              style="width:${pct}%;background:${fill};">
+            </div>
+          </div>
+        </div>
+
+        <div class="person-tags">
+          ${specs}
+        </div>
+
+      </div>
+
+      <div class="person-footer">
+
+        ${statusBadge(p.applicationStatus)}
+
+        <span class="rating-pill">
+          ${rating > 0 ? rating + '★' : '—'}
+        </span>
+
+        <button class="act-btn act-view"
+          onclick="openProfile('${p.id}')">
+          View
+        </button>
+
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── VIEW PROFILE ── */
+function openProfile(id) {
+  const p = personnel.find(x => x.id === id);
+  document.getElementById('viewTitle').textContent = p.fullName + ' — Profile';
+  document.getElementById('viewBody').innerHTML = `
+    <div class="modal-section"><h4>Personal Details</h4>
+      <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${p.fullName}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${p.email}</span></div>
+      <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${p.phone}</span></div>
+      <div class="detail-row"><span class="detail-label">Joined</span><span class="detail-value">${new Date(p.joinedAt).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</span></div>
+    </div>
+    <div class="modal-section"><h4>Professional Details</h4>
+      <div class="detail-row"><span class="detail-label">Role</span><span class="detail-value">${p.role}</span></div>
+      <div class="detail-row"><span class="detail-label">Experience</span><span class="detail-value">${p.experience}</span></div>
+      <div class="detail-row"><span class="detail-label">Qualification</span><span class="detail-value">${p.qualification}</span></div>
+      <div class="detail-row"><span class="detail-label">Council Reg. No.</span><span class="detail-value">${p.regNumber}</span></div>
+      <div class="detail-row"><span class="detail-label">Specialisations</span><span class="detail-value">${p.specialisations}</span></div>
+      <div class="detail-row"><span class="detail-label">Coverage Areas</span><span class="detail-value">${p.coverageAreas}</span></div>
+    </div>
+    <div class="modal-section"><h4>Workload & Performance</h4>
+      <div class="detail-row"><span class="detail-label">Current Patients</span><span class="detail-value">${p.patients} of ${p.capacity}</span></div>
+      <div class="detail-row"><span class="detail-label">Rating</span><span class="detail-value">${p.rating > 0 ? p.rating + ' ★' : 'No ratings yet'}</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${statusBadge(p.status)}</span></div>
+    </div>
+  `;
+  document.getElementById('viewModal').classList.add('open');
+}
+
+/* ================================================================
+   ONBOARD MODAL — STEP FLOW
+================================================================ */
+function openOnboard() {
+  onboardStep = 1;
+  updateOnboardUI();
+  // Reset fields
+  ['ob_first','ob_last','ob_email','ob_phone','ob_dob','ob_address','ob_qual','ob_reg','ob_specs','ob_areas','ob_notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ob_gender').selectedIndex = 0;
+  document.getElementById('ob_role').selectedIndex = 0;
+  document.getElementById('ob_exp').selectedIndex = 0;
+  document.getElementById('ob_capacity').value = '10';
+  document.getElementById('ob_emptype').selectedIndex = 0;
+  document.getElementById('ob_status').selectedIndex = 0;
+  document.getElementById('ob_password').value = 'DigiHealth@2026';
+  document.getElementById('onboardModal').classList.add('open');
+}
+
+function updateOnboardUI() {
+  document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + onboardStep).classList.add('active');
+
+  [1,2,3].forEach(n => {
+    const dot = document.getElementById('dot' + n);
+    dot.classList.remove('active','done');
+    if (n < onboardStep) dot.classList.add('done');
+    if (n === onboardStep) dot.classList.add('active');
+  });
+  [1,2].forEach(n => {
+    document.getElementById('line' + n).classList.toggle('done', n < onboardStep);
+  });
+
+  document.getElementById('onboardBackBtn').style.display = onboardStep > 1 ? 'inline-flex' : 'none';
+  document.getElementById('onboardNextBtn').textContent = onboardStep === 3 ? 'Onboard Personnel' : 'Continue';
+}
+
+function onboardBack() {
+  if (onboardStep > 1) { onboardStep--; updateOnboardUI(); }
+}
+
+function onboardNext() {
+  if (onboardStep === 1) {
+    const first = document.getElementById('ob_first').value.trim();
+    const last  = document.getElementById('ob_last').value.trim();
+    const email = document.getElementById('ob_email').value.trim();
+    const phone = document.getElementById('ob_phone').value.trim();
+    if (!first || !last || !email || !phone) { showToast('Please fill in all required fields.', false); return; }
+    onboardStep = 2;
+    updateOnboardUI();
+  } else if (onboardStep === 2) {
+    const role = document.getElementById('ob_role').value;
+    const exp  = document.getElementById('ob_exp').value;
+    const qual = document.getElementById('ob_qual').value.trim();
+    const areas = document.getElementById('ob_areas').value.trim();
+    if (!role || !exp || !qual || !areas) { showToast('Please fill in all required fields.', false); return; }
+    onboardStep = 3;
+    updateOnboardUI();
+  } else {
+    submitOnboard();
+  }
+}
+
+async function submitOnboard() {
+  const payload = {
+    fullName:        document.getElementById('ob_first').value.trim() + ' ' + document.getElementById('ob_last').value.trim(),
+    email:            document.getElementById('ob_email').value.trim(),
+    phone:            document.getElementById('ob_phone').value.trim(),
+    dob:              document.getElementById('ob_dob').value,
+    gender:           document.getElementById('ob_gender').value,
+    address:          document.getElementById('ob_address').value.trim(),
+    role:             document.getElementById('ob_role').value,
+    experience:       document.getElementById('ob_exp').value,
+    qualification:    document.getElementById('ob_qual').value.trim(),
+    regNumber:        document.getElementById('ob_reg').value.trim(),
+    capacity:         parseInt(document.getElementById('ob_capacity').value) || 10,
+    specialisations:  document.getElementById('ob_specs').value.trim(),
+    coverageAreas:    document.getElementById('ob_areas').value.trim(),
+    employmentType:   document.getElementById('ob_emptype').value,
+    status:           document.getElementById('ob_status').value,
+    password:         document.getElementById('ob_password').value,
+    notes:            document.getElementById('ob_notes').value.trim(),
+  };
+
+  const btn = document.getElementById('onboardNextBtn');
+  btn.textContent = 'Onboarding…'; btn.disabled = true;
+
+  if (USE_API) {
+    try {
+      const created = await apiFetch('/caregivers', { method: 'POST', body: JSON.stringify(payload) });
+      personnel.unshift({ ...created, patients: 0, rating: 0 });
+    } catch {
+      showToast('Failed to onboard. Try again.', false);
+      btn.textContent = 'Onboard Personnel'; btn.disabled = false;
+      return;
+    }
+  } else {
+    personnel.unshift({
+      id: Date.now(),
+      fullName: payload.fullName, email: payload.email, phone: payload.phone,
+      role: payload.role, experience: payload.experience, qualification: payload.qualification,
+      regNumber: payload.regNumber || '—', specialisations: payload.specialisations || 'General',
+      coverageAreas: payload.coverageAreas, patients: 0, capacity: payload.capacity,
+      rating: 0, status: payload.status, joinedAt: new Date().toISOString(),
+    });
+  }
+
+  btn.textContent = 'Onboard Personnel'; btn.disabled = false;
+  closeModal('onboardModal');
+  updateStats();
+  renderPersonnel();
+  showToast('✅ ' + payload.fullName + ' onboarded successfully! Credentials sent to ' + payload.email);
+}
+
+/* ── UTILS ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function showToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.querySelector('svg').style.display = ok ? 'block' : 'none';
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── INIT ── */
+loadPersonnel();
+
+/* ================================================================
+   SPRING BOOT ENDPOINT CONTRACT
+================================================================
+   GET  /api/caregivers              → personnel array
+   GET  /api/caregivers/:id          → single profile
+   POST /api/caregivers              → onboard new personnel → { id, fullName, email, ... }
+                                        backend should also email login credentials
+================================================================ */
+</script>
+</body>
+</html>
