@@ -42,7 +42,7 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <h1>Good morning, Nurse Blessing 👋</h1>
+      <h1>welcome, Nurse Blessing 👋</h1>
       <p>You have 3 visits scheduled today.</p>
     </div>
     <div class="topbar-right">
@@ -217,14 +217,441 @@
 </div>
 
 <script>
-  const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
-  if (!user.loggedIn || (user.role !== 'SERVICE_PROVIDER' && user.role !== 'CLINICAL_PERSONNEL')) {
-    window.location.href = 'login.html';
+/* ================================================================
+   API CONFIG — update API_BASE, set USE_API = true when ready
+================================================================ */
+const API_BASE = 'https://digihealth-2795.onrender.com/api';
+const USE_API  = true; // 🔧 Set false to use mock data
+
+async function apiFetch(path, options = {}) {
+  const u = JSON.parse(localStorage.getItem('dh_user') || '{}');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(u.token ? { Authorization: `Bearer ${u.token}` } : {}),
+    ...options.headers
+  };
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  if (res.status === 401) { localStorage.removeItem('dh_user'); window.location.href = '../../login.html'; }
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+/* ── AUTH ── */
+const user = JSON.parse(localStorage.getItem('dh_user') || '{}');
+if (!user.loggedIn) {
+  window.location.href = '../../login.html';
+}
+function logout() {
+  localStorage.removeItem('dh_user');
+  window.location.href = '../../login.html';
+}
+
+/* ================================================================
+   MOCK DATA — mirrors exact shape your backend should return
+================================================================ */
+const MOCK = {
+
+  stats: {
+    visitsToday:    3,
+    activePatients: 8,
+    totalVisits:    47,
+    monthEarnings:  84000,
+  },
+
+  schedule: [
+    {
+      id: 1,
+      time: '8:30',
+      period: 'AM',
+      duration: '1hr',
+      title: 'Post-Discharge Check',
+      patientName: 'Amara Osei',
+      serviceType: 'Post-Discharge Recovery',
+      location: 'Egbeda, Lagos',
+      status: 'IN_PROGRESS',
+    },
+    {
+      id: 2,
+      time: '11:00',
+      period: 'AM',
+      duration: '1.5hr',
+      title: 'Chronic Care Monitoring',
+      patientName: 'Emeka Nwachukwu',
+      serviceType: 'Chronic Care Management',
+      location: 'Surulere, Lagos',
+      status: 'UPCOMING',
+    },
+    {
+      id: 3,
+      time: '2:00',
+      period: 'PM',
+      duration: '1hr',
+      title: 'Elderly Care Visit',
+      patientName: 'Grace Okonkwo',
+      serviceType: 'Elderly Care Support',
+      location: 'Yaba, Lagos',
+      status: 'UPCOMING',
+    },
+  ],
+
+  availability: {
+    isAvailable: true,
+    schedule: 'Mon – Sat, 6AM – 6PM',
+    areas: 'Egbeda, Surulere, Yaba, Ikeja',
+  },
+
+  earnings: {
+    completedVisits: 21,
+    ratePerVisit:    4000,
+    bonuses:         0,
+    total:           84000,
+  },
+
+  patients: [
+    { id:1, initials:'AO', fullName:'Amara Osei',       serviceType:'Post-Discharge Recovery', nextVisit:'Today 8:30AM',    status:'ACTIVE' },
+    { id:2, initials:'EN', fullName:'Emeka Nwachukwu',  serviceType:'Chronic Care',            nextVisit:'Today 11:00AM',   status:'ACTIVE' },
+    { id:3, initials:'GO', fullName:'Grace Okonkwo',    serviceType:'Elderly Care',            nextVisit:'Today 2:00PM',    status:'ACTIVE' },
+    { id:4, initials:'FK', fullName:'Fatima Kabir',     serviceType:'Postnatal Care',          nextVisit:'Wed 29 Apr',      status:'ACTIVE' },
+    { id:5, initials:'TO', fullName:'Taiwo Oluwaseun',  serviceType:'Home Nursing',            nextVisit:'Thu 30 Apr',      status:'ACTIVE' },
+    { id:6, initials:'BI', fullName:'Bukola Ibrahim',   serviceType:'Wound Care',              nextVisit:'Fri 1 May',       status:'ACTIVE' },
+    { id:7, initials:'CU', fullName:'Chukwuemeka Uche', serviceType:'Chronic Care',            nextVisit:'Mon 4 May',       status:'ON_HOLD' },
+    { id:8, initials:'NA', fullName:'Ngozi Anyanwu',    serviceType:'Post-Surgery',            nextVisit:'Plan ending soon',status:'WRAPPING_UP' },
+  ],
+};
+
+/* ================================================================
+   LOAD ALL DASHBOARD DATA
+================================================================ */
+async function loadDashboard() {
+  if (!USE_API) {
+    renderGreeting(user);
+    renderStats(MOCK.stats);
+    renderSchedule(MOCK.schedule);
+    renderAvailability(MOCK.availability);
+    renderEarnings(MOCK.earnings);
+    renderPatients(MOCK.patients);
+    return;
   }
-  function logout() {
-    localStorage.removeItem('dh_user');
-    window.location.href = '../../login.html';
+
+  // Each section loads independently — one 500 doesn't blank the page
+  const [statsRes, scheduleRes, availRes, earningsRes, patientsRes] = await Promise.allSettled([
+    apiFetch('/caregivers/me/dashboard'),
+    apiFetch('/caregivers/me/schedule/today'),
+    apiFetch('/caregivers/me/availability/status'),
+    apiFetch('/caregivers/me/earnings/summary'),
+    apiFetch('/caregivers/me/patients'),
+  ]);
+
+  renderGreeting(user);
+
+  if (statsRes.status === 'fulfilled') {
+    renderStats(statsRes.value);
+  } else {
+    console.warn('Stats failed:', statsRes.reason);
+    renderStats(MOCK.stats);
   }
+
+  if (scheduleRes.status === 'fulfilled') {
+    renderSchedule(scheduleRes.value);
+  } else {
+    console.warn('Schedule failed:', scheduleRes.reason);
+    renderSchedule(MOCK.schedule);
+  }
+
+  if (availRes.status === 'fulfilled') {
+    renderAvailability(availRes.value);
+  } else {
+    console.warn('Availability failed:', availRes.reason);
+    renderAvailability(MOCK.availability);
+  }
+
+  if (earningsRes.status === 'fulfilled') {
+    renderEarnings(earningsRes.value);
+  } else {
+    console.warn('Earnings failed:', earningsRes.reason);
+    renderEarnings(MOCK.earnings);
+  }
+
+  if (patientsRes.status === 'fulfilled') {
+    renderPatients(patientsRes.value);
+  } else {
+    console.warn('Patients failed:', patientsRes.reason);
+    renderPatients(MOCK.patients);
+  }
+}
+
+/* ================================================================
+   RENDER FUNCTIONS
+================================================================ */
+
+/* ── GREETING ── */
+// function renderGreeting(u) {
+//   const name      = u.fullName || u.name || 'Nurse';
+//   const firstName = name.split(' ')[0];
+//   const hour      = new Date().getHours();
+//   const greeting  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+//   const h1 = document.querySelector('.topbar-left h1');
+//   const av = document.querySelector('.user-avatar');
+//   const chip = document.querySelector('.user-chip span');
+
+//   if (h1) h1.textContent = `${greeting}, ${firstName} 👋`;
+//   if (av) av.textContent = firstName.slice(0, 2).toUpperCase();
+//   if (chip) chip.textContent = firstName;
+// }
+
+/* ── STATS ── */
+function renderStats(s) {
+  if (!s) return;
+
+  // ✅ Defensive: backend may use different field names
+  const visitsToday    = s.visitsToday    ?? s.todayVisits     ?? MOCK.stats.visitsToday;
+  const activePatients = s.activePatients ?? s.patients        ?? MOCK.stats.activePatients;
+  const totalVisits    = s.totalVisits    ?? s.visitsCompleted ?? MOCK.stats.totalVisits;
+  const monthEarnings  = s.monthEarnings  ?? s.thisMonthEarnings ?? MOCK.stats.monthEarnings;
+
+  const els = {
+    visitsToday:    document.querySelectorAll('.stat-value')[0],
+    activePatients: document.querySelectorAll('.stat-value')[1],
+    totalVisits:    document.querySelectorAll('.stat-value')[2],
+    monthEarnings:  document.querySelectorAll('.stat-value')[3],
+  };
+
+  if (els.visitsToday)    els.visitsToday.textContent    = visitsToday;
+  if (els.activePatients) els.activePatients.textContent = activePatients;
+  if (els.totalVisits)    els.totalVisits.textContent    = totalVisits;
+  if (els.monthEarnings)  els.monthEarnings.textContent  = '₦' + Number(monthEarnings).toLocaleString();
+
+  // Update topbar subtitle
+  const sub = document.querySelector('.topbar-left p');
+  if (sub) sub.textContent = `You have ${visitsToday} visit${visitsToday !== 1 ? 's' : ''} scheduled today.`;
+}
+
+/* ── TODAY'S SCHEDULE ── */
+function renderSchedule(data) {
+  if (!Array.isArray(data) || !data.length) return;
+
+  const container = document.querySelector('.card-body');
+  if (!container) return;
+
+  // Find the schedule card (first card body — the one with schedule items)
+  const scheduleCard = Array.from(document.querySelectorAll('.card')).find(c =>
+    c.querySelector('.card-header h3')?.textContent.includes('Schedule')
+  );
+  if (!scheduleCard) return;
+
+  const body = scheduleCard.querySelector('.card-body');
+  if (!body) return;
+
+  // Update header date
+  const header = scheduleCard.querySelector('.card-header h3');
+  if (header) {
+    const today = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    header.textContent = 'Today\'s Schedule — ' + today;
+  }
+
+  const statusConfig = {
+    IN_PROGRESS: { cls: 'badge-active',   label: 'In Progress', lineActive: true  },
+    UPCOMING:    { cls: 'badge-pending',   label: 'Upcoming',    lineActive: false },
+    COMPLETED:   { cls: 'badge-done',      label: 'Completed',   lineActive: false },
+    CANCELLED:   { cls: 'badge-cancelled', label: 'Cancelled',   lineActive: false },
+  };
+
+  body.innerHTML = data.map(v => {
+    // ✅ Defensive: backend may use different field names
+    const time       = v.time         || (v.scheduledTime ? v.scheduledTime.split(':').slice(0,2).join(':') : '—');
+    const period     = v.period       || '';
+    const duration   = v.duration     || v.durationMins ? (v.durationMins + 'min') : '';
+    const title      = v.title        || v.visitType  || v.serviceType || 'Visit';
+    const patient    = v.patientName  || v.patient    || '—';
+    const service    = v.serviceType  || v.service    || '';
+    const location   = v.location     || v.locationArea || '—';
+    const status     = v.status       || 'UPCOMING';
+    const cfg        = statusConfig[status] || statusConfig.UPCOMING;
+
+    return `
+    <div class="schedule-item">
+      <div class="s-time">
+        <div class="time-val">${time}</div>
+        <div class="time-dur">${period}${period && duration ? ' · ' : ''}${duration}</div>
+      </div>
+      <div class="s-line${cfg.lineActive ? ' active' : ''}"></div>
+      <div class="s-info">
+        <h4>${title}</h4>
+        <div class="s-patient">${patient}${service ? ' · ' + service : ''}</div>
+        <div class="s-location">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${location}
+        </div>
+      </div>
+      <span class="status-badge ${cfg.cls}">${cfg.label}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── AVAILABILITY ── */
+async function renderAvailability(data) {
+  if (!data) return;
+
+  // ✅ Defensive field mapping
+  const isAvailable = data.isAvailable ?? data.available ?? true;
+  const schedule    = data.schedule    || data.workingHours || 'Mon – Sat, 6AM – 6PM';
+  const areas       = Array.isArray(data.areas)
+    ? data.areas.join(', ')
+    : (data.areas || data.coverageAreas || 'Not set');
+
+  const toggle = document.querySelector('.toggle-switch input');
+  if (toggle) toggle.checked = isAvailable;
+
+  const infoEl = document.querySelector('.card-body .avail-toggle + div');
+  if (infoEl) infoEl.innerHTML = `<div>📅 ${schedule}</div><div>📍 ${areas}</div>`;
+}
+
+/* ── EARNINGS ── */
+function renderEarnings(data) {
+  if (!data) return;
+
+  // ✅ Defensive field mapping
+  const completed    = data.completedVisits  ?? data.visitsThisMonth     ?? MOCK.earnings.completedVisits;
+  const ratePerVisit = data.ratePerVisit     ?? data.earningPerVisit     ?? MOCK.earnings.ratePerVisit;
+  const bonuses      = data.bonuses          ?? data.bonusAmount         ?? 0;
+  const total        = data.total            ?? data.thisMonthEarnings   ?? data.monthEarnings ?? MOCK.earnings.total;
+
+  const earningsCard = Array.from(document.querySelectorAll('.card')).find(c =>
+    c.querySelector('.card-header h3')?.textContent.includes('Earnings')
+  );
+  if (!earningsCard) return;
+
+  const rows = earningsCard.querySelectorAll('.earn-val');
+  if (rows[0]) rows[0].textContent = completed;
+  if (rows[1]) rows[1].textContent = '₦' + Number(ratePerVisit).toLocaleString();
+  if (rows[2]) rows[2].textContent = (bonuses >= 0 ? '+' : '') + '₦' + Number(bonuses).toLocaleString();
+  if (rows[3]) rows[3].textContent = '₦' + Number(total).toLocaleString();
+
+  // Keep the 4th stat card in sync too
+  const statEl = document.querySelectorAll('.stat-value')[3];
+  if (statEl) statEl.textContent = '₦' + (total >= 1000 ? Math.round(total/1000) + 'k' : total);
+}
+
+/* ── PATIENTS ── */
+function renderPatients(data) {
+  if (!Array.isArray(data) || !data.length) return;
+
+  const patientsCard = Array.from(document.querySelectorAll('.card')).find(c =>
+    c.querySelector('.card-header h3')?.textContent.includes('Patients')
+  );
+  if (!patientsCard) return;
+
+  const grid = patientsCard.querySelector('[style*="grid-template-columns"]');
+  if (!grid) return;
+
+  const statusConfig = {
+    ACTIVE:      { cls: 'badge-active',   label: 'Active' },
+    ON_HOLD:     { cls: 'badge-pending',  label: 'On Hold' },
+    WRAPPING_UP: { cls: 'badge-done',     label: 'Wrapping Up' },
+    COMPLETED:   { cls: 'badge-done',     label: 'Completed' },
+    INACTIVE:    { cls: 'badge-inactive', label: 'Inactive' },
+  };
+
+  // Split into two columns
+  const half = Math.ceil(data.length / 2);
+  const col1 = data.slice(0, half);
+  const col2 = data.slice(half);
+
+  function renderColumn(patients) {
+    return patients.map(p => {
+      // ✅ Defensive field mapping
+      const fullName    = p.fullName    || p.name        || '—';
+      const serviceType = p.serviceType || p.service     || '—';
+      const nextVisit   = p.nextVisit   || p.nextVisitAt || '—';
+      const status      = p.status      || 'ACTIVE';
+      const initials    = p.initials    || fullName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+      const cfg         = statusConfig[status] || statusConfig.ACTIVE;
+
+      return `
+      <div class="patient-item">
+        <div class="p-avatar">${initials}</div>
+        <div class="p-info">
+          <h4>${fullName}</h4>
+          <p>${serviceType} · Next: ${nextVisit}</p>
+        </div>
+        <span class="status-badge ${cfg.cls}">${cfg.label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const cols = grid.querySelectorAll('div');
+  if (cols[0]) cols[0].innerHTML = renderColumn(col1);
+  if (cols[1]) cols[1].innerHTML = renderColumn(col2);
+}
+
+/* ================================================================
+   AVAILABILITY TOGGLE
+================================================================ */
+document.addEventListener('change', async e => {
+  if (!e.target.closest('.toggle-switch')) return;
+  const isAvailable = e.target.checked;
+
+  if (USE_API) {
+    try {
+      await apiFetch('/caregivers/me/availability/status', {
+        method: 'PUT',
+        body: JSON.stringify({ isAvailable }),
+      });
+      showToast(isAvailable ? '✅ You are now available for assignments.' : 'You are now unavailable.');
+    } catch {
+      showToast('Failed to update availability.', false);
+      e.target.checked = !isAvailable; // revert toggle on failure
+    }
+  } else {
+    showToast(isAvailable ? '✅ You are now available.' : 'You are now unavailable.');
+  }
+});
+
+/* ================================================================
+   TOAST
+================================================================ */
+function showToast(msg, ok = true) {
+  let toast = document.getElementById('sp-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'sp-toast';
+    toast.style.cssText = [
+      'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
+      'background:#1a2550', 'color:#fff', 'padding:10px 22px', 'border-radius:8px',
+      'font-size:13px', 'font-weight:600', 'z-index:400', 'opacity:0',
+      'transition:opacity .3s', 'pointer-events:none', 'white-space:nowrap',
+      'display:flex', 'align-items:center', 'gap:8px', 'font-family:DM Sans,sans-serif',
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+
+  const icon = ok ? '✅ ' : '⚠️ ';
+  toast.textContent = icon + msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2800);
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+loadDashboard();
+
+// Auto-refresh every 60 seconds (keeps schedule & stats current)
+setInterval(loadDashboard, 60000);
+
+/* ================================================================
+   SPRING BOOT ENDPOINT CONTRACT
+================================================================
+   GET  /api/caregivers/me/dashboard          → stats shape above
+   GET  /api/caregivers/me/schedule/today     → schedule array
+   GET  /api/caregivers/me/availability/status → { isAvailable, schedule, areas }
+   PUT  /api/caregivers/me/availability/status → { isAvailable } → 200 OK
+   GET  /api/caregivers/me/earnings/summary   → earnings shape above
+   GET  /api/caregivers/me/patients           → patients array
+================================================================ */
 </script>
 </body>
 </html>
